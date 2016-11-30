@@ -3,28 +3,10 @@ import DynamicConfig from './DynamicConfig.jsx'
 
 class ServerCtl extends React.Component {
     constructor(props) {
-        super(props);
-        this.startServer = this.startServer.bind(this);
-        this.stopServer = this.stopServer.bind(this);
+        super(props)
 
-        this.incrementAutosave = this.incrementAutosave.bind(this);
-        this.decrementAutosave = this.decrementAutosave.bind(this);
-
-        this.incrementAutosaveSlots = this.incrementAutosaveSlots.bind(this);
-        this.decrementAutosaveSlots = this.decrementAutosaveSlots.bind(this);
-
-        this.incrementPort = this.incrementPort.bind(this);
-        this.decrementPort = this.decrementPort.bind(this);
-        
-        this.incrementLatency = this.incrementLatency.bind(this);
-        this.decrementLatency = this.decrementLatency.bind(this);
-
-        this.toggleAllowCmd = this.toggleAllowCmd.bind(this);
-        this.toggleP2P = this.toggleP2P.bind(this);
-        this.toggleAutoPause = this.toggleAutoPause.bind(this);
-
-        var selectedConfig = null;
-        var selectedConfigName = null;
+        var selectedConfig = null
+        var selectedConfigName = null
         if (this.props.serverConfigs != null &&
             Object.keys(this.props.serverConfigs).length > 0) {
 
@@ -34,22 +16,23 @@ class ServerCtl extends React.Component {
         }
 
         this.state = {
-            savefile: "",
-            latency: 100,
-            autosaveInterval: 5,
-            autosaveSlots: 10,
-            port: 34197,
-            disallowCmd: false,
-            peer2peer: false,
-            autoPause: false,
+            serverPrefix: "csgo-server-",
+            serverPassword: "",
+            numberOfServers: 10,
 
             selectedConfigName: selectedConfigName,
             selectedConfig: selectedConfig,
         }
+
+        this.changeServerPrefix = this.changeServerPrefix.bind(this)
+        this.changeServerPassword = this.changeServerPassword.bind(this)
+        this.changeNumberOfServers = this.changeNumberOfServers.bind(this)
+        this.increaseNumberOfServers = this.increaseNumberOfServers.bind(this)
+        this.decreaseNumberOfServers = this.decreaseNumberOfServers.bind(this)
     }
 
     startServer(e) {
-        e.preventDefault();
+        e.preventDefault()
         let serverSettings = {
             savefile: this.refs.savefile.value,
             latency: Number(this.refs.latency.value), 
@@ -98,63 +81,8 @@ class ServerCtl extends React.Component {
                 console.log(resp)
                 swal(resp.data)
             }
-        });
-        e.preventDefault();
-    }
-
-    incrementAutosave() {
-        let saveInterval = this.state.autosaveInterval + 1;
-        this.setState({autosaveInterval: saveInterval})
-    }
-
-    decrementAutosave() {
-        let saveInterval = this.state.autosaveInterval - 1;
-        this.setState({autosaveInterval: saveInterval})
-    }
-
-    incrementAutosaveSlots() {
-        let saveSlots = this.state.autosaveSlots + 1;
-        this.setState({autosaveSlots: saveSlots})
-    }
-
-    decrementAutosaveSlots() {
-        let saveSlots = this.state.autosaveSlots - 1;
-        this.setState({autosaveSlots: saveSlots})
-    }
-
-    incrementPort() {
-        let port = this.state.port + 1;
-        this.setState({port: port})
-    }
-
-    decrementPort() {
-        let port = this.state.port - 1;
-        this.setState({port: port})
-    }
-    
-    incrementLatency() {
-        let latency = this.state.latency + 1;
-        this.setState({latency: latency})
-    }
-
-    decrementLatency() {
-        let latency= this.state.latency- 1;
-        this.setState({latency: latency})
-    }
-
-    toggleAllowCmd() {
-        let cmd = !this.state.disallowCmd
-        this.setState({disallowCmd: cmd})
-    }
-
-    toggleP2P() {
-        let p2p = !this.state.peer2peer;
-        this.setState({peer2peer: p2p})
-    }
-
-    toggleAutoPause() {
-        let pause = !this.state.autoPause;
-        this.setState({autoPause: pause})
+        })
+        e.preventDefault()
     }
 
     componentWillReceiveProps(nextProps) {
@@ -171,12 +99,42 @@ class ServerCtl extends React.Component {
         }
     }
 
+    changeServerPrefix(e) {
+        this.setState({
+            serverPrefix: e.target.value
+        })
+    }
+
+    changeServerPassword(e) {
+        this.setState({
+            serverPassword: e.target.value
+        })
+    }
+
+    changeNumberOfServers(e) {
+        this.setState({
+            numberOfServers: parseInt(e.target.value)
+        })
+    }
+
+    increaseNumberOfServers() {
+        this.setState({
+            numberOfServers: this.state.numberOfServers + 1
+        })
+    }
+
+    decreaseNumberOfServers() {
+        this.setState({
+            numberOfServers: this.state.numberOfServers - 1
+        })
+    }
+
     render() {
         var files = []
 
         for(var i in this.props.serverConfigs) {
-            var config = this.props.serverConfigs[i]; 
-            files.push(<option key={i} value={i}>{i}</option>);   
+            var config = this.props.serverConfigs[i]
+            files.push(<option key={i} value={i}>{i}</option>)
         }
 
         return(
@@ -191,15 +149,39 @@ class ServerCtl extends React.Component {
                         <div className="form-group">
                             <div className="row">
                                 <div className="col-md-4">
-                                    <button className="btn btn-block btn-success" type="submit"><i className="fa fa-play fa-fw"></i>Start Factorio Server</button>
+                                    <button className="btn btn-block btn-success" type="submit"><i className="fa fa-play fa-fw"></i>Start CS:GO Servers</button>
                                 </div>
                                 
                                 <div className="col-md-4">
-                                    <button className="btn btn-block btn-danger" type="button" onClick={this.stopServer}><i className="fa fa-stop fa-fw"></i>Stop Factorio Server</button>
+                                    <button className="btn btn-block btn-danger" type="button" onClick={this.stopServer}><i className="fa fa-stop fa-fw"></i>Stop CS:GO Servers</button>
                                 </div>
                             </div>
 
                             <hr />
+
+                            <label>Azure Server Name Prefix</label>
+                            <div className="input-group">
+                                <input ref="serverName" name="serverName" type="text" className="form-control" onChange={this.changeServerPrefix} value={this.state.serverPrefix} />
+                            </div>
+
+                            <label>Azure VM Password</label>
+                            <div className="input-group">
+                                <input ref="vmPassword" name="vmPassword" type="Password" className="form-control" onChange={this.changeServerPassword} value={this.state.serverPassword} />
+                            </div>
+
+                            <label>Number of Servers</label>
+                            <div className="input-group">
+                                <input name="numberOfServers" type="text" className="form-control" onChange={this.changeNumberOfServers} value={this.state.numberOfServers} />
+                                <div className="input-group-btn">
+                                    <button type="button" className="btn btn-primary" onClick={this.increaseNumberOfServers}>
+                                        <i className="fa fa-arrow-up"></i>
+                                    </button>
+                                    <button type="button" className="btn btn-primary" onClick={this.decreaseNumberOfServers}>
+                                        <i className="fa fa-arrow-down"></i>
+                                    </button>
+                                </div>
+                            </div>
+
                             <label>Select Config File</label>
                             <select ref="savefile" className="form-control" onChange={this.changeConfig}>
                                 {files}
@@ -209,7 +191,7 @@ class ServerCtl extends React.Component {
                         <div className="box box-success collapsed-box">
                             <button type="button" className="btn btn-box-tool" data-widget="collapse" disabled={this.selectedConfig}>
                                 <div className="box-header with-border">
-                                <i className="fa fa-plus fa-fw"></i><h4 className="box-title">Advanced</h4>
+                                <i className="fa fa-plus fa-fw"></i><h4 className="box-title">Advanced Server Config</h4>
                                 </div>
                             </button>
                             <div className="box-body" style={{display: "none"}}>

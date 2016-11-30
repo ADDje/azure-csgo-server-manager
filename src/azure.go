@@ -16,6 +16,8 @@ func getServers(config Config) (*[]resources.GenericResource, error) {
 		"AZURE_TENANT_ID":       config.AzureTenantID,
 	}
 
+	log.Print(c)
+
 	spt, err := newServicePrincipalTokenFromCredentials(c, azure.PublicCloud.ResourceManagerEndpoint)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
@@ -26,7 +28,7 @@ func getServers(config Config) (*[]resources.GenericResource, error) {
 
 	client.Authorizer = spt
 
-	results, err := client.List(config.ResourceGroup, "", nil)
+	results, err := client.List("resourceGroup eq '"+config.ResourceGroup+"' and resourceType eq 'Microsoft.Compute/virtualMachines'", "", nil)
 
 	if err != nil {
 		log.Printf("Error in azure getServers: %s", err)

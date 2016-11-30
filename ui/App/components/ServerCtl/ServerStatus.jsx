@@ -21,8 +21,24 @@ class ServerStatus extends React.Component {
     }
 
     render() {
-        console.log("Server Info:");
-        console.log(this.azureServerStatus);
+
+        var keys = Object.keys(this.props.azureServerStatus)
+        
+        var content = null
+        if (keys.length > 0) {
+            content = keys.map(function(key) {
+                return(
+                    <tr key={key}>
+                        <td>key</td>
+                        <td>{this.formatServerStatus(this.props.serverStatus[key])}</td>
+                    </tr>
+                )                                                  
+            }, this);
+        } else {
+            content = <tr><td colSpan="2" className="text-center">No Servers Found</td></tr>
+        }
+        
+
         return(
             <div className="box">
                 <div className="box-header">
@@ -39,14 +55,7 @@ class ServerStatus extends React.Component {
                             </tr>
                         </thead>
                         <tbody>
-                            {Object.keys(this.props.azureServerStatus).map(function(key) {
-                                return(
-                                    <tr key={key}>
-                                        <td>key</td>
-                                        <td>{this.formatServerStatus(this.props.serverStatus[key])}</td>
-                                    </tr>
-                                )                                                  
-                            }, this)}        
+                            {content}
                         </tbody>
                     </table>
                     </div>

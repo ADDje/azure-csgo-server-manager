@@ -13,7 +13,7 @@ type Config struct {
 	AzureClientID       string `json:"azure_client_id"`
 	AzureClientSecret   string `json:"azure_client_secret"`
 	AzureSubscriptionID string `json:"azure_subscription_id"`
-	AzureTenantID       string `json:"azure_tentant_id"`
+	AzureTenantID       string `json:"azure_tenant_id"`
 	ResourceGroup       string `json:"resource_group"`
 	ServerIP            string `json:"server_ip"`
 	ServerPort          string `json:"server_port"`
