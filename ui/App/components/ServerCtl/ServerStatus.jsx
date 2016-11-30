@@ -12,7 +12,7 @@ class ServerStatus extends React.Component {
         if (serverStatus === "running") {
             result = <span className="label label-success">Running</span>
             return result
-        } else if (serverStatus == "stopped") {
+        } else if (serverStatus === "stopped") {
             result = <span className="label label-danger">Not Running</span>
             return result
         } 
@@ -25,19 +25,25 @@ class ServerStatus extends React.Component {
         var keys = Object.keys(this.props.azureServerStatus)
         
         var content = null
+        var stop = null;
         if (keys.length > 0) {
             content = keys.map(function(key) {
                 return(
                     <tr key={key}>
+                        <td></td>
                         <td>key</td>
                         <td>{this.formatServerStatus(this.props.serverStatus[key])}</td>
                     </tr>
                 )                                                  
             }, this);
+
+            stop = <div className="col-md-4">
+                <button className="btn btn-block btn-danger" type="button" onClick={this.stopServer}><i className="fa fa-stop fa-fw"></i>Stop CS:GO Servers</button>
+            </div>
         } else {
-            content = <tr><td colSpan="2" className="text-center">No Servers Found</td></tr>
+            content = <tr><td colSpan="3" className="text-center">No Servers Found</td></tr>
         }
-        
+
 
         return(
             <div className="box">
@@ -47,17 +53,19 @@ class ServerStatus extends React.Component {
                 
                 <div className="box-body">
                     <div className="table-responsive">
-                    <table className="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {content}
-                        </tbody>
-                    </table>
+                        <table className="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th width="10%"></th>
+                                    <th>Name</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {content}
+                            </tbody>
+                        </table>
+                        {stop}
                     </div>
                 </div>
             </div>

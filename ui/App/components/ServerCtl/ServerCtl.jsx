@@ -151,10 +151,6 @@ class ServerCtl extends React.Component {
                                 <div className="col-md-4">
                                     <button className="btn btn-block btn-success" type="submit"><i className="fa fa-play fa-fw"></i>Start CS:GO Servers</button>
                                 </div>
-                                
-                                <div className="col-md-4">
-                                    <button className="btn btn-block btn-danger" type="button" onClick={this.stopServer}><i className="fa fa-stop fa-fw"></i>Stop CS:GO Servers</button>
-                                </div>
                             </div>
 
                             <hr />
