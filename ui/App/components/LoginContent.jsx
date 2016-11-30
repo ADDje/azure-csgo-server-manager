@@ -42,8 +42,8 @@ class LoginContent extends React.Component {
                                 <div className="center-block">
                                     <section className="content-header">
                                     <h1>
-                                        Factorio Server Manager
-                                        <small>Login to manage Factorio</small>
+                                        CS:GO Server Manager
+                                        <small>Login to manage CS:GO Servers</small>
                                     </h1>
                                     </section>
 
@@ -60,7 +60,7 @@ class LoginContent extends React.Component {
                                                     <input type="password" ref="password" className="form-control" placeholder="Password" />
                                                     <span className="fa fa-lock form-control-feedback"></span>
                                                 </div>
-                                                <div className="row">
+                                                {/*<div className="row">
                                                     <div className="col-xs-8">
                                                         <div className="checkbox">
                                                             <label className="">
@@ -70,7 +70,7 @@ class LoginContent extends React.Component {
                                                             </label>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </div>*/}
                                                 <div className="row">
                                                     <div className="col-xs-4">
                                                         <button type="submit" className="btn btn-primary btn-block btn-flat">Sign In</button>
@@ -78,7 +78,7 @@ class LoginContent extends React.Component {
                                                 </div>
                                             </form>
 
-                                            <a href="#">I forgot my password</a><br />
+                                            {/*<a href="#">I forgot my password</a><br />*/}
                                         </div>       
                                     </div>
                                     </section>

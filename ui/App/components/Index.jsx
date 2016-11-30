@@ -10,14 +10,13 @@ class Index extends React.Component {
     }
 
     componentDidMount() {
-        this.props.facServStatus();
-        this.props.getSaves();
+        this.props.getServStatus();
+        this.props.getConfigs();
         this.props.getStatus();
-        console.log(this.props.serverStatus);
     }
 
     componentWillUnmount() {
-        this.props.facServStatus();
+        this.props.getServStatus();
     }
 
     render() {
@@ -25,8 +24,8 @@ class Index extends React.Component {
             <div className="content-wrapper" style={{height: "100%"}}>
                 <section className="content-header" style={{height: "100%"}}>
                 <h1>
-                    Factorio Server
-                    <small>Control your Factorio server</small>
+                    Azure CS:GO Server Manager
+                    <small>Control your Azure CS:GO Servers</small>
                 </h1>
                 <ol className="breadcrumb">
                     <li><IndexLink to="/"><i className="fa fa-dashboard"></i>Server Control</IndexLink></li>
@@ -36,17 +35,14 @@ class Index extends React.Component {
                 <section className="content">
 
                 <ServerStatus 
-                    serverStatus={this.props.serverStatus}
-                    facServStatus={this.props.facServStatus}
-                    getStatus={this.props.getStatus}
+                    azureServerStatus={this.props.azureServerStatus}
                 />
 
                 <ServerCtl 
+                    azureServerStatus={this.props.azureServerStatus}
+                    serverConfigs={this.props.serverConfigs}
+                    getConfig={this.props.getConfig}
                     getStatus={this.props.getStatus}
-                    saves={this.props.saves}
-                    getSaves={this.props.getSaves}
-                    serverStatus={this.props.serverStatus}
-                    facServStatus={this.props.facServStatus}
                 />
 
 

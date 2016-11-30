@@ -4,19 +4,22 @@ import Header from './components/Header.jsx';
 import Sidebar from './components/Sidebar.jsx';
 import Footer from './components/Footer.jsx';
 import HiddenSidebar from './components/HiddenSidebar.jsx';
+import update from 'immutability-helper';
+
 
 class App extends React.Component {
     constructor(props) {
         super(props);
         this.checkLogin = this.checkLogin.bind(this);
         this.flashMessage = this.flashMessage.bind(this);
-        this.facServStatus = this.facServStatus.bind(this);
-        this.getSaves = this.getSaves.bind(this);
+        this.getServStatus = this.getServStatus.bind(this);
+        this.getConfigs = this.getConfigs.bind(this);
+        this.getConfig = this.getConfig.bind(this)
         this.getStatus = this.getStatus.bind(this);
         this.state = {
             serverRunning: "stopped",
-            serverStatus: {},
-            saves: [],
+            azureServerStatus: [],
+            configs: {},
             loggedIn: false,
             username: "",
             messages: [],
@@ -53,7 +56,7 @@ class App extends React.Component {
         })
     }
 
-    facServStatus() {
+    getServStatus() {
         $.ajax({
             url: "/api/server/status",
             dataType: "json",
@@ -63,33 +66,53 @@ class App extends React.Component {
         })
     }
 
-    getSaves() {
+    getConfigs() {
         $.ajax({
-            url: "/api/saves/list",
+            url: "/api/config/list",
             dataType: "json",
             success: (data) => {
                 if (data.success === true) {
-                    this.setState({saves: data.data})
+                    this.setState({configs: data.data})
                 } else {
-                    this.setState({saves: []})
+                    this.setState({configs: []})
                 }
             },
             error: (xhr, status, err) => {
-                console.log('api/saves/list', status, err.toString());
+                console.log('api/config/list', status, err.toString());
             }
         })
+    }
 
-        if (!this.state.saves) {
-            this.setState({saves:[]})
-        }
+    getConfig(name) {
+        $.ajax({
+            url: "/api/config/get/" + name,
+            dataType: "json",
+            success: (data) => {
+                var config = {}
+
+                if (data.success === true) {
+                    config = data.data
+                }
+
+                var o = {}
+                o[name] = {$set: config}
+
+                var configs = update(this.state.configs, o)
+
+                this.setState({configs: configs})
+            },
+            error: (xhr, status, err) => {
+                console.log('api/config/get/' + name, status, err.toString());
+            }
+        })
     }
 
     getStatus() {
         $.ajax({
-            url: "/api/server/status",
+            url: "/api/azure/servers/getall",
             dataType: "json",
             success: (data) => {
-                this.setState({serverStatus: data.data})
+                this.setState({azureServerStatus: data.data})
             },
             error: (xhr, status, err) => {
                 console.log('api/server/status', status, err.toString());
@@ -112,8 +135,7 @@ class App extends React.Component {
                     />
 
                     <Sidebar 
-                        serverStatus={this.facServStatus}
-                        serverRunning={this.state.serverRunning}
+                        azureServerStatus={this.state.azureServerStatus}
                     />
                     
                     // Render react-router components and pass in props
@@ -122,18 +144,19 @@ class App extends React.Component {
                         {message: "",
                         messages: this.state.messages,
                         flashMessage: this.flashMessage,
-                        facServStatus: this.facServStatus,
-                        serverStatus: this.state.serverStatus,
+                        azureServerStatus: this.state.azureServerStatus,
                         getStatus: this.getStatus,
-                        saves: this.state.saves,
-                        getSaves: this.getSaves,
-                        username: this.state.username}
+                        serverConfigs: this.state.configs,
+                        getConfigs: this.getConfigs,
+                        getConfig: this.getConfig,
+                        username: this.state.username,
+                        getServStatus: this.getServStatus,}
                     )}
 
                     <Footer />
 
                     <HiddenSidebar 
-                        serverStatus={this.state.serverStatus}
+                        azureServerStatus={this.state.azureServerStatus}
                         username={this.state.username}
                         loggedIn={this.state.loggedIn}
                         checkLogin={this.checkLogin}

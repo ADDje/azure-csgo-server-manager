@@ -9,10 +9,10 @@ class Sidebar extends React.Component {
     render() {
         if (this.props.serverRunning === "running") {
             var serverStatus = 
-                <IndexLink to="/"><i className="fa fa-circle text-success"></i>Server Online</IndexLink>
+                <IndexLink to="/"><i className="fa fa-circle text-success"></i>Servers Online</IndexLink>
         } else {
             var serverStatus = 
-                <IndexLink to="/"><i className="fa fa-circle text-danger"></i>Server Offline</IndexLink>
+                <IndexLink to="/"><i className="fa fa-circle text-danger"></i>Servers Offline</IndexLink>
         }
 
         return(
@@ -59,8 +59,7 @@ class Sidebar extends React.Component {
 }
 
 Sidebar.propTypes = {
-    serverStatus: React.PropTypes.func.isRequired,
-    serverRunning: React.PropTypes.string.isRequired,
+    
 }
 
 export default Sidebar

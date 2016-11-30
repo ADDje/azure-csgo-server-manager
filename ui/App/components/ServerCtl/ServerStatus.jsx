@@ -6,10 +6,6 @@ class ServerStatus extends React.Component {
         this.formatServerStatus = this.formatServerStatus.bind(this)
     }
 
-    capitalizeFirstLetter(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    }
-
     formatServerStatus(serverStatus) {
         var result = {}
 
@@ -25,6 +21,8 @@ class ServerStatus extends React.Component {
     }
 
     render() {
+        console.log("Server Info:");
+        console.log(this.azureServerStatus);
         return(
             <div className="box">
                 <div className="box-header">
@@ -41,10 +39,10 @@ class ServerStatus extends React.Component {
                             </tr>
                         </thead>
                         <tbody>
-                            {Object.keys(this.props.serverStatus).map(function(key) {
+                            {Object.keys(this.props.azureServerStatus).map(function(key) {
                                 return(
                                     <tr key={key}>
-                                        <td>{this.capitalizeFirstLetter(key)}</td>
+                                        <td>key</td>
                                         <td>{this.formatServerStatus(this.props.serverStatus[key])}</td>
                                     </tr>
                                 )                                                  
@@ -59,7 +57,7 @@ class ServerStatus extends React.Component {
 }
 
 ServerStatus.propTypes = {
-    serverStatus: React.PropTypes.object.isRequired,
+    azureServerStatus: React.PropTypes.array.isRequired,
 }
 
 

@@ -4,5 +4,7 @@ factorio-server-manager
 auth.leveldb*
 conf.json
 *.exe
-build/
-npm-debug.log
+.vscode
+src/glide.lock
+src/debug*
+src/vendor

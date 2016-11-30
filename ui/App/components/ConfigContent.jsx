@@ -9,8 +9,6 @@ class ConfigContent extends React.Component {
         this.getServerSettings = this.getServerSettings.bind(this);
         this.updateServerSettings = this.updateServerSettings.bind(this);
         this.handleServerSettingsChange = this.handleServerSettingsChange.bind(this);
-        this.formTypeField = this.formTypeField.bind(this);
-        this.capitalizeFirstLetter = this.capitalizeFirstLetter.bind(this)
         this.state = {
             config: {},
             serverSettings: {}
@@ -20,10 +18,6 @@ class ConfigContent extends React.Component {
     componentDidMount() {
         this.getConfig();
         this.getServerSettings();
-    }
-    
-    capitalizeFirstLetter(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
     }
 
     handleServerSettingsChange(name, e) {
@@ -55,7 +49,6 @@ class ConfigContent extends React.Component {
             success: (resp) => {
                 if (resp.success === true) {
                     this.setState({serverSettings: resp.data})
-                    console.log(this.state)
                 }
             },
             error: (xhr, status, err) => {
@@ -79,76 +72,6 @@ class ConfigContent extends React.Component {
                 }
             }
         })
-    }
-
-    formTypeField(key, setting) {
-        if (key.startsWith("_comment_")) {
-            return (
-                <input 
-                   key={key}
-                   ref={key}
-                   id={key}
-                   defaultValue={setting}
-                   type="hidden"
-                />
-            )
-        }
-        if (typeof setting === "number") {
-            return (
-                <input
-                    key={key}
-                    ref={key} 
-                    id={key} 
-                    className="form-control" 
-                    defaultValue={setting} 
-                    type="number" 
-                    onChange={this.handleServerSettingsChange.bind(this, key)}
-                />
-            )
-        } else if (typeof setting === "string") {
-            return (
-                <input 
-                    key={key}
-                    ref={key} 
-                    id={key} 
-                    className="form-control" 
-                    defaultValue={setting} 
-                    type="text" 
-                    onChange={this.handleServerSettingsChange.bind(this, key)}
-                />
-            )
-        } else if (typeof setting === "boolean") {
-            return (
-                <select key={key} ref={key} id={key} className="form-control" onChange={this.handleServerSettingsChange.bind(this, key)}>
-                    <option value={true}>True</option>
-                    <option value={false}>False</option>
-                </select>
-            )
-        } else if (Array.isArray(setting)) {
-            return (
-                <input 
-                    key={key}
-                    ref={key} 
-                    id={key} 
-                    className="form-control" 
-                    defaultValue={setting} 
-                    type="password" 
-                    onChange={this.handleServerSettingsChange.bind(this, key)}
-                />
-            )
-        } else {
-            return (
-                <input 
-                    key={key}
-                    ref={key} 
-                    id={key} 
-                    className="form-control" 
-                    defaultValue={setting} 
-                    type="text" 
-                    onChange={this.handleServerSettingsChange.bind(this, key)}
-                />
-            )
-        }
     }
 
 
@@ -179,17 +102,20 @@ class ConfigContent extends React.Component {
                                     <div className="table-responsive">
                                         <form ref="settingsForm" className="form-horizontal" onSubmit={this.updateServerSettings}>
                                             {Object.keys(this.state.serverSettings).map(function(key) {
-                                                if (key.startsWith("_comment_"))
-                                                    return(<div>{this.formTypeField(key, setting)}</div>);
                                                 var setting = this.state.serverSettings[key]
-                                                var setting_key = this.capitalizeFirstLetter(key.replace(/_/g, " "))
-                                                var comment = this.state.serverSettings["_comment_" + key]
+                                                var setting_key = key.replace(/_/g, " ")
                                                 return(
                                                 <div className="form-group">
                                                     <label for={key} className="control-label col-md-3">{setting_key}</label>
                                                     <div className="col-md-6">
-                                                        {this.formTypeField(key, setting)}
-                                                        <p className="help-block">{comment}</p>
+                                                        <input 
+                                                            ref={key} 
+                                                            id={key} 
+                                                            className="form-control" 
+                                                            defaultValue={setting} 
+                                                            type="text" 
+                                                            onChange={this.handleServerSettingsChange.bind(this, key)}
+                                                        />
                                                     </div>
                                                 </div>
                                                 )
@@ -218,7 +144,7 @@ class ConfigContent extends React.Component {
                         <div className="row">
                             <div className="col-md-10">
                             {Object.keys(this.state.config).map(function(key) {
-                				var conf = this.state.config[key]
+                                var conf = this.state.config[key]
                                 return(
                                     <div className="settings-section" key={key}>
                                     <h3>{key}</h3>

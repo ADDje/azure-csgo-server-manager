@@ -26,7 +26,8 @@ func NewRouter() *mux.Router {
 		s.Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
-			Handler(AuthorizeHandler(route.HandlerFunc))
+			//Handler(AuthorizeHandler(route.HandlerFunc))
+			Handler(route.HandlerFunc)
 	}
 
 	// The login handler does not check for authentication.
@@ -46,14 +47,6 @@ func NewRouter() *mux.Router {
 		Methods("GET").
 		Name("Settings").
 		Handler(AuthorizeHandler(http.StripPrefix("/settings", http.FileServer(http.Dir("./app/")))))
-	r.Path("/mods").
-		Methods("GET").
-		Name("Mods").
-		Handler(AuthorizeHandler(http.StripPrefix("/mods", http.FileServer(http.Dir("./app/")))))
-	r.Path("/saves").
-		Methods("GET").
-		Name("Saves").
-		Handler(AuthorizeHandler(http.StripPrefix("/saves", http.FileServer(http.Dir("./app/")))))
 	r.Path("/logs").
 		Methods("GET").
 		Name("Logs").
@@ -91,90 +84,15 @@ func AuthorizeHandler(h http.Handler) http.Handler {
 // All routes are prefixed with /api
 var apiRoutes = Routes{
 	Route{
-		"ListInstalledMods",
+		"GetServers",
 		"GET",
-		"/mods/list/installed",
-		ListInstalledMods,
+		"/azure/servers/getall",
+		GetAllServers,
 	}, {
-		"ListMods",
+		"GetDefaultConfig",
 		"GET",
-		"/mods/list",
-		ListMods,
-	}, {
-		"ToggleMod",
-		"GET",
-		"/mods/toggle/{mod}",
-		ToggleMod,
-	}, {
-		"UploadMod",
-		"POST",
-		"/mods/upload",
-		UploadMod,
-	}, {
-		"RemoveMod",
-		"GET",
-		"/mods/rm/{mod}",
-		RemoveMod,
-	}, {
-		"DownloadMod",
-		"GET",
-		"/mods/dl/{mod}",
-		DownloadMod,
-	}, {
-		"ListSaves",
-		"GET",
-		"/saves/list",
-		ListSaves,
-	}, {
-		"DlSave",
-		"GET",
-		"/saves/dl/{save}",
-		DLSave,
-	}, {
-		"UploadSave",
-		"POST",
-		"/saves/upload",
-		UploadSave,
-	}, {
-		"RemoveSave",
-		"GET",
-		"/saves/rm/{save}",
-		RemoveSave,
-	}, {
-		"CreateSave",
-		"GET",
-		"/saves/create/{save}",
-		CreateSaveHandler,
-	}, {
-		"LogTail",
-		"GET",
-		"/log/tail",
-		LogTail,
-	}, {
-		"LoadConfig",
-		"GET",
-		"/config",
-		LoadConfig,
-	}, {
-		"StartServer",
-		"GET",
-		"/server/start",
-		StartServer,
-	}, {
-		"StartServer",
-		"POST",
-		"/server/start",
-		StartServer,
-	}, {
-		"StopServer",
-		"GET",
-		"/server/stop",
-		StopServer,
-	}, {
-		"RunningServer",
-		"GET",
-		"/server/status",
-		CheckServer,
+		"/server/defaultconfig",
+		GetDefaultServerConfig,
 	}, {
 		"LogoutUser",
 		"GET",
@@ -201,26 +119,6 @@ var apiRoutes = Routes{
 		"/user/remove",
 		RemoveUser,
 	}, {
-		"ListModPacks",
-		"GET",
-		"/mods/packs/list",
-		ListModPacks,
-	}, {
-		"DownloadModPack",
-		"GET",
-		"/mods/packs/dl/{modpack}",
-		DownloadModPack,
-	}, {
-		"DeleteModPack",
-		"GET",
-		"/mods/packs/rm/{modpack}",
-		DeleteModPack,
-	}, {
-		"CreateModPack",
-		"POST",
-		"/mods/packs/add",
-		CreateModPackHandler,
-	}, {
 		"GetServerSettings",
 		"GET",
 		"/settings",
@@ -230,5 +128,19 @@ var apiRoutes = Routes{
 		"POST",
 		"/settings/update",
 		UpdateServerSettings,
+	},
+
+	// Config
+	{
+		"GetConfigs",
+		"GET",
+		"/config/list",
+		GetServerConfigs,
+	},
+	{
+		"GetConfigs",
+		"GET",
+		"/config/get/{configName}",
+		GetServerConfigByName,
 	},
 }
