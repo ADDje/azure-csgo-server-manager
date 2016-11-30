@@ -30,16 +30,16 @@ class ServerStatus extends React.Component {
             content = keys.map(function(key) {
                 return(
                     <tr key={key}>
-                        <td></td>
+                        <td />
                         <td>key</td>
                         <td>{this.formatServerStatus(this.props.serverStatus[key])}</td>
                     </tr>
                 )                                                  
             }, this);
 
-            stop = <div className="col-md-4">
-                <button className="btn btn-block btn-danger" type="button" onClick={this.stopServer}><i className="fa fa-stop fa-fw"></i>Stop CS:GO Servers</button>
-            </div>
+            stop = (<div className="col-md-4">
+                <button className="btn btn-block btn-danger" type="button" onClick={this.stopServer}><i className="fa fa-stop fa-fw" />Stop CS:GO Servers</button>
+            </div>)
         } else {
             content = <tr><td colSpan="3" className="text-center">No Servers Found</td></tr>
         }
@@ -56,7 +56,7 @@ class ServerStatus extends React.Component {
                         <table className="table table-striped">
                             <thead>
                                 <tr>
-                                    <th width="10%"></th>
+                                    <th width="10%" />
                                     <th>Name</th>
                                     <th>Status</th>
                                 </tr>
@@ -74,7 +74,7 @@ class ServerStatus extends React.Component {
 }
 
 ServerStatus.propTypes = {
-    azureServerStatus: React.PropTypes.array.isRequired,
+    azureServerStatus: React.PropTypes.array.isRequired
 }
 
 

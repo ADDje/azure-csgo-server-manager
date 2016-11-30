@@ -28,7 +28,7 @@ class Index extends React.Component {
                     <small>Control your Azure CS:GO Servers</small>
                 </h1>
                 <ol className="breadcrumb">
-                    <li><IndexLink to="/"><i className="fa fa-dashboard"></i>Server Control</IndexLink></li>
+                    <li><IndexLink to="/"><i className="fa fa-dashboard" />Server Control</IndexLink></li>
                 </ol>
                 </section>
 

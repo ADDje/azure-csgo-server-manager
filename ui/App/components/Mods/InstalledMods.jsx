@@ -67,7 +67,7 @@ class InstalledMods extends React.Component {
                     <h4>Upload Mod</h4>
                     <form ref="uploadForm" className="form-inline" encType='multipart/form-data'>
                         <div className="form-group">
-                            <label for="modfile">Upload Mod File...</label>
+                            <label htmlFor="modfile">Upload Mod File...</label>
                             <input className="form-control btn btn-default" ref="file" type="file" name="modfile" id="modfile" />
                         </div>
                         <div className="form-group">
@@ -100,8 +100,9 @@ class InstalledMods extends React.Component {
                                             className="btn btn-danger btn-small" 
                                             ref="modInput"
                                             type="button" 
-                                            onClick={this.removeMod.bind(this, i)}>
-                                        <i className="fa fa-trash"></i>
+                                            onClick={this.removeMod.bind(this, i)}
+                                        >
+                                        <i className="fa fa-trash" />
                                         &nbsp;
                                         Delete
                                         </button>

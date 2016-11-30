@@ -40,7 +40,7 @@ class UsersContent extends React.Component {
                     <small>Manage Factorio Server Manager settings</small>
                 </h1>
                 <ol className="breadcrumb">
-                    <li><IndexLink to="/"><i className="fa fa-dashboard fa-fw"></i>Server Control</IndexLink></li>
+                    <li><IndexLink to="/"><i className="fa fa-dashboard fa-fw" />Server Control</IndexLink></li>
                     <li className="active">Here</li>
                 </ol>
                 </section>

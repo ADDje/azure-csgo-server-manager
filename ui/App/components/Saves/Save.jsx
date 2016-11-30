@@ -24,22 +24,23 @@ class Save extends React.Component {
                         className="btn btn-danger btn-small" 
                         ref="saveInput"
                         type="button" 
-                        onClick={this.props.removeSave.bind(this, this.props.saves[this.props.index].name)}>
-                    <i className="fa fa-trash"></i>
-                    &nbsp;
-                    Delete
+                        onClick={this.props.removeSave.bind(this, this.props.saves[this.props.index].name)}
+                    >
+                        <i className="fa fa-trash" />
+                        &nbsp;
+                        Delete
                     </button>
                 </td>
-</tr>
+            </tr>
         )
     }
 }
 
 Save.propTypes = {
+    index: React.PropTypes.number.isRequired,
+    removeSave: React.PropTypes.func.isRequired,
     save: React.PropTypes.object.isRequired,
     saves: React.PropTypes.array.isRequired,
-    index: React.PropTypes.number.isRequired,
-    removeSave: React.PropTypes.func.isRequired
 }
 
 export default Save

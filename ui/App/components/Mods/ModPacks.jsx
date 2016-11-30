@@ -73,19 +73,19 @@ class ModPacks extends React.Component {
                     <div className="box box-success collapsed-box">
                         <button type="button" className="btn btn-box-tool" data-widget="collapse">
                             <div className="box-header with-border">
-                            <i className="fa fa-plus fa-fw"></i><h4 className="box-title">Create Mod Pack</h4>
+                            <i className="fa fa-plus fa-fw" /><h4 className="box-title">Create Mod Pack</h4>
                             </div>
                         </button>
                         <div className="box-body" style={{display: "none"}}>
                             <form onSubmit={this.createModPack}>
-                                <label for="modPack">Mod Pack Name</label>
+                                <label htmlFor="modPack">Mod Pack Name</label>
                                 <div id="modpack" className="input-group">
                                     <input ref="modpackName" name="modpack" id="modpack" type="text" className="form-control" placeholder="Enter Mod Pack Name..." />
                                 </div>
                                 {this.props.installedMods.map( (mod, i) => {
                                     return(
                                     <div className="checkbox" key={i}>
-                                        <label for={mod}>
+                                        <label htmlFor={mod}>
                                             <input id={mod} ref={"mod-"+mod} type="checkbox" />
                                             {mod}
                                         </label>
@@ -93,7 +93,7 @@ class ModPacks extends React.Component {
                                     )
                                 } )}
                                 <div className="col-md-4">
-                                    <button className="btn btn-block btn-success" type="submit"><i className="fa fa-save fa-fw"></i>Create Mod Pack</button>
+                                    <button className="btn btn-block btn-success" type="submit"><i className="fa fa-save fa-fw" />Create Mod Pack</button>
                                 </div>
                             </form>
                         </div>
@@ -112,14 +112,14 @@ class ModPacks extends React.Component {
                             return(
                                 <tr key={i}>
                                     <td>{mod}</td>    
-                                    <td><a className="btn btn-default" href={dlURL}></a></td>
+                                    <td><a className="btn btn-default" href={dlURL} /></td>
                                     <td>
                                         <button
                                             className="btn btn-danger"
                                             ref="modpack"
                                             type="button"
-                                            onClick={this.removeModPack.bind(this, mod)}>
-                                        </button>
+                                            onClick={this.removeModPack.bind(this, mod)}
+                                        />
                                     </td>
                                 </tr>
                             )
@@ -134,8 +134,8 @@ class ModPacks extends React.Component {
 
 ModPacks.propTypes = {
     installedMods: React.PropTypes.array.isRequired,
-    modPacks: React.PropTypes.array.isRequired, 
     loadModPackList: React.PropTypes.func.isRequired,
+    modPacks: React.PropTypes.array.isRequired, 
 }
 
 export default ModPacks

@@ -15,16 +15,16 @@ class DynamicConfig extends React.Component {
         this.changeField = this.changeField.bind(this)
     }
 
-    changeField(event) {
-        console.log(event)
-    }
-
     componentWillReceiveProps(nextProps) {
         if(nextProps.configName !== this.props.configName &&
             nextProps.config !== null) {
             // Populate the parameters
             Object.assign(this.state.configParameters, nextProps.config)
         }
+    }
+
+    changeField(event) {
+        console.log(event)
     }
 
     increaseField(key) {
@@ -44,7 +44,7 @@ class DynamicConfig extends React.Component {
     }
 
     render() {
-        if(this.props.config == null) {
+        if(this.props.config === null) {
             return null;
         }
 
@@ -52,17 +52,16 @@ class DynamicConfig extends React.Component {
         for(var key in this.props.config) {
             var buttons = null;
             if(typeof(this.props.config[key]) !== "string") {
-                buttons = <div className="input-group-btn">
+                buttons = (<div className="input-group-btn">
                         <button type="button" className="btn btn-primary" onClick={this.increaseField.bind(this, key)}>
-                            <i className="fa fa-arrow-up"></i>
+                            <i className="fa fa-arrow-up" />
                         </button>
                         <button type="button" className="btn btn-primary" onClick={this.decreaseField.bind(this, key)}>
-                            <i className="fa fa-arrow-down"></i>
+                            <i className="fa fa-arrow-down" />
                         </button>
-                    </div>;
+                    </div>)
             }
-
-            var param = 
+ 
             fields.push(<div key={key} className="dynamic-config-field">
                 <label htmlFor={key}>{key}</label>
                 <div id={key} className="input-group">

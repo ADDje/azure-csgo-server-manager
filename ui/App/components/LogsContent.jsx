@@ -38,7 +38,7 @@ class LogsContent extends React.Component {
                     <small>Analyze Factorio Logs</small>
                 </h1>
                 <ol className="breadcrumb">
-                    <li><IndexLink to="/"><i className="fa fa-dashboard"></i>Server Control</IndexLink></li>
+                    <li><IndexLink to="/"><i className="fa fa-dashboard" />Server Control</IndexLink></li>
                     <li className="active">Here</li>
                 </ol>
                 </section>

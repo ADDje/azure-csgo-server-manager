@@ -37,9 +37,9 @@ class CreateSave extends React.Component {
         var loadingOverlay
         if (this.state.loading) {
             loadingOverlay = 
-                <div className="overlay">
-                    <i className="fa fa-refresh fa-spin"></i>
-                </div>
+                (<div className="overlay">
+                    <i className="fa fa-refresh fa-spin" />
+                </div>)
         } else {
             loadingOverlay = ""
         }
@@ -53,7 +53,7 @@ class CreateSave extends React.Component {
                 <div className="box-body">
                     <form>
                         <div className="form-group">
-                            <label for="savefile">Enter Savefile Name... </label>
+                            <label htmlFor="savefile">Enter Savefile Name... </label>
                             <input className="form-control" ref="savename" type="text" name="savefile" id="savefilename" />
                         </div>
                         <div className="form-group">

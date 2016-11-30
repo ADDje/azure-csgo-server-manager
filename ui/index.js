@@ -11,7 +11,7 @@ import UsersContent from './App/components/UsersContent.jsx';
 import Index from './App/components/Index.jsx';
 
 
-ReactDOM.render((
+ReactDOM.render(
     <Router history={browserHistory}>
         <Route path="/login" component={LoginContent}/>
         <Route path="/" component={App}>
@@ -24,5 +24,5 @@ ReactDOM.render((
             <Route path="/config" component={ConfigContent}/> 
         </Route>
     </Router>
-), document.getElementById('app'))
+, document.getElementById('app'));
 

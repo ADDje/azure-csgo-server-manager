@@ -41,7 +41,7 @@ class SavesList extends React.Component {
     render() {
         var savesList;
         if (this.props.saves.length === 0) {
-            savesList = <tr></tr>
+            savesList = <tr />
         } else {
             savesList = this.props.saves.map ( (save, i) => {
                 return(
@@ -87,9 +87,9 @@ class SavesList extends React.Component {
 }
 
 SavesList.propTypes = {
-    saves: React.PropTypes.array.isRequired,
     dlSave: React.PropTypes.func.isRequired,
-    getSaves: React.PropTypes.func.isRequired
+    getSaves: React.PropTypes.func.isRequired,
+    saves: React.PropTypes.array.isRequired,
 }
 
 export default SavesList

@@ -23,8 +23,8 @@ class Settings extends React.Component {
 }
 
 Settings.propTypes = {
-    section: React.PropTypes.string.isRequired,
     config: React.PropTypes.object.isRequired,
+    section: React.PropTypes.string.isRequired,
 }
 
 export default Settings

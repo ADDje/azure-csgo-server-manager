@@ -7,7 +7,7 @@ class ServerCtl extends React.Component {
 
         var selectedConfig = null
         var selectedConfigName = null
-        if (this.props.serverConfigs != null &&
+        if (this.props.serverConfigs !== null &&
             Object.keys(this.props.serverConfigs).length > 0) {
 
             var selectedConfigName = Object.keys(this.props.serverConfigs)[0]
@@ -29,6 +29,20 @@ class ServerCtl extends React.Component {
         this.changeNumberOfServers = this.changeNumberOfServers.bind(this)
         this.increaseNumberOfServers = this.increaseNumberOfServers.bind(this)
         this.decreaseNumberOfServers = this.decreaseNumberOfServers.bind(this)
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (this.state.selectedConfig === null &&
+            nextProps.serverConfigs !== null &&
+            Object.keys(nextProps.serverConfigs).length > 0) {
+
+            var firstKey = Object.keys(nextProps.serverConfigs)[0]
+
+            this.setState({
+                selectedConfig: nextProps.serverConfigs[firstKey],
+                selectedConfigName: firstKey
+            })
+        }
     }
 
     startServer(e) {
@@ -85,20 +99,6 @@ class ServerCtl extends React.Component {
         e.preventDefault()
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (this.state.selectedConfig == null &&
-            nextProps.serverConfigs != null &&
-            Object.keys(nextProps.serverConfigs).length > 0) {
-
-            var firstKey = Object.keys(nextProps.serverConfigs)[0]
-
-            this.setState({
-                selectedConfig: nextProps.serverConfigs[firstKey],
-                selectedConfigName: firstKey
-            })
-        }
-    }
-
     changeServerPrefix(e) {
         this.setState({
             serverPrefix: e.target.value
@@ -149,7 +149,7 @@ class ServerCtl extends React.Component {
                         <div className="form-group">
                             <div className="row">
                                 <div className="col-md-4">
-                                    <button className="btn btn-block btn-success" type="submit"><i className="fa fa-play fa-fw"></i>Start CS:GO Servers</button>
+                                    <button className="btn btn-block btn-success" type="submit"><i className="fa fa-play fa-fw" />Start CS:GO Servers</button>
                                 </div>
                             </div>
 
@@ -170,10 +170,10 @@ class ServerCtl extends React.Component {
                                 <input name="numberOfServers" type="text" className="form-control" onChange={this.changeNumberOfServers} value={this.state.numberOfServers} />
                                 <div className="input-group-btn">
                                     <button type="button" className="btn btn-primary" onClick={this.increaseNumberOfServers}>
-                                        <i className="fa fa-arrow-up"></i>
+                                        <i className="fa fa-arrow-up" />
                                     </button>
                                     <button type="button" className="btn btn-primary" onClick={this.decreaseNumberOfServers}>
-                                        <i className="fa fa-arrow-down"></i>
+                                        <i className="fa fa-arrow-down" />
                                     </button>
                                 </div>
                             </div>
@@ -187,7 +187,7 @@ class ServerCtl extends React.Component {
                         <div className="box box-success collapsed-box">
                             <button type="button" className="btn btn-box-tool" data-widget="collapse" disabled={this.selectedConfig}>
                                 <div className="box-header with-border">
-                                <i className="fa fa-plus fa-fw"></i><h4 className="box-title">Advanced Server Config</h4>
+                                <i className="fa fa-plus fa-fw" /><h4 className="box-title">Advanced Server Config</h4>
                                 </div>
                             </button>
                             <div className="box-body" style={{display: "none"}}>
@@ -204,9 +204,9 @@ class ServerCtl extends React.Component {
 
 ServerCtl.propTypes = {
     azureServerStatus: React.PropTypes.array.isRequired,
-    serverConfigs: React.PropTypes.object.isRequired,
     getConfig: React.PropTypes.func.isRequired,
     getStatus: React.PropTypes.func.isRequired,
+    serverConfigs: React.PropTypes.object.isRequired,
 }
 
 export default ServerCtl

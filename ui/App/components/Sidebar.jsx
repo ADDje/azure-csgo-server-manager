@@ -9,10 +9,10 @@ class Sidebar extends React.Component {
     render() {
         if (this.props.serverRunning === "running") {
             var serverStatus = 
-                <IndexLink to="/"><i className="fa fa-circle text-success"></i>Servers Online</IndexLink>
+                <IndexLink to="/"><i className="fa fa-circle text-success" />Servers Online</IndexLink>
         } else {
             var serverStatus = 
-                <IndexLink to="/"><i className="fa fa-circle text-danger"></i>Servers Offline</IndexLink>
+                <IndexLink to="/"><i className="fa fa-circle text-danger" />Servers Offline</IndexLink>
         }
 
         return(
@@ -36,7 +36,7 @@ class Sidebar extends React.Component {
                     <div className="input-group">
                     <input type="text" name="q" className="form-control" placeholder="Search..." />
                         <span className="input-group-btn">
-                            <button type="submit" name="search" id="search-btn" className="btn btn-flat"><i className="fa fa-search"></i>
+                            <button type="submit" name="search" id="search-btn" className="btn btn-flat"><i className="fa fa-search" />
                             </button>
                         </span>
                     </div>
@@ -44,15 +44,15 @@ class Sidebar extends React.Component {
 
                 <ul className="sidebar-menu">
                     <li className="header">MENU</li>
-                    <li><IndexLink to="/" activeClassName="active"><i className="fa fa-tachometer"></i><span>Server Control</span></IndexLink></li>
-                    <li><Link to="/mods" activeClassName="active"><i className="fa fa-pencil"></i><span>Mods</span></Link></li>
-                    <li><Link to="/logs" activeClassName="active"><i className="fa fa-file-text-o"></i> <span>Logs</span></Link></li>
-                    <li><Link to="/saves" activeClassName="active"><i className="fa fa-floppy-o"></i> <span>Saves</span></Link></li>
-                    <li><Link to="/config" activeClassName="active"><i className="fa fa-cogs"></i> <span>Game Configuration</span></Link></li>
-                    <li><Link to="/settings" activeClassName="active"><i className="fa fa-cog"></i> <span>Settings</span></Link></li>
+                    <li><IndexLink to="/" activeClassName="active"><i className="fa fa-tachometer" /><span>Server Control</span></IndexLink></li>
+                    <li><Link to="/mods" activeClassName="active"><i className="fa fa-pencil" /><span>Mods</span></Link></li>
+                    <li><Link to="/logs" activeClassName="active"><i className="fa fa-file-text-o" /> <span>Logs</span></Link></li>
+                    <li><Link to="/saves" activeClassName="active"><i className="fa fa-floppy-o" /> <span>Saves</span></Link></li>
+                    <li><Link to="/config" activeClassName="active"><i className="fa fa-cogs" /> <span>Game Configuration</span></Link></li>
+                    <li><Link to="/settings" activeClassName="active"><i className="fa fa-cog" /> <span>Settings</span></Link></li>
                 </ul>
                 </section>
-                <div style={{height: "100%"}}></div>
+                <div style={{height: "100%"}} />
             </aside>
         )
     }

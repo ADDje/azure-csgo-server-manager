@@ -29,8 +29,8 @@ class LogLines extends React.Component {
 }
 
 LogLines.propTypes = {
+    getLastLog: React.PropTypes.func.isRequired,
     log: React.PropTypes.array.isRequired,
-    getLastLog: React.PropTypes.func.isRequired
 }
 
 export default LogLines

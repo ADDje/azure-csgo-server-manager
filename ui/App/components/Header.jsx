@@ -26,14 +26,14 @@ class Header extends React.Component {
         var loginMenu; 
         if (this.props.loggedIn) {
             loginMenu = 
-                <ul className="nav navbar-nav">
+                (<ul className="nav navbar-nav">
                     <li>
-                        <Link to="/settings"><i className="fa fa-gears fa-fw"></i>Settings</Link>
+                        <Link to="/settings"><i className="fa fa-gears fa-fw" />Settings</Link>
                     </li>
                     <li>
-                        <a href="javascript:void(0)" onClick={this.onLogout}><i className="fa fa-lock fa-fw"></i>Logout</a>
+                        <a href="javascript:void(0)" onClick={this.onLogout}><i className="fa fa-lock fa-fw" />Logout</a>
                     </li>
-                </ul>
+                </ul>)
         }
         return(
             <header className="main-header">
@@ -54,8 +54,8 @@ class Header extends React.Component {
 }
 
 Header.propTypes = {
-    username: React.PropTypes.string.isRequired,
     loggedIn: React.PropTypes.bool.isRequired,
+    username: React.PropTypes.string.isRequired,
 }
 
 export default Header

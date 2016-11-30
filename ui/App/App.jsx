@@ -127,7 +127,7 @@ class App extends React.Component {
         var resp;
         if (this.state.loggedIn) {
             var resp = 
-                <div>
+                (<div>
                     <Header 
                         username={this.state.username}
                         loggedIn={this.state.loggedIn}
@@ -161,7 +161,7 @@ class App extends React.Component {
                         loggedIn={this.state.loggedIn}
                         checkLogin={this.checkLogin}
                     />
-                </div>
+                </div>)
         } else {
             var resp = <div><p>Not Logged in</p></div>;
         }

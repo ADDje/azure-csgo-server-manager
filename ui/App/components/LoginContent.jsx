@@ -48,39 +48,39 @@ class LoginContent extends React.Component {
                                     </section>
 
                                     <section className="content">
-                                    <div className="row">
-                                        <div className="login-box-body">
+                                        <div className="row">
+                                            <div className="login-box-body">
 
-                                            <form onSubmit={this.loginUser}>
-                                                <div className="form-group has-feedback">
-                                                    <input type="text" ref="username" className="form-control" placeholder="Username" />
-                                                    <span className="fa fa-envelope form-control-feedback"></span>
-                                                </div>
-                                                <div className="form-group has-feedback">
-                                                    <input type="password" ref="password" className="form-control" placeholder="Password" />
-                                                    <span className="fa fa-lock form-control-feedback"></span>
-                                                </div>
-                                                {/*<div className="row">
-                                                    <div className="col-xs-8">
-                                                        <div className="checkbox">
-                                                            <label className="">
-                                                                <div className="" aria-checked="false" aria-disabled="false" style={{position: "relative"}}>
-                                                                <input type="checkbox"/>
-                                                                </div> Remember Me
-                                                            </label>
+                                                <form onSubmit={this.loginUser}>
+                                                    <div className="form-group has-feedback">
+                                                        <input type="text" ref="username" className="form-control" placeholder="Username" />
+                                                        <span className="fa fa-envelope form-control-feedback" />
+                                                    </div>
+                                                    <div className="form-group has-feedback">
+                                                        <input type="password" ref="password" className="form-control" placeholder="Password" />
+                                                        <span className="fa fa-lock form-control-feedback" />
+                                                    </div>
+                                                    {/*<div className="row">
+                                                        <div className="col-xs-8">
+                                                            <div className="checkbox">
+                                                                <label className="">
+                                                                    <div className="" aria-checked="false" aria-disabled="false" style={{position: "relative"}}>
+                                                                    <input type="checkbox"/>
+                                                                    </div> Remember Me
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>*/}
+                                                    <div className="row">
+                                                        <div className="col-xs-4">
+                                                            <button type="submit" className="btn btn-primary btn-block btn-flat">Sign In</button>
                                                         </div>
                                                     </div>
-                                                </div>*/}
-                                                <div className="row">
-                                                    <div className="col-xs-4">
-                                                        <button type="submit" className="btn btn-primary btn-block btn-flat">Sign In</button>
-                                                    </div>
-                                                </div>
-                                            </form>
+                                                </form>
 
-                                            {/*<a href="#">I forgot my password</a><br />*/}
-                                        </div>       
-                                    </div>
+                                                {/*<a href="#">I forgot my password</a><br />*/}
+                                            </div>       
+                                        </div>
                                     </section>
                                 </div>
                             </div>

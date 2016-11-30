@@ -84,7 +84,7 @@ class ConfigContent extends React.Component {
                     <small>Manage game configuration</small>
                 </h1>
                 <ol className="breadcrumb">
-                    <li><IndexLink to="/"><i className="fa fa-dashboard"></i>Server Control</IndexLink></li>
+                    <li><IndexLink to="/"><i className="fa fa-dashboard"/>Server Control</IndexLink></li>
                     <li className="active">Here</li>
                 </ol>
                 </section>
@@ -106,7 +106,7 @@ class ConfigContent extends React.Component {
                                                 var setting_key = key.replace(/_/g, " ")
                                                 return(
                                                 <div className="form-group">
-                                                    <label for={key} className="control-label col-md-3">{setting_key}</label>
+                                                    <label htmlFor={key} className="control-label col-md-3">{setting_key}</label>
                                                     <div className="col-md-6">
                                                         <input 
                                                             ref={key} 
