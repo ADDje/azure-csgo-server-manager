@@ -1,5 +1,4 @@
 import React from 'react';
-import DynamicConfig from './DynamicConfig.jsx'
 
 class ServerCtl extends React.Component {
     constructor(props) {
@@ -187,11 +186,11 @@ class ServerCtl extends React.Component {
                         <div className="box box-success collapsed-box">
                             <button type="button" className="btn btn-box-tool" data-widget="collapse" disabled={this.selectedConfig}>
                                 <div className="box-header with-border">
-                                <i className="fa fa-plus fa-fw" /><h4 className="box-title">Advanced Server Config</h4>
+                                    <i className="fa fa-plus fa-fw" /><h4 className="box-title">Advanced Server Config</h4>
                                 </div>
                             </button>
                             <div className="box-body" style={{display: "none"}}>
-                                <DynamicConfig configName={this.state.selectedConfigName} config={this.state.selectedConfig} />
+                                
                             </div>
                         </div>
                     </form>

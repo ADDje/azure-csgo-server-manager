@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {Router, Route, browserHistory, IndexRoute} from 'react-router';
 import App from './App/App.jsx';
-import ModsContent from './App/components/ModsContent.jsx';
+import ConfigsContent from './App/components/ConfigsContent.jsx';
 import LogsContent from './App/components/LogsContent.jsx';
 import SavesContent from './App/components/SavesContent.jsx';
 import ConfigContent from './App/components/ConfigContent.jsx';
@@ -18,7 +18,7 @@ ReactDOM.render(
             <IndexRoute component={Index}/>
             <Route path="/server" component={Index}/> 
             <Route path="/settings" component={UsersContent}/>
-            <Route path="/mods" component={ModsContent}/> 
+            <Route path="/configs" component={ConfigsContent}/> 
             <Route path="/logs" component={LogsContent}/> 
             <Route path="/saves" component={SavesContent}/> 
             <Route path="/config" component={ConfigContent}/> 

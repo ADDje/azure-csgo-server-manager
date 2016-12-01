@@ -25,6 +25,17 @@ func loadConfig(filename string) (*CsgoServerSettings, error) {
 	return outModel, err
 }
 
+// Loads cfg file from the config directory as raw text
+func loadConfigText(filename string) (string, error) {
+	file, err := ioutil.ReadFile(filename)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(file), nil
+}
+
 // GetServerConfigsFromFile loads all configs in the config directory
 // and returns them in a map indexed by filename
 // TODO: Cache
@@ -58,6 +69,19 @@ func GetServerConfigFromFile(name string) (*CsgoServerSettings, error) {
 		log.Printf("Error Reading Config File %s: %s", name, err)
 
 		return nil, err
+	}
+
+	return config, nil
+}
+
+// GetServerConfigTextFromFile loads a config file by name and returns
+func GetServerConfigTextFromFile(name string) (string, error) {
+	config, err := loadConfigText(CONFIG_DIRECTORY + name)
+
+	if err != nil {
+		log.Printf("Error Reading Config File Text %s: %s", name, err)
+
+		return "", err
 	}
 
 	return config, nil

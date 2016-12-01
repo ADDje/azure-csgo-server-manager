@@ -68,7 +68,7 @@ class App extends React.Component {
 
     getConfigs() {
         $.ajax({
-            url: "/api/config/list",
+            url: "/api/configs/list",
             dataType: "json",
             success: (data) => {
                 if (data.success === true) {
@@ -78,14 +78,14 @@ class App extends React.Component {
                 }
             },
             error: (xhr, status, err) => {
-                console.log('api/config/list', status, err.toString());
+                console.log('api/configs/list', status, err.toString());
             }
         })
     }
 
     getConfig(name) {
         $.ajax({
-            url: "/api/config/get/" + name,
+            url: "/api/configs/get/" + name,
             dataType: "json",
             success: (data) => {
                 var config = {}
@@ -102,7 +102,7 @@ class App extends React.Component {
                 this.setState({configs: configs})
             },
             error: (xhr, status, err) => {
-                console.log('api/config/get/' + name, status, err.toString());
+                console.log('api/configs/get/' + name, status, err.toString());
             }
         })
     }

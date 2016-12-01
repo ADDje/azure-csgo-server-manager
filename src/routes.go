@@ -51,6 +51,10 @@ func NewRouter() *mux.Router {
 		Methods("GET").
 		Name("Logs").
 		Handler(AuthorizeHandler(http.StripPrefix("/logs", http.FileServer(http.Dir("./app/")))))
+	r.Path("/configs").
+		Methods("GET").
+		Name("Configs").
+		Handler(AuthorizeHandler(http.StripPrefix("/configs", http.FileServer(http.Dir("./app/")))))
 	r.Path("/config").
 		Methods("GET").
 		Name("Config").
@@ -130,17 +134,29 @@ var apiRoutes = Routes{
 		UpdateServerSettings,
 	},
 
-	// Config
+	// Configs
 	{
 		"GetConfigs",
 		"GET",
-		"/config/list",
+		"/configs/list",
 		GetServerConfigs,
 	},
 	{
-		"GetConfigs",
+		"GetConfig",
 		"GET",
-		"/config/get/{configName}",
+		"/configs/get/{configName}",
 		GetServerConfigByName,
+	},
+	{
+		"GetConfigText",
+		"GET",
+		"/configs/gettext/{configName}",
+		GetServerConfigTextByName,
+	},
+	{
+		"UpdateConfigText",
+		"POST",
+		"/configs/gettext/{configName}",
+		UpdateServerConfigText,
 	},
 }

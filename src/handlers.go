@@ -98,6 +98,78 @@ func GetServerConfigByName(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetServerConfigTextByName(w http.ResponseWriter, r *http.Request) {
+	resp := JSONResponse{
+		Success: false,
+	}
+
+	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
+
+	var err error
+	vars := mux.Vars(r)
+
+	resp.Data, err = GetServerConfigTextFromFile(vars["configName"])
+	if err != nil {
+		log.Printf("Error getting server config %s", err)
+		return
+	}
+
+	resp.Success = true
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		log.Printf("Error encoding server config: %s", err)
+	}
+}
+
+func UpdateServerConfigText(w http.ResponseWriter, r *http.Request) {
+	resp := JSONResponse{
+		Success: false,
+	}
+
+	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
+
+	switch r.Method {
+	case "GET":
+		log.Printf("GET not supported for update config")
+		resp.Data = "Unsupported method"
+		resp.Success = false
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			log.Printf("Error listing mods: %s", err)
+		}
+	case "POST":
+
+		vars := mux.Vars(r)
+		fileName := CONFIG_DIRECTORY + vars["configName"]
+
+		_, err := ioutil.ReadFile(fileName)
+		if err != nil {
+			log.Printf("Error reading file %s: %s", fileName, err)
+			return
+		}
+
+		body, err := ioutil.ReadAll(r.Body)
+
+		if err != nil {
+			log.Printf("Error in starting updating config handler body: %s", err)
+			return
+		}
+
+		// TODO: Check if the string is valid
+
+		err = ioutil.WriteFile(fileName, body, 0770)
+
+		if err != nil {
+			log.Printf("Error writing file %s: %s", fileName, err)
+			return
+		}
+
+		resp.Data = fmt.Sprintf("Config: %s, edited successfully", vars["configName"])
+		resp.Success = true
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			log.Printf("Error editing config: %s", err)
+		}
+	}
+}
+
 func LoginUser(w http.ResponseWriter, r *http.Request) {
 	resp := JSONResponse{
 		Success: false,

@@ -16,8 +16,6 @@ func getServers(config Config) (*[]resources.GenericResource, error) {
 		"AZURE_TENANT_ID":       config.AzureTenantID,
 	}
 
-	log.Print(c)
-
 	spt, err := newServicePrincipalTokenFromCredentials(c, azure.PublicCloud.ResourceManagerEndpoint)
 	if err != nil {
 		log.Fatalf("Error: %v", err)
