@@ -15,6 +15,13 @@ type JSONResponse struct {
 	Data    interface{} `json:"data,string"`
 }
 
+// JSON write json response. Doesn't need to be public but otherwise namespaces collide
+func JSON(w http.ResponseWriter, resp JSONResponse) {
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		log.Printf("Error encoding response: %s", err)
+	}
+}
+
 // GetAllServers Returns JSON response of all servers found
 func GetAllServers(w http.ResponseWriter, r *http.Request) {
 	var err error
@@ -27,17 +34,11 @@ func GetAllServers(w http.ResponseWriter, r *http.Request) {
 	resp.Data, err = getServers(config)
 	if err != nil {
 		resp.Data = fmt.Sprintf("Error in GetAllServers handler: %s", err)
-		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			log.Printf("Error in list mods: %s", err)
-		}
-		return
+	} else {
+		resp.Success = true
 	}
 
-	resp.Success = true
-
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		log.Printf("Error in get servers: %s", err)
-	}
+	JSON(w, resp)
 }
 
 // GetDefaultServerConfig Returns JSON response of default server config
@@ -51,9 +52,7 @@ func GetDefaultServerConfig(w http.ResponseWriter, r *http.Request) {
 
 	resp.Success = true
 
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		log.Printf("Error in get default config: %s", err)
-	}
+	JSON(w, resp)
 }
 
 func GetServerConfigs(w http.ResponseWriter, r *http.Request) {
@@ -71,9 +70,7 @@ func GetServerConfigs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp.Success = true
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		log.Printf("Error encoding server configs: %s", err)
-	}
+	JSON(w, resp)
 }
 
 func GetServerConfigByName(w http.ResponseWriter, r *http.Request) {
@@ -93,9 +90,7 @@ func GetServerConfigByName(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp.Success = true
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		log.Printf("Error encoding server config: %s", err)
-	}
+	JSON(w, resp)
 }
 
 func GetServerConfigTextByName(w http.ResponseWriter, r *http.Request) {
@@ -115,9 +110,7 @@ func GetServerConfigTextByName(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp.Success = true
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		log.Printf("Error encoding server config: %s", err)
-	}
+	JSON(w, resp)
 }
 
 func UpdateServerConfigText(w http.ResponseWriter, r *http.Request) {
@@ -155,9 +148,7 @@ func UpdateServerConfigText(w http.ResponseWriter, r *http.Request) {
 		if !valid {
 			log.Printf("Error parsing file: %s", err)
 			resp.Data = fmt.Sprintf("%s", err)
-			if err = json.NewEncoder(w).Encode(resp); err != nil {
-				log.Printf("Error updating server config: %s", err)
-			}
+			JSON(w, resp)
 			return
 		}
 
@@ -172,9 +163,7 @@ func UpdateServerConfigText(w http.ResponseWriter, r *http.Request) {
 		resp.Success = true
 	}
 
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		log.Printf("Error updating server config: %s", err)
-	}
+	JSON(w, resp)
 }
 
 func GetDeploymentTemplates(w http.ResponseWriter, r *http.Request) {
@@ -189,9 +178,7 @@ func GetDeploymentTemplates(w http.ResponseWriter, r *http.Request) {
 		resp.Data = data
 	}
 
-	if err = json.NewEncoder(w).Encode(resp); err != nil {
-		log.Printf("Error editing config: %s", err)
-	}
+	JSON(w, resp)
 }
 
 func UpdateTemplateParameters(w http.ResponseWriter, r *http.Request) {
@@ -199,7 +186,6 @@ func UpdateTemplateParameters(w http.ResponseWriter, r *http.Request) {
 		Success: false,
 	}
 
-	var err error
 	vars := mux.Vars(r)
 
 	switch r.Method {
@@ -247,9 +233,7 @@ func UpdateTemplateParameters(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	if err = json.NewEncoder(w).Encode(resp); err != nil {
-		log.Printf("Error updateing template parameters %s: %s", vars["templateName"], err)
-	}
+	JSON(w, resp)
 }
 
 func UpdateTemplateText(w http.ResponseWriter, r *http.Request) {
@@ -257,7 +241,6 @@ func UpdateTemplateText(w http.ResponseWriter, r *http.Request) {
 		Success: false,
 	}
 
-	var err error
 	vars := mux.Vars(r)
 
 	switch r.Method {
@@ -287,9 +270,7 @@ func UpdateTemplateText(w http.ResponseWriter, r *http.Request) {
 		if !valid {
 			log.Printf("Error parsing file: %s", err)
 			resp.Data = fmt.Sprintf("%s", err)
-			if err = json.NewEncoder(w).Encode(resp); err != nil {
-				log.Printf("Error parsing template: %s", err)
-			}
+			JSON(w, resp)
 			return
 		}
 
@@ -305,9 +286,7 @@ func UpdateTemplateText(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	if err = json.NewEncoder(w).Encode(resp); err != nil {
-		log.Printf("Error updateing template %s: %s", vars["templateName"], err)
-	}
+	JSON(w, resp)
 }
 
 func LoginUser(w http.ResponseWriter, r *http.Request) {
@@ -343,9 +322,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Error logging in user: %s, error: %s", user.Username, err)
 			resp.Data = fmt.Sprintf("Error logging in user: %s", user.Username)
 			resp.Success = false
-			if err := json.NewEncoder(w).Encode(resp); err != nil {
-				log.Printf("Error listing mods: %s", err)
-			}
+			JSON(w, resp)
 			return
 		}
 
@@ -354,9 +331,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		resp.Success = true
 	}
 
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		log.Printf("Error listing mods: %s", err)
-	}
+	JSON(w, resp)
 }
 
 func LogoutUser(w http.ResponseWriter, r *http.Request) {
@@ -373,9 +348,7 @@ func LogoutUser(w http.ResponseWriter, r *http.Request) {
 
 	resp.Success = true
 	resp.Data = "User logged out successfully."
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		log.Printf("Error logging out: %s", err)
-	}
+	JSON(w, resp)
 }
 
 func GetCurrentLogin(w http.ResponseWriter, r *http.Request) {
@@ -390,19 +363,14 @@ func GetCurrentLogin(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error getting current user status: %s", err)
 		resp.Data = fmt.Sprintf("Error getting user status: %s", user.Username)
 		resp.Success = false
-		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			log.Printf("Error listing mods: %s", err)
-		}
+		JSON(w, resp)
 		return
 	}
 
 	resp.Success = true
 	resp.Data = user
 
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		log.Printf("Error getting user status: %s", err)
-	}
-
+	JSON(w, resp)
 }
 
 func ListUsers(w http.ResponseWriter, r *http.Request) {
@@ -414,21 +382,15 @@ func ListUsers(w http.ResponseWriter, r *http.Request) {
 
 	users, err := Auth.listUsers()
 	if err != nil {
-		log.Printf("Error in ListUsers handler: ", err)
+		log.Printf("Error in ListUsers handler: %s", err)
 		resp.Data = fmt.Sprint("Error listing users")
 		resp.Success = false
-		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			log.Printf("Error listing mods: %s", err)
-		}
-		return
+	} else {
+		resp.Success = true
+		resp.Data = users
 	}
 
-	resp.Success = true
-	resp.Data = users
-
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		log.Printf("Error getting user status: %s", err)
-	}
+	JSON(w, resp)
 }
 
 func AddUser(w http.ResponseWriter, r *http.Request) {
@@ -450,9 +412,7 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Error in reading add user POST: %s", err)
 			resp.Data = fmt.Sprintf("Error in adding user: %s", err)
 			resp.Success = false
-			if err := json.NewEncoder(w).Encode(resp); err != nil {
-				log.Printf("Error adding user: %s", err)
-			}
+			JSON(w, resp)
 			return
 		}
 
@@ -463,9 +423,7 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Error unmarshaling user add JSON: %s", err)
 			resp.Data = fmt.Sprintf("Error in adding user: %s", err)
 			resp.Success = false
-			if err := json.NewEncoder(w).Encode(resp); err != nil {
-				log.Printf("Error adding user: %s", err)
-			}
+			JSON(w, resp)
 			return
 		}
 
@@ -474,18 +432,14 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Error in adding user: %s", err)
 			resp.Data = fmt.Sprintf("Error in adding user: %s", err)
 			resp.Success = false
-			if err := json.NewEncoder(w).Encode(resp); err != nil {
-				log.Printf("Error adding user: %s", err)
-			}
+			JSON(w, resp)
 			return
 		}
 
 		resp.Success = true
 		resp.Data = fmt.Sprintf("User: %s successfully added.", user.Username)
 	}
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		log.Printf("Error adding user: %s", err)
-	}
+	JSON(w, resp)
 }
 
 func RemoveUser(w http.ResponseWriter, r *http.Request) {
@@ -507,9 +461,7 @@ func RemoveUser(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Error in reading remove user POST: %s", err)
 			resp.Data = fmt.Sprintf("Error in removing user: %s", err)
 			resp.Success = false
-			if err := json.NewEncoder(w).Encode(resp); err != nil {
-				log.Printf("Error adding user: %s", err)
-			}
+			JSON(w, resp)
 			return
 		}
 		err = json.Unmarshal(body, &user)
@@ -517,9 +469,7 @@ func RemoveUser(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Error unmarshaling user remove JSON: %s", err)
 			resp.Data = fmt.Sprintf("Error in removing user: %s", err)
 			resp.Success = false
-			if err := json.NewEncoder(w).Encode(resp); err != nil {
-				log.Printf("Error removing user: %s", err)
-			}
+			JSON(w, resp)
 			return
 		}
 
@@ -528,18 +478,14 @@ func RemoveUser(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Error in remove user handler: %s", err)
 			resp.Data = fmt.Sprintf("Error in removing user: %s", err)
 			resp.Success = false
-			if err := json.NewEncoder(w).Encode(resp); err != nil {
-				log.Printf("Error adding user: %s", err)
-			}
+			JSON(w, resp)
 			return
 		}
 
 		resp.Success = true
 		resp.Data = fmt.Sprintf("User: %s successfully removed.", user.Username)
 	}
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		log.Printf("Error adding user: %s", err)
-	}
+	JSON(w, resp)
 }
 
 // Return JSON response of server-settings.json file
@@ -553,11 +499,7 @@ func GetServerSettings(w http.ResponseWriter, r *http.Request) {
 	//resp.Data = FactorioServ.Settings
 	resp.Success = true
 
-	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		log.Printf("Error encoding server settings JSON reponse: ", err)
-	}
-
-	log.Printf("Sent server settings response")
+	JSON(w, resp)
 }
 
 func UpdateServerSettings(w http.ResponseWriter, r *http.Request) {
@@ -571,9 +513,7 @@ func UpdateServerSettings(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		log.Printf("GET not supported for add user handler")
 		resp.Data = "Unsupported method"
-		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			log.Printf("Error adding user: %s", err)
-		}
+		JSON(w, resp)
 		break
 	case "POST":
 		body, err := ioutil.ReadAll(r.Body)
@@ -581,9 +521,7 @@ func UpdateServerSettings(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Error in reading server settings POST: %s", err)
 			resp.Data = fmt.Sprintf("Error in updating settings: %s", err)
 			resp.Success = false
-			if err := json.NewEncoder(w).Encode(resp); err != nil {
-				log.Printf("Error updating settings: %s", err)
-			}
+			JSON(w, resp)
 			return
 		}
 		log.Printf("Received settings JSON: %s", body)
