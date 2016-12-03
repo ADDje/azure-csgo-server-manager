@@ -305,7 +305,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		var user User
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			log.Printf("Error in starting factorio server handler body: %s", err)
+			log.Printf("Error in starting csgo server handler body: %s", err)
 			return
 		}
 

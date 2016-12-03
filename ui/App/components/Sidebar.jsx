@@ -22,10 +22,10 @@ class Sidebar extends React.Component {
 
                 <div className="user-panel">
                     <div className="pull-left image">
-                    <img src="./dist/dist/img/factorio.jpg" className="img-circle" alt="User Image" />
+                    <img src="./dist/dist/img/azure.png" alt="User Image" />
                     </div>
                     <div className="pull-left info">
-                    <p>Factorio Server Manager</p>
+                    <p>CS:GO Server Manager</p>
 
                     {serverStatus}
 

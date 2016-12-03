@@ -37,7 +37,7 @@ class UsersContent extends React.Component {
                 <section className="content-header">
                 <h1>
                     Settings
-                    <small>Manage Factorio Server Manager settings</small>
+                    <small>Manage Azure CS:GO Server Manager settings</small>
                 </h1>
                 <ol className="breadcrumb">
                     <li><IndexLink to="/"><i className="fa fa-dashboard fa-fw" />Server Control</IndexLink></li>

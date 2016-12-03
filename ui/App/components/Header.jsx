@@ -38,7 +38,7 @@ class Header extends React.Component {
         return(
             <header className="main-header">
                 
-                <IndexLink className="logo" to="/"><span className="logo-lg"><b>Factorio</b>SM</span></IndexLink>
+                <IndexLink className="logo" to="/"><span className="logo-lg"><b>Azure CS:GO</b></span></IndexLink>
                 
                 <nav className="navbar navbar-static-top" role="navigation">
                 <a href="#" className="sidebar-toggle" data-toggle="offcanvas" role="button">

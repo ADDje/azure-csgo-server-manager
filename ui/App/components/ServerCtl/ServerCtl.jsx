@@ -65,9 +65,9 @@ class ServerCtl extends React.Component {
                 this.props.getServStatus();
                 this.props.getStatus();
                 if (resp.success === true) {
-                    swal("Factorio Server Started", resp.data)
+                    swal("CS:GO Server Started", resp.data)
                 } else {
-                    swal("Error", "Error starting Factorio Server", "error")
+                    swal("Error", "Error starting CS:GO Server", "error")
                 }
             }
         })

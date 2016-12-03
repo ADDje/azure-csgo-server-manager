@@ -34,7 +34,7 @@ class SavesContent extends React.Component {
                 <section className="content-header">
                 <h1>
                     Saves
-                    <small>Factorio Save Files</small>
+                    <small>Save Files</small>
                 </h1>
                 <ol className="breadcrumb">
                     <li><IndexLink to="/"><i className="fa fa-dashboard fa-fw" />Server Control</IndexLink></li>

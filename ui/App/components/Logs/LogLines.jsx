@@ -10,7 +10,7 @@ class LogLines extends React.Component {
         return(
             <div className="box">
                 <div className="box-header">
-                    <h3 className="box-title">Factorio Log</h3>
+                    <h3 className="box-title">Server Log</h3>
                 </div>
                 <div className="box-body">
                 <input className="btn btn-default" type='button' onClick={this.updateLog.bind(this)} value="Refresh" />

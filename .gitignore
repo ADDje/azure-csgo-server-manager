@@ -1,6 +1,5 @@
 node_modules/
 bundle.js
-factorio-server-manager
 auth.leveldb*
 conf.json
 *.exe
