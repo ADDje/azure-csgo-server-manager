@@ -8,3 +8,5 @@ conf.json
 src/glide.lock
 src/debug*
 src/vendor
+Templates/
+Configs/

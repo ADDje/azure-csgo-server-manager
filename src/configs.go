@@ -38,7 +38,6 @@ func loadConfigText(filename string) (string, error) {
 
 // GetServerConfigsFromFile loads all configs in the config directory
 // and returns them in a map indexed by filename
-// TODO: Cache
 func GetServerConfigsFromFile() (map[string]*CsgoServerSettings, error) {
 	files, err := ioutil.ReadDir(CONFIG_DIRECTORY)
 
@@ -85,4 +84,15 @@ func GetServerConfigTextFromFile(name string) (string, error) {
 	}
 
 	return config, nil
+}
+
+// CheckConfigValid returns whether or not a config file is valid
+func CheckConfigValid(config []byte) (bool, error) {
+	_, err := csgo_cfg.Load(config)
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }

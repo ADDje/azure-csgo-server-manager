@@ -131,10 +131,7 @@ func UpdateServerConfigText(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		log.Printf("GET not supported for update config")
 		resp.Data = "Unsupported method"
-		resp.Success = false
-		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			log.Printf("Error listing mods: %s", err)
-		}
+		break
 	case "POST":
 
 		vars := mux.Vars(r)
@@ -153,7 +150,16 @@ func UpdateServerConfigText(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// TODO: Check if the string is valid
+		var valid bool
+		valid, err = CheckConfigValid(body)
+		if !valid {
+			log.Printf("Error parsing file: %s", err)
+			resp.Data = fmt.Sprintf("%s", err)
+			if err = json.NewEncoder(w).Encode(resp); err != nil {
+				log.Printf("Error updating server config: %s", err)
+			}
+			return
+		}
 
 		err = ioutil.WriteFile(fileName, body, 0770)
 
@@ -164,9 +170,143 @@ func UpdateServerConfigText(w http.ResponseWriter, r *http.Request) {
 
 		resp.Data = fmt.Sprintf("Config: %s, edited successfully", vars["configName"])
 		resp.Success = true
-		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			log.Printf("Error editing config: %s", err)
+	}
+
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		log.Printf("Error updating server config: %s", err)
+	}
+}
+
+func GetDeploymentTemplates(w http.ResponseWriter, r *http.Request) {
+	resp := JSONResponse{
+		Success: false,
+	}
+
+	data, err := GetTemplates()
+
+	if err == nil {
+		resp.Success = true
+		resp.Data = data
+	}
+
+	if err = json.NewEncoder(w).Encode(resp); err != nil {
+		log.Printf("Error editing config: %s", err)
+	}
+}
+
+func UpdateTemplateParameters(w http.ResponseWriter, r *http.Request) {
+	resp := JSONResponse{
+		Success: false,
+	}
+
+	var err error
+	vars := mux.Vars(r)
+
+	switch r.Method {
+	case "GET":
+		log.Printf("GET not supported for update template parameters")
+		resp.Data = "Unsupported method"
+		break
+	case "POST":
+		fileName := TEMPLATE_DIRECTORY + vars["templateName"] + ".parameters.json"
+
+		_, err := ioutil.ReadFile(fileName)
+		if err != nil {
+			log.Printf("Error reading file %s: %s", fileName, err)
+			return
 		}
+
+		body, err := ioutil.ReadAll(r.Body)
+
+		if err != nil {
+			log.Printf("Error in starting updating template parameters handler body: %s", err)
+			return
+		}
+
+		var valid bool
+		valid, err = CheckTemplateValid(body)
+
+		if !valid {
+			log.Printf("Error parsing file: %s", err)
+			resp.Data = fmt.Sprintf("%s", err)
+			if err = json.NewEncoder(w).Encode(resp); err != nil {
+				log.Printf("Error parsing template parameters: %s", err)
+			}
+			return
+		}
+
+		err = ioutil.WriteFile(fileName, body, 0770)
+
+		if err != nil {
+			log.Printf("Error writing file %s: %s", fileName, err)
+			return
+		}
+
+		resp.Data = fmt.Sprintf("Config: %s, edited successfully", vars["configName"])
+		resp.Success = true
+
+	}
+
+	if err = json.NewEncoder(w).Encode(resp); err != nil {
+		log.Printf("Error updateing template parameters %s: %s", vars["templateName"], err)
+	}
+}
+
+func UpdateTemplateText(w http.ResponseWriter, r *http.Request) {
+	resp := JSONResponse{
+		Success: false,
+	}
+
+	var err error
+	vars := mux.Vars(r)
+
+	switch r.Method {
+	case "GET":
+		log.Printf("GET not supported for update template")
+		resp.Data = "Unsupported method"
+		break
+	case "POST":
+		fileName := TEMPLATE_DIRECTORY + vars["templateName"] + ".json"
+
+		_, err := ioutil.ReadFile(fileName)
+		if err != nil {
+			log.Printf("Error reading file %s: %s", fileName, err)
+			return
+		}
+
+		body, err := ioutil.ReadAll(r.Body)
+
+		if err != nil {
+			log.Printf("Error in starting updating template handler body: %s", err)
+			return
+		}
+
+		var valid bool
+		valid, err = CheckTemplateValid(body)
+
+		if !valid {
+			log.Printf("Error parsing file: %s", err)
+			resp.Data = fmt.Sprintf("%s", err)
+			if err = json.NewEncoder(w).Encode(resp); err != nil {
+				log.Printf("Error parsing template: %s", err)
+			}
+			return
+		}
+
+		err = ioutil.WriteFile(fileName, body, 0770)
+
+		if err != nil {
+			log.Printf("Error writing file %s: %s", fileName, err)
+			return
+		}
+
+		resp.Data = fmt.Sprintf("Config: %s, edited successfully", vars["configName"])
+		resp.Success = true
+
+	}
+
+	if err = json.NewEncoder(w).Encode(resp); err != nil {
+		log.Printf("Error updateing template %s: %s", vars["templateName"], err)
 	}
 }
 
@@ -181,10 +321,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		log.Printf("GET not supported for login handler")
 		resp.Data = "Unsupported method"
-		resp.Success = false
-		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			log.Printf("Error listing mods: %s", err)
-		}
+		break
 	case "POST":
 		var user User
 		body, err := ioutil.ReadAll(r.Body)
@@ -215,9 +352,10 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		log.Printf("User: %s, logged in successfully", user.Username)
 		resp.Data = fmt.Sprintf("User: %s, logged in successfully", user.Username)
 		resp.Success = true
-		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			log.Printf("Error listing mods: %s", err)
-		}
+	}
+
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		log.Printf("Error listing mods: %s", err)
 	}
 }
 
@@ -304,10 +442,7 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		log.Printf("GET not supported for add user handler")
 		resp.Data = "Unsupported method"
-		resp.Success = false
-		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			log.Printf("Error adding user: %s", err)
-		}
+		break
 	case "POST":
 		user := User{}
 		body, err := ioutil.ReadAll(r.Body)
@@ -347,9 +482,9 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 
 		resp.Success = true
 		resp.Data = fmt.Sprintf("User: %s successfully added.", user.Username)
-		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			log.Printf("Error in returning added user response: %s", err)
-		}
+	}
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		log.Printf("Error adding user: %s", err)
 	}
 }
 
@@ -364,10 +499,7 @@ func RemoveUser(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		log.Printf("GET not supported for add user handler")
 		resp.Data = "Unsupported method"
-		resp.Success = false
-		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			log.Printf("Error adding user: %s", err)
-		}
+		break
 	case "POST":
 		user := User{}
 		body, err := ioutil.ReadAll(r.Body)
@@ -404,9 +536,9 @@ func RemoveUser(w http.ResponseWriter, r *http.Request) {
 
 		resp.Success = true
 		resp.Data = fmt.Sprintf("User: %s successfully removed.", user.Username)
-		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			log.Printf("Error in returning remove user response: %s", err)
-		}
+	}
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		log.Printf("Error adding user: %s", err)
 	}
 }
 
@@ -439,10 +571,10 @@ func UpdateServerSettings(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		log.Printf("GET not supported for add user handler")
 		resp.Data = "Unsupported method"
-		resp.Success = false
 		if err := json.NewEncoder(w).Encode(resp); err != nil {
 			log.Printf("Error adding user: %s", err)
 		}
+		break
 	case "POST":
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {

@@ -55,6 +55,10 @@ func NewRouter() *mux.Router {
 		Methods("GET").
 		Name("Configs").
 		Handler(AuthorizeHandler(http.StripPrefix("/configs", http.FileServer(http.Dir("./app/")))))
+	r.Path("/templates").
+		Methods("GET").
+		Name("Templates").
+		Handler(AuthorizeHandler(http.StripPrefix("/templates", http.FileServer(http.Dir("./app/")))))
 	r.Path("/config").
 		Methods("GET").
 		Name("Config").
@@ -158,5 +162,25 @@ var apiRoutes = Routes{
 		"POST",
 		"/configs/gettext/{configName}",
 		UpdateServerConfigText,
+	},
+
+	// Templates
+	{
+		"GetTemplates",
+		"GET",
+		"/templates/list",
+		GetDeploymentTemplates,
+	},
+	{
+		"UpdateParameters",
+		"POST",
+		"/templates/{templateName}parameters",
+		UpdateTemplateParameters,
+	},
+	{
+		"UpdateTemplate",
+		"POST",
+		"/templates/{templateName}/update",
+		UpdateTemplateText,
 	},
 }
