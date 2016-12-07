@@ -1,0 +1,27 @@
+/* Custom CSS for Azure CS:GO Server Manager */
+
+.col-centered {
+    float: none;
+    margin: 0 auto;
+}
+
+.absolute-center {
+    margin: auto;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+}
+
+.row-link {
+    display: block;
+    width: 100%;
+    height: 20px;
+}
+
+.row-link:hover {
+    background-color: rgba(200,200,200,0.15);
+}
+
+.full-text {
+    width: 100%;
+    height: 500px;
+}
