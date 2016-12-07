@@ -26,8 +26,8 @@ func NewRouter() *mux.Router {
 		s.Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
-			//Handler(AuthorizeHandler(route.HandlerFunc))
-			Handler(route.HandlerFunc)
+			Handler(AuthorizeHandler(route.HandlerFunc))
+		//Handler(route.HandlerFunc)
 	}
 
 	// The login handler does not check for authentication.

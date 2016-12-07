@@ -75,5 +75,5 @@ func main() {
 	router := NewRouter()
 
 	fmt.Printf("Starting server on: %s:%s", config.ServerIP, config.ServerPort)
-	log.Fatal(http.ListenAndServe(config.ServerIP+":"+config.ServerPort, router))
+	log.Fatal(http.ListenAndServeTLS(config.ServerIP+":"+config.ServerPort, "certs/cert.pem", "certs/key.pem", router))
 }

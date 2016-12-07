@@ -138,8 +138,8 @@ class App extends React.Component {
                         azureServerStatus={this.state.azureServerStatus}
                     />
                     
-                    // Render react-router components and pass in props
-                    {React.cloneElement(
+                    {// Render react-router components and pass in props
+                    React.cloneElement(
                         this.props.children,
                         {message: "",
                         messages: this.state.messages,

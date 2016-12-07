@@ -1,4 +1,4 @@
-# Build tool for Factorio Server Manager
+# Build tool for Azure CS:GO Server Manager
 #
 
 NODE_ENV:=production
@@ -6,16 +6,18 @@ NODE_ENV:=production
 build:
 	# Build Linux release
 	mkdir build
-	GOOS=linux GOARCH=amd64 go build -o factorio-server-linux/factorio-server-manager src/*
+	GOOS=linux GOARCH=amd64 go build -o azure-csgo-server-linux/azure-csgo-server-windows src/*
 #	ui/node_modules/webpack/bin/webpack.js ui/webpack.config.js app/bundle.js --progress --profile --colors 
-	cp -r app/ factorio-server-linux/
-	cp conf.json.example factorio-server-linux/conf.json
-	zip -r build/factorio-server-manager-linux-x64.zip factorio-server-linux
-	rm -rf factorio-server-linux
+	cp -r app/ azure-csgo-server-linux/
+	cp conf.json.example azure-csgo-server-linux/conf.json
+	zip -r build/azure-csgo-server-linux-x64.zip azure-csgo-server-linux
+	rm -rf azure-csgo-server-linux
 	# Build Windows release
-	GOOS=windows GOARCH=386 go build -o factorio-server-windows/factorio-server-manager.exe src/*
-	cp -r app/ factorio-server-windows/
-	cp conf.json.example factorio-server-windows/conf.json
-	zip -r build/factorio-server-manager-windows.zip factorio-server-windows
-	rm -rf factorio-server-windows
+	GOOS=windows GOARCH=386 go build -o azure-csgo-server-windows/azure-csgo-server-windows.exe src/*
+	cp -r app/ azure-csgo-server-windows/
+	cp conf.json.example azure-csgo-server-windows/conf.json
+    cp -r configs/ azure-csgo-server-windows
+    cp -r templates/ azure-csgo-server-windows
+	zip -r build/factorio-server-manager-windows.zip azure-csgo-server-windows
+	rm -rf azure-csgo-server-windows
 
