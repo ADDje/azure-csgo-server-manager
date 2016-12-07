@@ -82,6 +82,7 @@ class ConfigsContent extends React.Component {
                     <ListConfigs
                         configs={this.state.listConfigs}
                         focusConfig={this.focusConfig}
+                        reloadConfigs={this.loadConfigList}
                     />
 
                     <ConfigEditor

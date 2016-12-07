@@ -163,6 +163,18 @@ var apiRoutes = Routes{
 		"/configs/gettext/{configName}",
 		UpdateServerConfigText,
 	},
+	{
+		"CreateConfig",
+		"POST",
+		"/configs/create/{configName}",
+		CreateServerConfig,
+	},
+	{
+		"DeleteConfig",
+		"POST",
+		"/configs/delete/{configName}",
+		DeleteServerConfig,
+	},
 
 	// Templates
 	{

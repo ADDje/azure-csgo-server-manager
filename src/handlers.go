@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 )
@@ -120,48 +121,82 @@ func UpdateServerConfigText(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 
-	switch r.Method {
-	case "GET":
-		log.Printf("GET not supported for update config")
-		resp.Data = "Unsupported method"
-		break
-	case "POST":
+	vars := mux.Vars(r)
+	fileName := CONFIG_DIRECTORY + vars["configName"]
 
-		vars := mux.Vars(r)
-		fileName := CONFIG_DIRECTORY + vars["configName"]
-
-		_, err := ioutil.ReadFile(fileName)
-		if err != nil {
-			log.Printf("Error reading file %s: %s", fileName, err)
-			return
-		}
-
-		body, err := ioutil.ReadAll(r.Body)
-
-		if err != nil {
-			log.Printf("Error in starting updating config handler body: %s", err)
-			return
-		}
-
-		var valid bool
-		valid, err = CheckConfigValid(body)
-		if !valid {
-			log.Printf("Error parsing file: %s", err)
-			resp.Data = fmt.Sprintf("%s", err)
-			JSON(w, resp)
-			return
-		}
-
-		err = ioutil.WriteFile(fileName, body, 0770)
-
-		if err != nil {
-			log.Printf("Error writing file %s: %s", fileName, err)
-			return
-		}
-
-		resp.Data = fmt.Sprintf("Config: %s, edited successfully", vars["configName"])
-		resp.Success = true
+	_, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		log.Printf("Error reading file %s: %s", fileName, err)
+		return
 	}
+
+	body, err := ioutil.ReadAll(r.Body)
+
+	if err != nil {
+		log.Printf("Error in starting updating config handler body: %s", err)
+		return
+	}
+
+	var valid bool
+	valid, err = CheckConfigValid(body)
+	if !valid {
+		log.Printf("Error parsing file: %s", err)
+		resp.Data = fmt.Sprintf("%s", err)
+		JSON(w, resp)
+		return
+	}
+
+	err = ioutil.WriteFile(fileName, body, 0770)
+
+	if err != nil {
+		log.Printf("Error writing file %s: %s", fileName, err)
+		return
+	}
+
+	resp.Data = fmt.Sprintf("Config: %s, edited successfully", vars["configName"])
+	resp.Success = true
+
+	JSON(w, resp)
+}
+
+func CreateServerConfig(w http.ResponseWriter, r *http.Request) {
+	resp := JSONResponse{
+		Success: false,
+	}
+
+	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
+	vars := mux.Vars(r)
+	fileName := CONFIG_DIRECTORY + vars["configName"]
+
+	err := ioutil.WriteFile(fileName, nil, 0770)
+
+	if err != nil {
+		log.Printf("Error creating file %s: %s", fileName, err)
+		return
+	}
+
+	resp.Success = true
+
+	JSON(w, resp)
+}
+
+func DeleteServerConfig(w http.ResponseWriter, r *http.Request) {
+	resp := JSONResponse{
+		Success: false,
+	}
+
+	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
+	vars := mux.Vars(r)
+	fileName := CONFIG_DIRECTORY + vars["configName"]
+
+	err := os.Remove(fileName)
+
+	if err != nil {
+		log.Printf("Error deleting file %s: %s", fileName, err)
+		return
+	}
+
+	resp.Success = true
 
 	JSON(w, resp)
 }
@@ -243,48 +278,40 @@ func UpdateTemplateText(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 
-	switch r.Method {
-	case "GET":
-		log.Printf("GET not supported for update template")
-		resp.Data = "Unsupported method"
-		break
-	case "POST":
-		fileName := TEMPLATE_DIRECTORY + vars["templateName"] + ".json"
+	fileName := TEMPLATE_DIRECTORY + vars["templateName"] + ".json"
 
-		_, err := ioutil.ReadFile(fileName)
-		if err != nil {
-			log.Printf("Error reading file %s: %s", fileName, err)
-			return
-		}
-
-		body, err := ioutil.ReadAll(r.Body)
-
-		if err != nil {
-			log.Printf("Error in starting updating template handler body: %s", err)
-			return
-		}
-
-		var valid bool
-		valid, err = CheckTemplateValid(body)
-
-		if !valid {
-			log.Printf("Error parsing file: %s", err)
-			resp.Data = fmt.Sprintf("%s", err)
-			JSON(w, resp)
-			return
-		}
-
-		err = ioutil.WriteFile(fileName, body, 0770)
-
-		if err != nil {
-			log.Printf("Error writing file %s: %s", fileName, err)
-			return
-		}
-
-		resp.Data = fmt.Sprintf("Config: %s, edited successfully", vars["configName"])
-		resp.Success = true
-
+	_, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		log.Printf("Error reading file %s: %s", fileName, err)
+		return
 	}
+
+	body, err := ioutil.ReadAll(r.Body)
+
+	if err != nil {
+		log.Printf("Error in starting updating template handler body: %s", err)
+		return
+	}
+
+	var valid bool
+	valid, err = CheckTemplateValid(body)
+
+	if !valid {
+		log.Printf("Error parsing file: %s", err)
+		resp.Data = fmt.Sprintf("%s", err)
+		JSON(w, resp)
+		return
+	}
+
+	err = ioutil.WriteFile(fileName, body, 0770)
+
+	if err != nil {
+		log.Printf("Error writing file %s: %s", fileName, err)
+		return
+	}
+
+	resp.Data = fmt.Sprintf("Config: %s, edited successfully", vars["configName"])
+	resp.Success = true
 
 	JSON(w, resp)
 }
@@ -296,40 +323,33 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 
-	switch r.Method {
-	case "GET":
-		log.Printf("GET not supported for login handler")
-		resp.Data = "Unsupported method"
-		break
-	case "POST":
-		var user User
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			log.Printf("Error in starting csgo server handler body: %s", err)
-			return
-		}
-
-		err = json.Unmarshal(body, &user)
-		if err != nil {
-			log.Printf("Error unmarshaling server settings JSON: %s", err)
-			return
-		}
-
-		log.Printf("Logging in user: %s", user.Username)
-
-		err = Auth.aaa.Login(w, r, user.Username, user.Password, "/")
-		if err != nil {
-			log.Printf("Error logging in user: %s, error: %s", user.Username, err)
-			resp.Data = fmt.Sprintf("Error logging in user: %s", user.Username)
-			resp.Success = false
-			JSON(w, resp)
-			return
-		}
-
-		log.Printf("User: %s, logged in successfully", user.Username)
-		resp.Data = fmt.Sprintf("User: %s, logged in successfully", user.Username)
-		resp.Success = true
+	var user User
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Error in starting csgo server handler body: %s", err)
+		return
 	}
+
+	err = json.Unmarshal(body, &user)
+	if err != nil {
+		log.Printf("Error unmarshaling server settings JSON: %s", err)
+		return
+	}
+
+	log.Printf("Logging in user: %s", user.Username)
+
+	err = Auth.aaa.Login(w, r, user.Username, user.Password, "/")
+	if err != nil {
+		log.Printf("Error logging in user: %s, error: %s", user.Username, err)
+		resp.Data = fmt.Sprintf("Error logging in user: %s", user.Username)
+		resp.Success = false
+		JSON(w, resp)
+		return
+	}
+
+	log.Printf("User: %s, logged in successfully", user.Username)
+	resp.Data = fmt.Sprintf("User: %s, logged in successfully", user.Username)
+	resp.Success = true
 
 	JSON(w, resp)
 }
@@ -400,45 +420,39 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 
-	switch r.Method {
-	case "GET":
-		log.Printf("GET not supported for add user handler")
-		resp.Data = "Unsupported method"
-		break
-	case "POST":
-		user := User{}
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			log.Printf("Error in reading add user POST: %s", err)
-			resp.Data = fmt.Sprintf("Error in adding user: %s", err)
-			resp.Success = false
-			JSON(w, resp)
-			return
-		}
-
-		log.Printf("Adding user: %v", string(body))
-
-		err = json.Unmarshal(body, &user)
-		if err != nil {
-			log.Printf("Error unmarshaling user add JSON: %s", err)
-			resp.Data = fmt.Sprintf("Error in adding user: %s", err)
-			resp.Success = false
-			JSON(w, resp)
-			return
-		}
-
-		err = Auth.addUser(user.Username, user.Password, user.Email, user.Role)
-		if err != nil {
-			log.Printf("Error in adding user: %s", err)
-			resp.Data = fmt.Sprintf("Error in adding user: %s", err)
-			resp.Success = false
-			JSON(w, resp)
-			return
-		}
-
-		resp.Success = true
-		resp.Data = fmt.Sprintf("User: %s successfully added.", user.Username)
+	user := User{}
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Error in reading add user POST: %s", err)
+		resp.Data = fmt.Sprintf("Error in adding user: %s", err)
+		resp.Success = false
+		JSON(w, resp)
+		return
 	}
+
+	log.Printf("Adding user: %v", string(body))
+
+	err = json.Unmarshal(body, &user)
+	if err != nil {
+		log.Printf("Error unmarshaling user add JSON: %s", err)
+		resp.Data = fmt.Sprintf("Error in adding user: %s", err)
+		resp.Success = false
+		JSON(w, resp)
+		return
+	}
+
+	err = Auth.addUser(user.Username, user.Password, user.Email, user.Role)
+	if err != nil {
+		log.Printf("Error in adding user: %s", err)
+		resp.Data = fmt.Sprintf("Error in adding user: %s", err)
+		resp.Success = false
+		JSON(w, resp)
+		return
+	}
+
+	resp.Success = true
+	resp.Data = fmt.Sprintf("User: %s successfully added.", user.Username)
+
 	JSON(w, resp)
 }
 
@@ -449,42 +463,36 @@ func RemoveUser(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 
-	switch r.Method {
-	case "GET":
-		log.Printf("GET not supported for add user handler")
-		resp.Data = "Unsupported method"
-		break
-	case "POST":
-		user := User{}
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			log.Printf("Error in reading remove user POST: %s", err)
-			resp.Data = fmt.Sprintf("Error in removing user: %s", err)
-			resp.Success = false
-			JSON(w, resp)
-			return
-		}
-		err = json.Unmarshal(body, &user)
-		if err != nil {
-			log.Printf("Error unmarshaling user remove JSON: %s", err)
-			resp.Data = fmt.Sprintf("Error in removing user: %s", err)
-			resp.Success = false
-			JSON(w, resp)
-			return
-		}
-
-		err = Auth.removeUser(user.Username)
-		if err != nil {
-			log.Printf("Error in remove user handler: %s", err)
-			resp.Data = fmt.Sprintf("Error in removing user: %s", err)
-			resp.Success = false
-			JSON(w, resp)
-			return
-		}
-
-		resp.Success = true
-		resp.Data = fmt.Sprintf("User: %s successfully removed.", user.Username)
+	user := User{}
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Error in reading remove user POST: %s", err)
+		resp.Data = fmt.Sprintf("Error in removing user: %s", err)
+		resp.Success = false
+		JSON(w, resp)
+		return
 	}
+	err = json.Unmarshal(body, &user)
+	if err != nil {
+		log.Printf("Error unmarshaling user remove JSON: %s", err)
+		resp.Data = fmt.Sprintf("Error in removing user: %s", err)
+		resp.Success = false
+		JSON(w, resp)
+		return
+	}
+
+	err = Auth.removeUser(user.Username)
+	if err != nil {
+		log.Printf("Error in remove user handler: %s", err)
+		resp.Data = fmt.Sprintf("Error in removing user: %s", err)
+		resp.Success = false
+		JSON(w, resp)
+		return
+	}
+
+	resp.Success = true
+	resp.Data = fmt.Sprintf("User: %s successfully removed.", user.Username)
+
 	JSON(w, resp)
 }
 
@@ -509,21 +517,14 @@ func UpdateServerSettings(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 
-	switch r.Method {
-	case "GET":
-		log.Printf("GET not supported for add user handler")
-		resp.Data = "Unsupported method"
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Error in reading server settings POST: %s", err)
+		resp.Data = fmt.Sprintf("Error in updating settings: %s", err)
+		resp.Success = false
 		JSON(w, resp)
-		break
-	case "POST":
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			log.Printf("Error in reading server settings POST: %s", err)
-			resp.Data = fmt.Sprintf("Error in updating settings: %s", err)
-			resp.Success = false
-			JSON(w, resp)
-			return
-		}
-		log.Printf("Received settings JSON: %s", body)
+		return
 	}
+	log.Printf("Received settings JSON: %s", body)
+
 }

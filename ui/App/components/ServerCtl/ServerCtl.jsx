@@ -1,4 +1,5 @@
 import React from 'react';
+import swal from 'sweetalert';
 
 class ServerCtl extends React.Component {
     constructor(props) {
