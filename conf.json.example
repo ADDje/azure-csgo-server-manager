@@ -1,6 +1,12 @@
 {
     "username": "admin",
-    "password": "factorio",
+    "password": "mypassword",
     "database_file": "auth.leveldb",
-    "cookie_encryption_key": "topsecretkey"
+    "cookie_encryption_key": "topsecretkey",
+
+    "azure_client_id": "my-guid-goes-here",
+    "azure_client_secret": "somesecret",
+    "azure_subscription_id": "another-guid-goes-here",
+    "azure_tenant_id": "guess-what-another-guid",
+    "resource_group": "CSGO-Something"
 }
