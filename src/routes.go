@@ -186,7 +186,7 @@ var apiRoutes = Routes{
 	{
 		"UpdateParameters",
 		"POST",
-		"/templates/{templateName}parameters",
+		"/templates/{templateName}/parameters",
 		UpdateTemplateParameters,
 	},
 	{

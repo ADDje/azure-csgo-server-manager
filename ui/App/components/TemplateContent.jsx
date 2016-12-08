@@ -75,6 +75,7 @@ class TemplateContent extends React.Component {
                     <TemplateViewer
                         template={this.state.selectedTemplate}
                         templateName={this.state.selectedTemplateName}
+                        reloadSelected={this.loadTemplates}
                     />
 
                 </section>

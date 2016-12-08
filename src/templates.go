@@ -87,9 +87,10 @@ func LoadTemplateParamsFromFile(name string) ([]byte, error) {
 	return ioutil.ReadFile(TEMPLATE_DIRECTORY + name + ".parameters.json")
 }
 
-// CheckTemplateValid returns whether or not a config file is valid
+// CheckTemplateValid returns whether or not a template file is valid
 func CheckTemplateValid(template []byte) (bool, error) {
 	//TODO
 
+	log.Printf("Content: %s", string(template))
 	return true, nil
 }
