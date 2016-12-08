@@ -195,4 +195,16 @@ var apiRoutes = Routes{
 		"/templates/{templateName}/update",
 		UpdateTemplateText,
 	},
+	{
+		"CreateTemplate",
+		"POST",
+		"/templates/create/{templateName}",
+		CreateDeploymentTemplate,
+	},
+	{
+		"DeleteTemplate",
+		"POST",
+		"/templates/delete/{templateName}",
+		DeleteDeploymentTemplate,
+	},
 }

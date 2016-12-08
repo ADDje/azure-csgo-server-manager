@@ -223,50 +223,42 @@ func UpdateTemplateParameters(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 
-	switch r.Method {
-	case "GET":
-		log.Printf("GET not supported for update template parameters")
-		resp.Data = "Unsupported method"
-		break
-	case "POST":
-		fileName := TEMPLATE_DIRECTORY + vars["templateName"] + ".parameters.json"
+	fileName := TEMPLATE_DIRECTORY + vars["templateName"] + ".parameters.json"
 
-		_, err := ioutil.ReadFile(fileName)
-		if err != nil {
-			log.Printf("Error reading file %s: %s", fileName, err)
-			return
-		}
-
-		body, err := ioutil.ReadAll(r.Body)
-
-		if err != nil {
-			log.Printf("Error in starting updating template parameters handler body: %s", err)
-			return
-		}
-
-		var valid bool
-		valid, err = CheckTemplateValid(body)
-
-		if !valid {
-			log.Printf("Error parsing file: %s", err)
-			resp.Data = fmt.Sprintf("%s", err)
-			if err = json.NewEncoder(w).Encode(resp); err != nil {
-				log.Printf("Error parsing template parameters: %s", err)
-			}
-			return
-		}
-
-		err = ioutil.WriteFile(fileName, body, 0770)
-
-		if err != nil {
-			log.Printf("Error writing file %s: %s", fileName, err)
-			return
-		}
-
-		resp.Data = fmt.Sprintf("Config: %s, edited successfully", vars["configName"])
-		resp.Success = true
-
+	_, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		log.Printf("Error reading file %s: %s", fileName, err)
+		return
 	}
+
+	body, err := ioutil.ReadAll(r.Body)
+
+	if err != nil {
+		log.Printf("Error in starting updating template parameters handler body: %s", err)
+		return
+	}
+
+	var valid bool
+	valid, err = CheckTemplateValid(body)
+
+	if !valid {
+		log.Printf("Error parsing file: %s", err)
+		resp.Data = fmt.Sprintf("%s", err)
+		if err = json.NewEncoder(w).Encode(resp); err != nil {
+			log.Printf("Error parsing template parameters: %s", err)
+		}
+		return
+	}
+
+	err = ioutil.WriteFile(fileName, body, 0770)
+
+	if err != nil {
+		log.Printf("Error writing file %s: %s", fileName, err)
+		return
+	}
+
+	resp.Data = fmt.Sprintf("Config: %s, edited successfully", vars["configName"])
+	resp.Success = true
 
 	JSON(w, resp)
 }
@@ -310,7 +302,66 @@ func UpdateTemplateText(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp.Data = fmt.Sprintf("Config: %s, edited successfully", vars["configName"])
+	resp.Data = fmt.Sprintf("Config: %s, edited successfully", vars["templateName"])
+	resp.Success = true
+
+	JSON(w, resp)
+}
+
+func CreateDeploymentTemplate(w http.ResponseWriter, r *http.Request) {
+	resp := JSONResponse{
+		Success: false,
+	}
+
+	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
+	vars := mux.Vars(r)
+	templateFileName := TEMPLATE_DIRECTORY + vars["templateName"] + ".json"
+	parameterFileName := TEMPLATE_DIRECTORY + vars["templateName"] + ".parameters.json"
+
+	err := ioutil.WriteFile(templateFileName, []byte("{}"), 0770)
+
+	if err != nil {
+		log.Printf("Error creating template file %s: %s", templateFileName, err)
+		return
+	}
+
+	err = ioutil.WriteFile(parameterFileName, []byte("{}"), 0770)
+
+	if err != nil {
+		log.Printf("Error creating parameter file %s: %s", parameterFileName, err)
+		return
+	}
+
+	resp.Success = true
+
+	JSON(w, resp)
+}
+
+func DeleteDeploymentTemplate(w http.ResponseWriter, r *http.Request) {
+	resp := JSONResponse{
+		Success: false,
+	}
+
+	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
+	vars := mux.Vars(r)
+
+	templateFileName := TEMPLATE_DIRECTORY + vars["templateName"] + ".json"
+	parameterFileName := TEMPLATE_DIRECTORY + vars["templateName"] + ".parameters.json"
+
+	err := os.Remove(templateFileName)
+
+	if err != nil {
+		log.Printf("Error deleting template %s: %s", templateFileName, err)
+		return
+	}
+
+	err = os.Remove(parameterFileName)
+
+	if err != nil {
+		log.Printf("Error deleting parameters %s: %s", parameterFileName, err)
+		return
+	}
+
 	resp.Success = true
 
 	JSON(w, resp)

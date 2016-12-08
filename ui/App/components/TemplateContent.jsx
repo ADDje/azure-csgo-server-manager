@@ -69,6 +69,7 @@ class TemplateContent extends React.Component {
                     <ListTemplates
                         templates={this.state.listTemplates}
                         focusTemplate={this.focusTemplate}
+                        reloadTemplates={this.loadTemplates}
                     />
 
                     <TemplateViewer
