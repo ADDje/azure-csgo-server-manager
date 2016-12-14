@@ -29,3 +29,7 @@
     width: 100%;
     height: 500px;
 }
+
+#settings-table {
+    overflow-x: hidden;
+}

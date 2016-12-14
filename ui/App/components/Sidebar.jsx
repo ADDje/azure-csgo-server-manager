@@ -47,9 +47,10 @@ class Sidebar extends React.Component {
                     <li><IndexLink to="/" activeClassName="active"><i className="fa fa-tachometer" /><span>Server Control</span></IndexLink></li>
                     <li><Link to="/configs" activeClassName="active"><i className="fa fa-gamepad" /><span>Server Configs</span></Link></li>
                     <li><Link to="/templates" activeClassName="active"><i className="fa fa-clone" /><span>Deployment Templates</span></Link></li>
-                    <li><Link to="/logs" activeClassName="active"><i className="fa fa-file-text-o" /> <span>Logs</span></Link></li>
-                    <li><Link to="/saves" activeClassName="active"><i className="fa fa-floppy-o" /> <span>Saves</span></Link></li>
-                    <li><Link to="/settings" activeClassName="active"><i className="fa fa-cog" /> <span>Settings</span></Link></li>
+                    <li><Link to="/logs" activeClassName="active"><i className="fa fa-file-text-o" /><span>Logs</span></Link></li>
+                    <li><Link to="/saves" activeClassName="active"><i className="fa fa-floppy-o" /><span>Saves</span></Link></li>
+                    <li><Link to="/users" activeClassName="active"><i className="fa fa-users" /><span>Users</span></Link></li>
+                    <li><Link to="/settings" activeClassName="active"><i className="fa fa-cogs" /><span>Settings</span></Link></li>
                 </ul>
                 </section>
                 <div style={{height: "100%"}} />

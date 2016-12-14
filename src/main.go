@@ -26,9 +26,8 @@ type Config struct {
 }
 
 var (
-	config   Config
-	CsgoServ *CsgoServer
-	Auth     *AuthHTTP
+	config Config
+	Auth   *AuthHTTP
 )
 
 func failOnError(err error, msg string) {

@@ -547,21 +547,22 @@ func RemoveUser(w http.ResponseWriter, r *http.Request) {
 	JSON(w, resp)
 }
 
-// Return JSON response of server-settings.json file
-func GetServerSettings(w http.ResponseWriter, r *http.Request) {
+// GetSettings Return JSON response of conf.json file
+func GetSettings(w http.ResponseWriter, r *http.Request) {
 	resp := JSONResponse{
 		Success: false,
 	}
 
 	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 
-	//resp.Data = FactorioServ.Settings
+	resp.Data = config
 	resp.Success = true
 
 	JSON(w, resp)
 }
 
-func UpdateServerSettings(w http.ResponseWriter, r *http.Request) {
+// UpdateSettings updates the conf.json file
+func UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	resp := JSONResponse{
 		Success: false,
 	}
@@ -572,10 +573,38 @@ func UpdateServerSettings(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Error in reading server settings POST: %s", err)
 		resp.Data = fmt.Sprintf("Error in updating settings: %s", err)
-		resp.Success = false
 		JSON(w, resp)
 		return
 	}
 	log.Printf("Received settings JSON: %s", body)
 
+	_, err = ioutil.ReadFile(config.ConfFile)
+	if err != nil {
+		log.Printf("Could not open config file %s: %s", config.ConfFile, err)
+		resp.Data = fmt.Sprintf("Error in updating settings: %s", err)
+		JSON(w, resp)
+		return
+	}
+
+	// Decode into config
+	err = json.Unmarshal(body, &config)
+	if err != nil {
+		log.Printf("Could not unmarshal config: %s", err)
+		return
+	}
+
+	log.Printf("Config: %s", config.ResourceGroup)
+
+	var newJSON []byte
+	newJSON, err = json.MarshalIndent(config, "", "    ")
+	err = ioutil.WriteFile(config.ConfFile, newJSON, 0770)
+	if err != nil {
+		log.Printf("Could not write config %s: %s", config.ConfFile, err)
+		resp.Data = fmt.Sprintf("Error in updating settings: %s", err)
+		JSON(w, resp)
+		return
+	}
+
+	resp.Success = true
+	JSON(w, resp)
 }

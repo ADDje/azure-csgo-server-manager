@@ -126,16 +126,18 @@ var apiRoutes = Routes{
 		"POST",
 		"/user/remove",
 		RemoveUser,
-	}, {
-		"GetServerSettings",
+	},
+	// Settings
+	{
+		"GetSettings",
 		"GET",
 		"/settings",
-		GetServerSettings,
+		GetSettings,
 	}, {
-		"UpdateServerSettings",
+		"UpdateSettings",
 		"POST",
-		"/settings/update",
-		UpdateServerSettings,
+		"/settings",
+		UpdateSettings,
 	},
 
 	// Configs

@@ -6,7 +6,7 @@ import ConfigsContent from './App/components/ConfigsContent.jsx'
 import TemplateContent from './App/components/TemplateContent.jsx'
 import LogsContent from './App/components/LogsContent.jsx'
 import SavesContent from './App/components/SavesContent.jsx'
-import ConfigContent from './App/components/ConfigContent.jsx'
+import SettingsContent from './App/components/SettingsContent.jsx'
 import LoginContent from './App/components/LoginContent.jsx'
 import UsersContent from './App/components/UsersContent.jsx'
 import Index from './App/components/Index.jsx'
@@ -18,12 +18,12 @@ ReactDOM.render(
         <Route path="/" component={App}>
             <IndexRoute component={Index} />
             <Route path="/server" component={Index} /> 
-            <Route path="/settings" component={UsersContent} />
+            <Route path="/settings" component={SettingsContent} />
+            <Route path="/users" component={UsersContent} />
             <Route path="/configs" component={ConfigsContent} />
             <Route path="/templates" component={TemplateContent} /> 
             <Route path="/logs" component={LogsContent} /> 
             <Route path="/saves" component={SavesContent} /> 
-            <Route path="/config" component={ConfigContent} /> 
         </Route>
     </Router>
 , document.getElementById('app'));
