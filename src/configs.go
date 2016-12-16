@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 
-	"../../go-csgo-cfg"
+	"github.com/MetalMichael/go-csgo-cfg"
 )
 
 const (
@@ -12,7 +12,7 @@ const (
 )
 
 // Loads cfg file from the config directory
-func loadConfig(filename string) (*CsgoServerSettings, error) {
+func loadConfig(filename interface{}) (*CsgoServerSettings, error) {
 	outModel := new(CsgoServerSettings)
 	config, err := csgo_cfg.Load(filename)
 
@@ -34,6 +34,39 @@ func loadConfigText(filename string) (string, error) {
 	}
 
 	return string(file), nil
+}
+
+func GetServerConfigsFromAzure() (map[string]*CsgoServerSettings, error) {
+	configFiles, err := getStorageFiles(config, "Configs")
+
+	if err != nil {
+		return nil, err
+	}
+
+	configs := make(map[string]*CsgoServerSettings)
+
+	for _, file := range configFiles {
+		azureFile, err := getStorageFile(config, "Configs", file)
+		if err != nil {
+			return nil, err
+		}
+
+		buffer := make([]byte, azureFile.Properties.ContentLength)
+		_, err2 := azureFile.Body.Read(buffer)
+		if err2 != nil {
+			return nil, err2
+		}
+
+		config, err3 := loadConfig(buffer)
+
+		if err3 == nil {
+			configs[file.Name] = config
+		} else {
+			log.Printf("Error Reading Config %s: %s", file.Name, err3)
+		}
+	}
+
+	return configs, nil
 }
 
 // GetServerConfigsFromFile loads all configs in the config directory
