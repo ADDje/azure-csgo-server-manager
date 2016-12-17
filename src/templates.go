@@ -117,8 +117,6 @@ func GetTemplatesFromAzure() (map[string]*DeploymentTemplate, error) {
 			continue
 		}
 
-		log.Printf("Template: '%s'", templateFile)
-
 		template := DeploymentTemplate{}
 		err = json.Unmarshal([]byte(templateFile), &template.Template)
 		if err != nil {
@@ -161,6 +159,6 @@ func loadTemplateParamsFromStorage(name string) (string, error) {
 func CheckTemplateValid(template []byte) (bool, error) {
 	//TODO
 
-	log.Printf("Content: %s", string(template))
+	//log.Printf("Content: %s", string(template))
 	return true, nil
 }

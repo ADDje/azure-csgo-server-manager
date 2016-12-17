@@ -7,8 +7,8 @@ conf.json
 src/glide.lock
 src/debug*
 src/vendor
-templates/
-configs/
+/templates/
+/configs/
 build/
 certs/
 npm-debug.log
