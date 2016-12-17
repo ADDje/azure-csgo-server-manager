@@ -69,7 +69,6 @@ class SettingsContent extends React.Component {
         this.updateSettings();
     }
 
-
     render() {
         return(
             <div className="content-wrapper">

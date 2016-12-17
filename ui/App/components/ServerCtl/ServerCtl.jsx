@@ -6,7 +6,7 @@ class ServerCtl extends React.Component {
         super(props)
 
         var selectedConfig = null
-        var selectedConfigName = null
+        var selectedConfigName = ""
         if (this.props.serverConfigs !== null &&
             Object.keys(this.props.serverConfigs).length > 0) {
 
@@ -15,7 +15,7 @@ class ServerCtl extends React.Component {
         }
 
         var selectedTemplate = null
-        var selectedTemplateName = null
+        var selectedTemplateName = ""
         if (this.props.deploymentTemplates !== null &&
             Object.keys(this.props.deploymentTemplates).length > 0) {
             
@@ -41,6 +41,9 @@ class ServerCtl extends React.Component {
         this.increaseNumberOfServers = this.increaseNumberOfServers.bind(this)
         this.decreaseNumberOfServers = this.decreaseNumberOfServers.bind(this)
         this.startServer = this.startServer.bind(this)
+
+        this.changeConfig = this.changeConfig.bind(this)
+        this.changeTemplate = this.changeTemplate.bind(this)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -53,6 +56,18 @@ class ServerCtl extends React.Component {
             this.setState({
                 selectedConfig: nextProps.serverConfigs[firstKey],
                 selectedConfigName: firstKey
+            })
+        }
+
+        if (this.state.selectedTemplate === null &&
+            nextProps.deploymentTemplates !== null &&
+            Object.keys(nextProps.deploymentTemplates).length > 0) {
+
+            var firstKey = Object.keys(nextProps.deploymentTemplates)[0]
+
+            this.setState({
+                selectedTemplate: nextProps.deploymentTemplates[firstKey],
+                selectedTemplateName: firstKey
             })
         }
     }
@@ -138,12 +153,29 @@ class ServerCtl extends React.Component {
         })
     }
 
+    changeConfig(e) {
+        var k = e.target.value
+        this.setState({selectedConfigName: k, selectedConfig: [this.props.serverConfigs[k]]})
+    }
+
+    changeTemplate(e) {
+        var k = e.target.value
+        this.setState({selectedTemplateName: k, selectedTemplate: [this.props.deploymentTemplates[k]]})
+    }
+
     render() {
         var files = []
 
-        for(var i in this.props.serverConfigs) {
+        for (var i in this.props.serverConfigs) {
             var config = this.props.serverConfigs[i]
             files.push(<option key={i} value={i}>{i}</option>)
+        }
+
+        var templates = []
+
+        for (var t in this.props.deploymentTemplates) {
+            var template = this.props.deploymentTemplates[t]
+            templates.push(<option key={t} value={t}>{t}</option>)
         }
 
         return(
@@ -166,12 +198,12 @@ class ServerCtl extends React.Component {
 
                             <label>Azure Server Name Prefix</label>
                             <div className="input-group">
-                                <input ref="serverName" name="serverName" type="text" className="form-control" onChange={this.changeServerPrefix} value={this.state.serverPrefix} />
+                                <input name="serverName" type="text" className="form-control" onChange={this.changeServerPrefix} value={this.state.serverPrefix} />
                             </div>
 
                             <label>Azure VM Password</label>
                             <div className="input-group">
-                                <input ref="vmPassword" name="vmPassword" type="Password" className="form-control" onChange={this.changeServerPassword} value={this.state.serverPassword} />
+                                <input name="vmPassword" type="Password" className="form-control" onChange={this.changeServerPassword} value={this.state.serverPassword} />
                             </div>
 
                             <label>Number of Servers</label>
@@ -188,8 +220,13 @@ class ServerCtl extends React.Component {
                             </div>
 
                             <label>Select Config File</label>
-                            <select ref="savefile" className="form-control" onChange={this.changeConfig}>
+                            <select value={this.state.selectedConfigName} className="form-control" onChange={this.changeConfig}>
                                 {files}
+                            </select>
+
+                            <label>Select Deployment Template</label>
+                            <select value={this.state.selectedTemplateName} className="form-control" onChange={this.changeTemplate}>
+                                {templates}
                             </select>
                         </div>
 
@@ -200,7 +237,9 @@ class ServerCtl extends React.Component {
                                 </div>
                             </button>
                             <div className="box-body" style={{display: "none"}}>
-                                
+                                {
+                                    // TODO
+                                }
                             </div>
                         </div>
                     </form>
