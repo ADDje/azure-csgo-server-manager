@@ -10,9 +10,17 @@ class ServerCtl extends React.Component {
         if (this.props.serverConfigs !== null &&
             Object.keys(this.props.serverConfigs).length > 0) {
 
-            var selectedConfigName = Object.keys(this.props.serverConfigs)[0]
-            
+            selectedConfigName = Object.keys(this.props.serverConfigs)[0]
             selectedConfig = this.props.serverConfigs[selectedConfigName]
+        }
+
+        var selectedTemplate = null
+        var selectedTemplateName = null
+        if (this.props.deploymentTemplates !== null &&
+            Object.keys(this.props.deploymentTemplates).length > 0) {
+            
+            selectedTemplateName = Object.keys(this.props.deploymentTemplates)[0]
+            selectedTemplate = this.props.deploymentTemplates[selectedTemplateName]
         }
 
         this.state = {
@@ -22,6 +30,9 @@ class ServerCtl extends React.Component {
 
             selectedConfigName: selectedConfigName,
             selectedConfig: selectedConfig,
+
+            selectedTemplateName: selectedTemplateName,
+            selectedTemplate: selectedTemplate
         }
 
         this.changeServerPrefix = this.changeServerPrefix.bind(this)
@@ -29,6 +40,7 @@ class ServerCtl extends React.Component {
         this.changeNumberOfServers = this.changeNumberOfServers.bind(this)
         this.increaseNumberOfServers = this.increaseNumberOfServers.bind(this)
         this.decreaseNumberOfServers = this.decreaseNumberOfServers.bind(this)
+        this.startServer = this.startServer.bind(this)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -48,20 +60,17 @@ class ServerCtl extends React.Component {
     startServer(e) {
         e.preventDefault()
         let serverSettings = {
-            savefile: this.refs.savefile.value,
-            latency: Number(this.refs.latency.value), 
-            autosave_interval: Number(this.refs.autosaveInterval.value),
-            autosave_slots: Number(this.refs.autosaveSlots.value),
-            port: Number(this.refs.port.value),
-            disallow_cmd: this.refs.allowCmd.checked,
-            peer2peer: this.refs.p2p.checked,
-            auto_pause: this.refs.autoPause.checked,
+            serverPrefix: this.state.serverPrefix,
+            serverPassword: this.state.serverPassword,
+            numberOfServers: this.state.numberOfServers,
+            configFile: this.state.selectedConfigName,
+            templateFile: this.state.selectedTemplateName
         }
         $.ajax({
             type: "POST",
             url: "/api/server/start",
             dataType: "json",
-            data: JSON.stringify(serverSettings),
+            data: serverSettings,
             success: (resp) => {
                 this.props.getServStatus();
                 this.props.getStatus();
@@ -204,6 +213,7 @@ class ServerCtl extends React.Component {
 
 ServerCtl.propTypes = {
     azureServerStatus: React.PropTypes.array.isRequired,
+    deploymentTemplates: React.PropTypes.object.isRequired,
     getConfig: React.PropTypes.func.isRequired,
     getStatus: React.PropTypes.func.isRequired,
     serverConfigs: React.PropTypes.object.isRequired,

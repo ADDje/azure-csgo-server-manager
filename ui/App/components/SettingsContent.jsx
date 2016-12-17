@@ -1,6 +1,5 @@
 import React from 'react';
 import {IndexLink} from 'react-router';
-import Settings from './Config/Settings.jsx';
 import update from 'immutability-helper';
 
 class SettingsContent extends React.Component {
@@ -52,7 +51,14 @@ class SettingsContent extends React.Component {
 
     handleSettingsChange(key, event) {
         var param = {}
-        param[key] = {$set: event.target.value}
+        
+        if (typeof(this.state.settings[key]) === "boolean")
+        {
+            param[key] = {$set: (event.target.value === "true") ? true : false}
+        } else {
+            param[key] = {$set: event.target.value}
+        }
+
         this.setState({
             settings: update(this.state.settings, param)
         })

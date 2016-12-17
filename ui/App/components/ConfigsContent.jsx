@@ -8,18 +8,16 @@ class ConfigsContent extends React.Component {
         super(props)
 
         this.state = {
-            listConfigs: {},
             selectedConfig: null,
             selectedConfigName: null,
         }
 
-        this.loadConfigList = this.loadConfigList.bind(this)
         this.focusConfig = this.focusConfig.bind(this)
         this.reloadSelected = this.reloadSelected.bind(this)
     }
 
     componentDidMount() {
-        this.loadConfigList()
+        this.props.getConfigs()
     }
 
     reloadSelected() {
@@ -32,23 +30,6 @@ class ConfigsContent extends React.Component {
                 }
             })
         }
-    }
-
-    loadConfigList() {
-        $.ajax({
-            url: "/api/configs/list",
-            dataType: "json",
-            success: (data) => {
-                if (data.success === true) {
-                    this.setState({listConfigs: data.data})
-                } else {
-                    this.setState({listConfigs: {}})
-                }
-            },
-            error: (xhr, status, err) => {
-                console.log('api/configs/list', status, err.toString());
-            }
-        })
     }
 
     focusConfig(config, configName) {
@@ -80,9 +61,9 @@ class ConfigsContent extends React.Component {
                 <section className="content">
 
                     <ListConfigs
-                        configs={this.state.listConfigs}
+                        configs={this.props.serverConfigs}
                         focusConfig={this.focusConfig}
-                        reloadConfigs={this.loadConfigList}
+                        reloadConfigs={this.props.getConfigs}
                     />
 
                     <ConfigEditor

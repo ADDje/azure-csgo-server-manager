@@ -8,34 +8,15 @@ class TemplateContent extends React.Component {
         super(props)
 
         this.state = {
-            listTemplates: {},
             selectedTemplate: null,
             selectedTemplateName: null,
         }
 
-        this.loadTemplates = this.loadTemplates.bind(this)
         this.focusTemplate = this.focusTemplate.bind(this)
     }
 
     componentDidMount() {
-        this.loadTemplates()
-    }
-
-    loadTemplates() {
-        $.ajax({
-            url: "/api/templates/list",
-            dataType: "json",
-            success: (data) => {
-                if (data.success === true) {
-                    this.setState({listTemplates: data.data})
-                } else {
-                    this.setState({listTemplates: {}})
-                }
-            },
-            error: (xhr, status, err) => {
-                console.log('api/templates/list', status, err.toString());
-            }
-        })
+        this.props.getTemplates();
     }
 
     focusTemplate(template, templateName) {
@@ -67,15 +48,15 @@ class TemplateContent extends React.Component {
                 <section className="content">
 
                     <ListTemplates
-                        templates={this.state.listTemplates}
+                        templates={this.props.deploymentTemplates}
                         focusTemplate={this.focusTemplate}
-                        reloadTemplates={this.loadTemplates}
+                        reloadTemplates={this.props.getTemplates}
                     />
 
                     <TemplateViewer
                         template={this.state.selectedTemplate}
                         templateName={this.state.selectedTemplateName}
-                        reloadSelected={this.loadTemplates}
+                        reloadSelected={this.props.getTemplates}
                     />
 
                 </section>

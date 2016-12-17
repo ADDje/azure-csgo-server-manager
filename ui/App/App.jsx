@@ -10,16 +10,18 @@ import update from 'immutability-helper';
 class App extends React.Component {
     constructor(props) {
         super(props);
-        this.checkLogin = this.checkLogin.bind(this);
-        this.flashMessage = this.flashMessage.bind(this);
-        this.getServStatus = this.getServStatus.bind(this);
-        this.getConfigs = this.getConfigs.bind(this);
+        this.checkLogin = this.checkLogin.bind(this)
+        this.flashMessage = this.flashMessage.bind(this)
+        this.getServStatus = this.getServStatus.bind(this)
+        this.getConfigs = this.getConfigs.bind(this)
         this.getConfig = this.getConfig.bind(this)
-        this.getStatus = this.getStatus.bind(this);
+        this.getTemplates = this.getTemplates.bind(this)
+        this.getStatus = this.getStatus.bind(this)
         this.state = {
             serverRunning: "stopped",
             azureServerStatus: [],
             configs: {},
+            templates: {},
             loggedIn: false,
             username: "",
             messages: [],
@@ -79,6 +81,24 @@ class App extends React.Component {
             },
             error: (xhr, status, err) => {
                 console.log('api/configs/list', status, err.toString());
+            }
+        })
+    }
+
+    
+    getTemplates() {
+        $.ajax({
+            url: "/api/templates/list",
+            dataType: "json",
+            success: (data) => {
+                if (data.success === true) {
+                    this.setState({templates: data.data})
+                } else {
+                    this.setState({templates: {}})
+                }
+            },
+            error: (xhr, status, err) => {
+                console.log('api/templates/list', status, err.toString());
             }
         })
     }
@@ -147,8 +167,10 @@ class App extends React.Component {
                         azureServerStatus: this.state.azureServerStatus,
                         getStatus: this.getStatus,
                         serverConfigs: this.state.configs,
+                        deploymentTemplates: this.state.templates,
                         getConfigs: this.getConfigs,
                         getConfig: this.getConfig,
+                        getTemplates: this.getTemplates,
                         username: this.state.username,
                         getServStatus: this.getServStatus,}
                     )}

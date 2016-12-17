@@ -140,7 +140,7 @@ func UpdateServerConfigText(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 
 	if err != nil {
-		log.Printf("Error in starting updating config handler body: %s", err)
+		log.Printf("Error in updating server config handler body: %s", err)
 		return
 	}
 
@@ -262,7 +262,7 @@ func UpdateTemplateParameters(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 
 	if err != nil {
-		log.Printf("Error in starting updating template parameters handler body: %s", err)
+		log.Printf("Error in updating template parameters handler body: %s", err)
 		return
 	}
 
@@ -318,7 +318,7 @@ func UpdateTemplateText(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 
 	if err != nil {
-		log.Printf("Error in starting updating template handler body: %s", err)
+		log.Printf("Error in updating template handler body: %s", err)
 		return
 	}
 
@@ -436,7 +436,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	var user User
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Printf("Error in starting csgo server handler body: %s", err)
+		log.Printf("Error in Login User handler body: %s", err)
 		return
 	}
 
