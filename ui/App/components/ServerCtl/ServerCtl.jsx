@@ -32,7 +32,9 @@ class ServerCtl extends React.Component {
             selectedConfig: selectedConfig,
 
             selectedTemplateName: selectedTemplateName,
-            selectedTemplate: selectedTemplate
+            selectedTemplate: selectedTemplate,
+
+            validationErrors: []
         }
 
         this.changeServerPrefix = this.changeServerPrefix.bind(this)
@@ -44,6 +46,9 @@ class ServerCtl extends React.Component {
 
         this.changeConfig = this.changeConfig.bind(this)
         this.changeTemplate = this.changeTemplate.bind(this)
+
+        this.getFormClass = this.getFormClass.bind(this)
+        this.getHelp = this.getHelp.bind(this)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -74,6 +79,32 @@ class ServerCtl extends React.Component {
 
     startServer(e) {
         e.preventDefault()
+        var errors = [];
+
+        if (this.state.serverPassword.length < 6) {
+            errors.push("serverPassword")
+        }
+        if (this.state.serverPrefix.length < 1) {
+            errors.push("serverPrefix")
+        }
+        if (parseInt(this.state.numberOfServers) === NaN ||
+                parseInt(this.state.numberOfServers) < 1) {
+            errors.push("numberOfServers")
+        }
+        if (this.state.selectedConfigName === "") {
+            errors.push("selectedConfigName")
+        }
+        if (this.state.selectedTemplateName === "") {
+            errors.push("selectedTemplateName")
+        }
+
+        console.log(errors)
+        this.setState({validationErrors: errors})
+
+        if (errors.length > 0) {
+            return
+        }
+
         let serverSettings = {
             serverPrefix: this.state.serverPrefix,
             serverPassword: this.state.serverPassword,
@@ -81,6 +112,7 @@ class ServerCtl extends React.Component {
             configFile: this.state.selectedConfigName,
             templateFile: this.state.selectedTemplateName
         }
+
         $.ajax({
             type: "POST",
             url: "/api/server/start",
@@ -95,16 +127,6 @@ class ServerCtl extends React.Component {
                     swal("Error", "Error starting CS:GO Server", "error")
                 }
             }
-        })
-        this.setState({
-            savefile: this.refs.savefile.value,
-            latency: Number(this.refs.latency.value), 
-            autosaveInterval: Number(this.refs.autosaveInterval.value),
-            autosaveSlots: Number(this.refs.autosaveSlots.value),
-            port: Number(this.refs.port.value),
-            disallowCmd: this.refs.allowCmd.checked,
-            peer2peer: this.refs.p2p.checked,
-            autoPause: this.refs.autoPause.checked,
         })
     }
 
@@ -163,6 +185,40 @@ class ServerCtl extends React.Component {
         this.setState({selectedTemplateName: k, selectedTemplate: [this.props.deploymentTemplates[k]]})
     }
 
+    getFormClass(name) {
+        var className = "form-group"
+        if (this.state.validationErrors.indexOf(name) !== -1) {
+            className += " has-error"
+        }
+        return className
+    }
+
+    getHelp(name) {
+        if (this.state.validationErrors.indexOf(name) !== -1) {
+            var msg;
+            switch(name) {
+                case "serverPrefix":
+                    msg = "Server prefix is required"
+                    break
+                case "serverPassword":
+                    msg = "Password must be at least 6 chars"
+                    break
+                case "numberOfServers":
+                    msg = "Must have a positive number of servers"
+                    break
+                case "selectedConfigName":
+                    msg = "Must select a Server Config"
+                    break
+                case "selectedTemplateName":
+                    msg = "Must select a Deployment Template"
+                    break
+                default:
+                    console.log("Unknown validation error: " + name)
+            }
+            return (<span className="help-block">{msg}</span>)
+        }
+    }
+
     render() {
         var files = []
 
@@ -196,38 +252,53 @@ class ServerCtl extends React.Component {
 
                             <hr />
 
-                            <label>Azure Server Name Prefix</label>
-                            <div className="input-group">
-                                <input name="serverName" type="text" className="form-control" onChange={this.changeServerPrefix} value={this.state.serverPrefix} />
-                            </div>
-
-                            <label>Azure VM Password</label>
-                            <div className="input-group">
-                                <input name="vmPassword" type="Password" className="form-control" onChange={this.changeServerPassword} value={this.state.serverPassword} />
-                            </div>
-
-                            <label>Number of Servers</label>
-                            <div className="input-group">
-                                <input name="numberOfServers" type="text" className="form-control" onChange={this.changeNumberOfServers} value={this.state.numberOfServers} />
-                                <div className="input-group-btn">
-                                    <button type="button" className="btn btn-primary" onClick={this.increaseNumberOfServers}>
-                                        <i className="fa fa-arrow-up" />
-                                    </button>
-                                    <button type="button" className="btn btn-primary" onClick={this.decreaseNumberOfServers}>
-                                        <i className="fa fa-arrow-down" />
-                                    </button>
+                            <div className={this.getFormClass("serverPrefix")}>
+                                <label>Azure Server Name Prefix</label>
+                                <div className="input-group">
+                                    <input type="text" className="form-control" onChange={this.changeServerPrefix} value={this.state.serverPrefix} />
                                 </div>
+                                {this.getHelp("serverPrefix")}
                             </div>
 
-                            <label>Select Config File</label>
-                            <select value={this.state.selectedConfigName} className="form-control" onChange={this.changeConfig}>
-                                {files}
-                            </select>
+                            <div className={this.getFormClass("serverPassword")}>
+                                <label>Azure VM Password</label>
+                                <div className="input-group">
+                                    <input type="Password" className="form-control" onChange={this.changeServerPassword} value={this.state.serverPassword} />
+                                </div>
+                                {this.getHelp("serverPassword")}
+                            </div>
 
-                            <label>Select Deployment Template</label>
-                            <select value={this.state.selectedTemplateName} className="form-control" onChange={this.changeTemplate}>
-                                {templates}
-                            </select>
+                            <div className={this.getFormClass("numberOfServers")}>
+                                <label>Number of Servers</label>
+                                <div className="input-group">
+                                    <input type="text" className="form-control" onChange={this.changeNumberOfServers} value={this.state.numberOfServers} />
+                                    <div className="input-group-btn">
+                                        <button type="button" className="btn btn-primary" onClick={this.increaseNumberOfServers}>
+                                            <i className="fa fa-arrow-up" />
+                                        </button>
+                                        <button type="button" className="btn btn-primary" onClick={this.decreaseNumberOfServers}>
+                                            <i className="fa fa-arrow-down" />
+                                        </button>
+                                    </div>
+                                </div>
+                                {this.getHelp("numberOfServers")}
+                            </div>
+
+                            <div className={this.getFormClass("selectedConfigName")}>
+                                <label>Select Config File</label>
+                                <select value={this.state.selectedConfigName} className="form-control" onChange={this.changeConfig}>
+                                    {files}
+                                </select>
+                                {this.getHelp("selectedConfigName")}
+                            </div>
+
+                            <div className={this.getFormClass("selectedTemplateName")}>
+                                <label>Select Deployment Template</label>
+                                <select value={this.state.selectedTemplateName} className="form-control" onChange={this.changeTemplate}>
+                                    {templates}
+                                </select>
+                                {this.getHelp("selectedTemplateName")}
+                            </div>
                         </div>
 
                         <div className="box box-success collapsed-box">
