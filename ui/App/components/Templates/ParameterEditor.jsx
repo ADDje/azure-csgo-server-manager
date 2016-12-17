@@ -14,7 +14,8 @@ class ParameterEditor extends React.Component {
         this.state = {
             parameters: parameters,
             templateName: this.props.templateName,
-            templateParameters: {}
+            templateParameters: {},
+            deleted: []
         }
 
         if (this.props.parameters !== undefined) { 
@@ -25,6 +26,8 @@ class ParameterEditor extends React.Component {
         this.save = this.save.bind(this)
 
         this.createClick = this.createClick.bind(this)
+        this.deleteClick = this.deleteClick.bind(this)
+        this.deleteParameter = this.deleteParameter.bind(this)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -33,7 +36,10 @@ class ParameterEditor extends React.Component {
 
             var newParameters = {}
             Object.assign(newParameters, nextProps.parameters)
-            this.setState({templateParameters: newParameters})
+            this.setState({
+                templateParameters: newParameters,
+                deleted: []
+            })
         }
     }
 
@@ -101,6 +107,41 @@ class ParameterEditor extends React.Component {
             }.bind(this))
     }
 
+    deleteClick(name, e) {
+        e.preventDefault();
+        swal({
+            title: "Are you sure?",
+            text: "You will not be able to recover parameter: " + name,
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Yes, delete it!",
+            closeOnConfirm: false,
+            showLoaderOnConfirm: true
+        },
+        function(){
+            this.deleteParameter(name)
+        }.bind(this));
+    }
+
+    deleteParameter(name) {
+        var params = {}
+        Object.assign(params, this.state.templateParameters)
+        delete params[name]
+        this.setState({
+            templateParameters: params,
+            deleted: update(this.state.deleted, {$push: [name]})
+        })
+
+        swal({
+            timer: 100,
+            title: "Nice!",
+            text: name + " deleted!",
+            type: "success"
+        })
+                
+    }
+
     save() {
         // Start out with the original
         var newContent = this.props.parameters
@@ -108,6 +149,11 @@ class ParameterEditor extends React.Component {
         // Replace parameters with new ones
         for (var x in this.state.templateParameters) {
             newContent[x] = this.state.templateParameters[x]
+        }
+
+        // Delete any that shouldn't be there
+        for (var y in this.state.deleted) {
+            delete newContent[this.state.deleted[y]]
         }
 
         $.ajax({
@@ -148,6 +194,9 @@ class ParameterEditor extends React.Component {
  
             fields.push(<div key={key} className="dynamic-config-field">
                 <label htmlFor={key}>{key}</label>
+                <button className="btn btn-sm btn-danger" onClick={this.deleteClick.bind(this, key)}>
+                    <i className="fa fa-trash" />
+                </button>
                 <div id={key} className="input-group">
                     <input ref={key} name={key} id={key} type="text" className="form-control" onChange={this.changeField.bind(this, key)} value={this.getValue(this.state.templateParameters[key].value)} />
                     {buttons}
