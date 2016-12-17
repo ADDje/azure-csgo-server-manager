@@ -7,5 +7,5 @@ import:
 - package: github.com/hpcloud/tail
   version: ^1.0.0
 - package: github.com/Azure/azure-sdk-for-go
-  version: ^5.0.0-beta
+  version: ^7.0.1-beta
 - package: github.com/kidoman/go-steam

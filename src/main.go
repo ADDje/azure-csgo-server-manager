@@ -22,7 +22,11 @@ type Config struct {
 	Password            string `json:"password"`
 	DatabaseFile        string `json:"database_file"`
 	CookieEncryptionKey string `json:"cookie_encryption_key"`
-	ConfFile            string
+	UseCloudStorage     bool   `json:"use_cloud_storage"`
+	AzureStorageServer  string `json:"azure_storage_server"`
+	AzureStorageKey     string `json:"azure_storage_key"`
+
+	ConfFile string `json:"-"`
 }
 
 var (

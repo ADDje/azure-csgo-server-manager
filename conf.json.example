@@ -8,5 +8,9 @@
     "azure_client_secret": "somesecret",
     "azure_subscription_id": "another-guid-goes-here",
     "azure_tenant_id": "guess-what-another-guid",
-    "resource_group": "CSGO-Something"
+    "resource_group": "CSGO-Something",
+    
+    "use_cloud_storage": true,
+    "azure_storage_server": "",
+    "azure_storage_key": ""
 }

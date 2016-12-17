@@ -7,9 +7,8 @@ import (
 	"github.com/MetalMichael/go-csgo-cfg"
 )
 
-const (
-	CONFIG_DIRECTORY = "./configs/"
-)
+const CONFIG_DIRECTORY = "./configs/"
+const CONFIG_FILE_STORE = "configs"
 
 // Loads cfg file from the config directory
 func loadConfig(filename interface{}) (*CsgoServerSettings, error) {
@@ -37,7 +36,7 @@ func loadConfigText(filename string) (string, error) {
 }
 
 func GetServerConfigsFromAzure() (map[string]*CsgoServerSettings, error) {
-	configFiles, err := getStorageFiles(config, "Configs")
+	configFiles, err := GetStorageFiles(config, CONFIG_FILE_STORE)
 
 	if err != nil {
 		return nil, err
@@ -46,18 +45,12 @@ func GetServerConfigsFromAzure() (map[string]*CsgoServerSettings, error) {
 	configs := make(map[string]*CsgoServerSettings)
 
 	for _, file := range configFiles {
-		azureFile, err := getStorageFile(config, "Configs", file)
+		azureFile, err := GetStorageFileText(config, CONFIG_FILE_STORE, file.Name)
 		if err != nil {
 			return nil, err
 		}
 
-		buffer := make([]byte, azureFile.Properties.ContentLength)
-		_, err2 := azureFile.Body.Read(buffer)
-		if err2 != nil {
-			return nil, err2
-		}
-
-		config, err3 := loadConfig(buffer)
+		config, err3 := loadConfig([]byte(azureFile))
 
 		if err3 == nil {
 			configs[file.Name] = config
