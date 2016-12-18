@@ -24,7 +24,8 @@ class ServerCtl extends React.Component {
         }
 
         this.state = {
-            serverPrefix: "csgo-server-",
+            serverName: "",
+            serverUsername: "",
             serverPassword: "",
             numberOfServers: 10,
 
@@ -37,7 +38,8 @@ class ServerCtl extends React.Component {
             validationErrors: []
         }
 
-        this.changeServerPrefix = this.changeServerPrefix.bind(this)
+        this.changeServerName = this.changeServerName.bind(this)
+        this.changeServerUsername = this.changeServerUsername.bind(this)
         this.changeServerPassword = this.changeServerPassword.bind(this)
         this.changeNumberOfServers = this.changeNumberOfServers.bind(this)
         this.increaseNumberOfServers = this.increaseNumberOfServers.bind(this)
@@ -49,6 +51,7 @@ class ServerCtl extends React.Component {
 
         this.getFormClass = this.getFormClass.bind(this)
         this.getHelp = this.getHelp.bind(this)
+        this.getPlaceholder = this.getPlaceholder.bind(this)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -77,15 +80,37 @@ class ServerCtl extends React.Component {
         }
     }
 
+    isValidPassword(p) {
+        if (p.length < 6 || p.length > 72)
+            return false
+        
+        var m1 = /[A-Z]/
+        var m2 = /[a-z]/
+        var m3 = /[0-9]/
+        var m4 = /[\/\\#\-_!"£$%^&*()'@<>?\.:+=;|]/
+
+        var c = 0
+        if (p.match(m1))
+            c++
+        if (p.match(m2))
+            c++
+        if (p.match(m3))
+            c++
+        if (p.match(m4))
+            c++
+
+        return c >= 3
+    }
+
     startServer(e) {
         e.preventDefault()
         var errors = [];
 
-        if (this.state.serverPassword.length < 6) {
+        if (this.isValidPassword(this.state.serverPassword)) {
             errors.push("serverPassword")
         }
-        if (this.state.serverPrefix.length < 1) {
-            errors.push("serverPrefix")
+        if (this.state.serverName.length < 1) {
+            errors.push("serverName")
         }
         if (parseInt(this.state.numberOfServers) === NaN ||
                 parseInt(this.state.numberOfServers) < 1) {
@@ -106,7 +131,8 @@ class ServerCtl extends React.Component {
         }
 
         let serverSettings = {
-            serverPrefix: this.state.serverPrefix,
+            serverName: this.state.serverName,
+            serverUsername: this.state.serverUsername,
             serverPassword: this.state.serverPassword,
             numberOfServers: this.state.numberOfServers,
             configFile: this.state.selectedConfigName,
@@ -145,15 +171,21 @@ class ServerCtl extends React.Component {
         e.preventDefault()
     }
 
-    changeServerPrefix(e) {
+    changeServerName(e) {
         this.setState({
-            serverPrefix: e.target.value
+            serverName: e.target.value
         })
     }
 
     changeServerPassword(e) {
         this.setState({
             serverPassword: e.target.value
+        })
+    }
+
+    changeServerUsername(e) {
+        this.setState({
+            serverUsername: e.target.value
         })
     }
 
@@ -177,12 +209,12 @@ class ServerCtl extends React.Component {
 
     changeConfig(e) {
         var k = e.target.value
-        this.setState({selectedConfigName: k, selectedConfig: [this.props.serverConfigs[k]]})
+        this.setState({selectedConfigName: k, selectedConfig: this.props.serverConfigs[k]})
     }
 
     changeTemplate(e) {
         var k = e.target.value
-        this.setState({selectedTemplateName: k, selectedTemplate: [this.props.deploymentTemplates[k]]})
+        this.setState({selectedTemplateName: k, selectedTemplate: this.props.deploymentTemplates[k]})
     }
 
     getFormClass(name) {
@@ -193,15 +225,30 @@ class ServerCtl extends React.Component {
         return className
     }
 
+    getPlaceholder(name) {
+        if (this.state.selectedTemplate !== null && this.state.selectedTemplate.Parameters.parameters !== undefined) {
+            if (this.state.selectedTemplate.Parameters.parameters[name] === undefined) {
+                return "UNDEFINED"
+            } else {
+                return this.state.selectedTemplate.Parameters.parameters[name].value
+            }
+        }
+        return ""
+    }
+
     getHelp(name) {
         if (this.state.validationErrors.indexOf(name) !== -1) {
             var msg;
             switch(name) {
-                case "serverPrefix":
-                    msg = "Server prefix is required"
+                case "serverName":
+                    msg = "Server name is required"
                     break
                 case "serverPassword":
-                    msg = "Password must be at least 6 chars"
+                    msg = "The supplied password must be between 6-72 characters long"
+                    msg += " and must satisfy at least 3 of password complexity requirements"
+                    msg += " from the following: \r\n1) Contains an uppercase character\r\n2)"
+                    msg += " Contains a lowercase character\r\n3) Contains a numeric digit\r\n4)"
+                    msg += " Contains a special character"
                     break
                 case "numberOfServers":
                     msg = "Must have a positive number of servers"
@@ -252,22 +299,34 @@ class ServerCtl extends React.Component {
 
                             <hr />
 
-                            <div className={this.getFormClass("serverPrefix")}>
-                                <label>Azure Server Name Prefix</label>
+                            <h4>Quick Overrides</h4>
+
+                            <div className={this.getFormClass("serverName")}>
+                                <label>Azure Server Name</label>
                                 <div className="input-group">
-                                    <input type="text" className="form-control" onChange={this.changeServerPrefix} value={this.state.serverPrefix} />
+                                    <input type="text" className="form-control" onChange={this.changeServerName} value={this.state.serverName} placeholder={this.getPlaceholder("vmName")} />
                                 </div>
-                                {this.getHelp("serverPrefix")}
+                                {this.getHelp("serverName")}
+                            </div>
+
+                            <div className={this.getFormClass("serverUsername")}>
+                                <label>VM Username</label>
+                                <div className="input-group">
+                                    <input type="text" className="form-control" onChange={this.changeServerUsername} value={this.state.serverUsername} placeholder={this.getPlaceholder("adminUserName")} />
+                                </div>
+                                {this.getHelp("serverUsername")}
                             </div>
 
                             <div className={this.getFormClass("serverPassword")}>
-                                <label>Azure VM Password</label>
+                                <label>VM Password</label>
                                 <div className="input-group">
-                                    <input type="Password" className="form-control" onChange={this.changeServerPassword} value={this.state.serverPassword} />
+                                    <input type="Password" className="form-control" onChange={this.changeServerPassword} value={this.state.serverPassword} placeholder={this.getPlaceholder("adminPassword")} />
                                 </div>
                                 {this.getHelp("serverPassword")}
                             </div>
 
+                            <h4>Server Settings</h4>
+                            
                             <div className={this.getFormClass("numberOfServers")}>
                                 <label>Number of Servers</label>
                                 <div className="input-group">

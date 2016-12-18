@@ -13,7 +13,6 @@ class TemplateViewer extends React.Component {
             return null
         }
         
-
         return(
             <div className="nav-tabs-custom">
                 <ul className="nav nav-tabs">
@@ -33,6 +32,7 @@ class TemplateViewer extends React.Component {
                             name={this.props.templateName}
                             type="template"
                             template={this.props.template.Template}
+                            reloadSelected={this.props.reloadSelected}
                         />
                     </div>
                 </div>

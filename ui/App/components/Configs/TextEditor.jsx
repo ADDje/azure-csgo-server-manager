@@ -16,7 +16,7 @@ class TextEditor extends React.Component {
     }
 
     componentWillMount() {
-        this.loadContent()
+        this.loadContent(this.props.name, this.props.type, this.props.template)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -136,6 +136,7 @@ class TextEditor extends React.Component {
 }
 
 TextEditor.propTypes = {
+    reloadSelected: React.PropTypes.func.isRequired,
     type: React.PropTypes.string.isRequired,
 }
 

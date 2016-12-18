@@ -9,7 +9,7 @@ class ConfigsContent extends React.Component {
 
         this.state = {
             selectedConfig: null,
-            selectedConfigName: null,
+            selectedConfigName: "",
         }
 
         this.focusConfig = this.focusConfig.bind(this)
@@ -21,7 +21,7 @@ class ConfigsContent extends React.Component {
     }
 
     reloadSelected() {
-        if (this.state.selectedConfigName === null) {
+        if (this.state.selectedConfigName !== "") {
             $.ajax({
                 url: "/api/configs/get/" + this.state.selectedConfigName,
                 dataType: "json",
@@ -64,6 +64,7 @@ class ConfigsContent extends React.Component {
                         configs={this.props.serverConfigs}
                         focusConfig={this.focusConfig}
                         reloadConfigs={this.props.getConfigs}
+                        selectedConfigName={this.state.selectedConfigName}
                     />
 
                     <ConfigEditor

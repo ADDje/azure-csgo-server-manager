@@ -68,7 +68,10 @@ class ListTemplates extends React.Component {
                     type: "success"
                 })
                 
-                this.props.reloadTemplates();
+                this.props.reloadTemplates()
+                if (this.props.selectedTemplateName === name) {
+                    this.props.focusTemplate(null, "")
+                }
             }
         })
     }
@@ -124,8 +127,8 @@ class ListTemplates extends React.Component {
                                 return(
                                     <tr key={i}>
                                         <td>
-                                            <a className="row-link"
-                                                href="#"
+                                            <a href="#"
+                                                className={"row-link" + ((this.props.selectedTemplateName === template) ? " selected-row" : "")}
                                                 onClick={this.changeTemplate.bind(this, this.props.templates[template], template)}
                                             >
                                                 {template}
@@ -152,6 +155,7 @@ class ListTemplates extends React.Component {
 ListTemplates.propTypes = {
     focusTemplate: React.PropTypes.func.isRequired,
     reloadTemplates: React.PropTypes.func.isRequired,
+    selectedTemplateName: React.PropTypes.string.isRequired,
     templates: React.PropTypes.object.isRequired,
 }
 

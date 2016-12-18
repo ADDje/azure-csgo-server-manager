@@ -69,7 +69,10 @@ class ListConfigs extends React.Component {
                     type: "success"
                 })
                 
-                this.props.reloadConfigs();
+                this.props.reloadConfigs()
+                if (this.props.selectedConfigName === name) {
+                    this.props.focusConfig(null, "")
+                }
             }
         })
     }
@@ -130,8 +133,8 @@ class ListConfigs extends React.Component {
                                 return(
                                     <tr key={i}>
                                         <td>
-                                            <a className="row-link"
-                                                href="#"
+                                            <a href="#"
+                                                className={"row-link" + ((this.props.selectedConfigName === config) ? " selected-row" : "")}
                                                 onClick={this.changeConfig.bind(this, this.props.configs[config], config)}
                                             >
                                                 {config}
@@ -158,7 +161,8 @@ class ListConfigs extends React.Component {
 ListConfigs.propTypes = {
     configs: React.PropTypes.object.isRequired,
     focusConfig: React.PropTypes.func.isRequired,
-    reloadConfigs: React.PropTypes.func.isRequired
+    reloadConfigs: React.PropTypes.func.isRequired,
+    selectedConfigName: React.PropTypes.string.isRequired
 }
 
 export default ListConfigs

@@ -42,6 +42,41 @@ func GetAllServers(w http.ResponseWriter, r *http.Request) {
 	JSON(w, resp)
 }
 
+func DeployServers(w http.ResponseWriter, r *http.Request) {
+	var err error
+	resp := JSONResponse{
+		Success: false,
+	}
+	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Invalid Body: %s", err)
+		return
+	}
+
+	argumentsJSON := make(map[string]interface{})
+	err = json.Unmarshal(body, argumentsJSON)
+	if err != nil {
+		log.Printf("Invalid parameters json: %s", err)
+		return
+	}
+
+	numberOfServers, _ := argumentsJSON["numberOfServers"].(int)
+	serverName, _ := argumentsJSON["serverName"].(string)
+	serverUsername, _ := argumentsJSON["serverUsername"].(string)
+	serverPassword, _ := argumentsJSON["serverPassword"].(string)
+	configFile, _ := argumentsJSON["configFile"].(string)
+	templateFile, _ := argumentsJSON["templateFile"].(string)
+
+	for t := 1; t < numberOfServers; t++ {
+		DeployTemplate(config, t, serverName, serverUsername, serverPassword, configFile, templateFile)
+	}
+
+	resp.Success = true
+	JSON(w, resp)
+}
+
 // GetDefaultServerConfig Returns JSON response of default server config
 func GetDefaultServerConfig(w http.ResponseWriter, r *http.Request) {
 
@@ -93,7 +128,7 @@ func GetServerConfigByName(w http.ResponseWriter, r *http.Request) {
 	if config.UseCloudStorage {
 		resp.Data, err = GetStorageFile(config, CONFIG_FILE_STORE, vars["configName"])
 	} else {
-		resp.Data, err = GetServerConfigFromFile(CONFIG_DIRECTORY + vars["configName"])
+		resp.Data, err = GetServerConfigFromFile(vars["configName"])
 	}
 	if err != nil {
 		log.Printf("Error getting server config %s", err)
@@ -115,9 +150,14 @@ func GetServerConfigTextByName(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	if config.UseCloudStorage {
-		resp.Data, err = GetStorageFileText(config, CONFIG_FILE_STORE, vars["configName"])
+		azureFile, err2 := GetStorageFile(config, CONFIG_FILE_STORE, vars["configName"])
+		err = err2
+		myBytes, err := ReadConfigIntoBytes(azureFile.Body)
+		if err == nil {
+			resp.Data = string(myBytes)
+		}
 	} else {
-		resp.Data, err = GetServerConfigTextFromFile(CONFIG_DIRECTORY + vars["configName"])
+		resp.Data, err = GetServerConfigTextFromFile(vars["configName"])
 	}
 	if err != nil {
 		log.Printf("Error getting server config %s", err)
@@ -249,15 +289,26 @@ func UpdateTemplateParameters(w http.ResponseWriter, r *http.Request) {
 	fileName := vars["templateName"] + ".parameters.json"
 
 	var err error
+	existingParameters := TemplateParameterFile{}
 	if config.UseCloudStorage {
-		_, err = GetStorageFile(config, TEMPLATE_FILE_STORE, fileName)
+		azureFile, err := GetStorageFile(config, TEMPLATE_FILE_STORE, fileName)
+		if err != nil {
+			log.Printf("Could not read azure parameters file: %s", err)
+		}
+		err = json.NewDecoder(azureFile.Body).Decode(&existingParameters)
 	} else {
-		_, err = ioutil.ReadFile(TEMPLATE_DIRECTORY + fileName)
+		file, err := ioutil.ReadFile(TEMPLATE_DIRECTORY + fileName)
+		if err != nil {
+			log.Printf("Could not read parameters file: %s", err)
+		}
+		err = json.Unmarshal(file, &existingParameters)
 	}
 	if err != nil {
 		log.Printf("Error reading file %s: %s", fileName, err)
 		return
 	}
+
+	log.Printf("Existing Schema: %s", existingParameters.Schema)
 
 	body, err := ioutil.ReadAll(r.Body)
 
@@ -266,22 +317,23 @@ func UpdateTemplateParameters(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var valid bool
-	valid, err = CheckTemplateValid(body)
+	paramsFile, err := CheckParametersValid(body)
+	if err != nil {
+		return
+	}
 
-	if !valid {
-		log.Printf("Error parsing file: %s", err)
-		resp.Data = fmt.Sprintf("%s", err)
-		if err = json.NewEncoder(w).Encode(resp); err != nil {
-			log.Printf("Error parsing template parameters: %s", err)
-		}
+	// Replace existing parameters with their new ones
+	existingParameters.Parameters = paramsFile.Parameters
+	saveBody, err := json.Marshal(existingParameters)
+	if err != nil {
+		log.Printf("Could not convert parameters body: %s", err)
 		return
 	}
 
 	if config.UseCloudStorage {
-		err = UpdateStorageFile(config, TEMPLATE_FILE_STORE, fileName, body)
+		err = UpdateStorageFile(config, TEMPLATE_FILE_STORE, fileName, saveBody)
 	} else {
-		err = ioutil.WriteFile(TEMPLATE_DIRECTORY+fileName, body, 0770)
+		err = ioutil.WriteFile(TEMPLATE_DIRECTORY+fileName, saveBody, 0770)
 	}
 
 	if err != nil {
@@ -291,6 +343,8 @@ func UpdateTemplateParameters(w http.ResponseWriter, r *http.Request) {
 
 	resp.Data = fmt.Sprintf("Template: %s, edited successfully", fileName)
 	resp.Success = true
+
+	log.Printf("Updated template parameters: %s", saveBody)
 
 	JSON(w, resp)
 }
@@ -322,13 +376,8 @@ func UpdateTemplateText(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var valid bool
-	valid, err = CheckTemplateValid(body)
-
-	if !valid {
-		log.Printf("Error parsing file: %s", err)
-		resp.Data = fmt.Sprintf("%s", err)
-		JSON(w, resp)
+	_, err = CheckTemplateValid(body)
+	if err != nil {
 		return
 	}
 
@@ -372,9 +421,9 @@ func CreateDeploymentTemplate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if config.UseCloudStorage {
-		err = CreateStorageFile(config, TEMPLATE_FILE_STORE, parameterFileName, []byte("{}"))
+		err = CreateStorageFile(config, TEMPLATE_FILE_STORE, parameterFileName, GetDefaultParametersFile())
 	} else {
-		err = ioutil.WriteFile(TEMPLATE_DIRECTORY+parameterFileName, []byte("{}"), 0770)
+		err = ioutil.WriteFile(TEMPLATE_DIRECTORY+parameterFileName, GetDefaultParametersFile(), 0770)
 	}
 
 	if err != nil {

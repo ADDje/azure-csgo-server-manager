@@ -91,6 +91,7 @@ func AuthorizeHandler(h http.Handler) http.Handler {
 // Defines all API REST endpoints
 // All routes are prefixed with /api
 var apiRoutes = Routes{
+	// Server things
 	Route{
 		"GetServers",
 		"GET",
@@ -102,6 +103,13 @@ var apiRoutes = Routes{
 		"/server/defaultconfig",
 		GetDefaultServerConfig,
 	}, {
+		"DeployServers",
+		"POST",
+		"/server/deploy",
+		DeployServers,
+	},
+	// User things
+	{
 		"LogoutUser",
 		"GET",
 		"/logout",

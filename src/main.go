@@ -48,8 +48,7 @@ func loadServerConfig(f string) {
 	file, err := os.Open(f)
 	failOnError(err, "Error loading config file.")
 
-	decoder := json.NewDecoder(file)
-	err = decoder.Decode(&config)
+	err = json.NewDecoder(file).Decode(&config)
 }
 
 func parseFlags() {

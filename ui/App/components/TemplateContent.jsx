@@ -9,7 +9,7 @@ class TemplateContent extends React.Component {
 
         this.state = {
             selectedTemplate: null,
-            selectedTemplateName: null,
+            selectedTemplateName: "",
         }
 
         this.focusTemplate = this.focusTemplate.bind(this)
@@ -51,6 +51,7 @@ class TemplateContent extends React.Component {
                         templates={this.props.deploymentTemplates}
                         focusTemplate={this.focusTemplate}
                         reloadTemplates={this.props.getTemplates}
+                        selectedTemplateName={this.state.selectedTemplateName}
                     />
 
                     <TemplateViewer

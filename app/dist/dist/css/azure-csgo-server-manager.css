@@ -33,3 +33,7 @@
 #settings-table {
     overflow-x: hidden;
 }
+
+.selected-row {
+    font-weight: bold;
+}

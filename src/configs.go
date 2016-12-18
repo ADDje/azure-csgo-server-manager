@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"io"
 	"io/ioutil"
 	"log"
 
@@ -45,17 +47,21 @@ func GetServerConfigsFromAzure() (map[string]*CsgoServerSettings, error) {
 	configs := make(map[string]*CsgoServerSettings)
 
 	for _, file := range configFiles {
-		azureFile, err := GetStorageFileText(config, CONFIG_FILE_STORE, file.Name)
+		azureFile, err := GetStorageFile(config, CONFIG_FILE_STORE, file.Name)
 		if err != nil {
 			return nil, err
 		}
 
-		config, err3 := loadConfig([]byte(azureFile))
+		myBytes, err := ReadConfigIntoBytes(azureFile.Body)
+		if err != nil {
+			return nil, err
+		}
 
-		if err3 == nil {
+		config, err := loadConfig(myBytes)
+		if err == nil {
 			configs[file.Name] = config
 		} else {
-			log.Printf("Error Reading Config %s: %s", file.Name, err3)
+			log.Printf("Error Reading Config %s: %s", file.Name, err)
 		}
 	}
 
@@ -121,4 +127,14 @@ func CheckConfigValid(config []byte) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func ReadConfigIntoBytes(stream io.Reader) ([]byte, error) {
+	buf := new(bytes.Buffer)
+	_, err := buf.ReadFrom(stream)
+	if err != nil {
+		log.Printf("Could not read file from azure buffer: %s", err)
+		return nil, err
+	}
+	return buf.Bytes(), nil
 }

@@ -19,7 +19,7 @@ class ParameterEditor extends React.Component {
         }
 
         if (this.props.parameters !== undefined) { 
-            Object.assign(this.state.templateParameters, this.props.parameters)
+            Object.assign(this.state.templateParameters, this.props.parameters.parameters)
         }
 
         this.changeField = this.changeField.bind(this)
@@ -35,7 +35,7 @@ class ParameterEditor extends React.Component {
             nextProps.parameters !== null) {
 
             var newParameters = {}
-            Object.assign(newParameters, nextProps.parameters)
+            Object.assign(newParameters, nextProps.parameters.parameters)
             this.setState({
                 templateParameters: newParameters,
                 deleted: []
@@ -144,7 +144,7 @@ class ParameterEditor extends React.Component {
 
     save() {
         // Start out with the original
-        var newContent = this.props.parameters
+        var newContent = this.props.parameters.parameters
 
         // Replace parameters with new ones
         for (var x in this.state.templateParameters) {
@@ -160,7 +160,7 @@ class ParameterEditor extends React.Component {
             type: "POST",
             url: "/api/templates/" + this.state.templateName + "/parameters",
             dataType: "json",
-            data: JSON.stringify(newContent, null, 4),
+            data: JSON.stringify({parameters: newContent}, null, 4),
             success: (resp) => {
                 if (typeof(resp.success) === "undefined" || resp.success === false) {
                     this.setState({isLoading: false, error: resp.data});

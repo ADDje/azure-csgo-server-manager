@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"io"
 	"io/ioutil"
 	"log"
 )
@@ -10,8 +11,18 @@ const TEMPLATE_DIRECTORY = "./templates/"
 const TEMPLATE_FILE_STORE = "templates"
 
 type DeploymentTemplate struct {
-	Template   interface{}
-	Parameters interface{}
+	Template   map[string]interface{}
+	Parameters TemplateParameterFile
+}
+
+type TemplateParameterFile struct {
+	Schema         string                       `json:"$schema"`
+	ContentVersion string                       `json:"contentVersion"`
+	Parameters     map[string]TemplateParameter `json:"parameters"`
+}
+
+type TemplateParameter struct {
+	Value interface{} `json:"value"`
 }
 
 func GetTemplatesFromFile() (map[string]*DeploymentTemplate, error) {
@@ -101,16 +112,14 @@ func GetTemplatesFromAzure() (map[string]*DeploymentTemplate, error) {
 
 		var templateName = name[:len(name)-5]
 		// Check that parameters file exists
-		var paramFile string
-		paramFile, err = loadTemplateParamsFromStorage(templateName)
+		paramFile, err := loadTemplateParamsFromStorage(templateName)
 
 		if err != nil {
 			log.Printf("Matching parameters not found for %s", name)
 			continue
 		}
 
-		var templateFile string
-		templateFile, err = loadTemplateFromStorage(templateName)
+		templateFile, err := loadTemplateFromStorage(templateName)
 
 		if err != nil {
 			log.Printf("Could not open template file %s: %s", templateName, err)
@@ -118,13 +127,13 @@ func GetTemplatesFromAzure() (map[string]*DeploymentTemplate, error) {
 		}
 
 		template := DeploymentTemplate{}
-		err = json.Unmarshal([]byte(templateFile), &template.Template)
+		err = json.NewDecoder(templateFile).Decode(&template.Template)
 		if err != nil {
 			log.Printf("Invalid JSON for template %s: %s", templateName, err)
 			continue
 		}
 
-		err = json.Unmarshal([]byte(paramFile), &template.Parameters)
+		err = json.NewDecoder(paramFile).Decode(&template.Parameters)
 		if err != nil {
 			log.Printf("Invalid JSON for parameters %s: %s", templateName, err)
 		}
@@ -147,18 +156,53 @@ func loadTemplateParamsFromFile(name string) ([]byte, error) {
 	return ioutil.ReadFile(TEMPLATE_DIRECTORY + name + ".parameters.json")
 }
 
-func loadTemplateFromStorage(name string) (string, error) {
-	return GetStorageFileText(config, TEMPLATE_FILE_STORE, name+".json")
+func loadTemplateFromStorage(name string) (io.Reader, error) {
+	f, err := GetStorageFile(config, TEMPLATE_FILE_STORE, name+".json")
+	if err != nil {
+		return nil, err
+	}
+	return f.Body, nil
 }
 
-func loadTemplateParamsFromStorage(name string) (string, error) {
-	return GetStorageFileText(config, TEMPLATE_FILE_STORE, name+".parameters.json")
+func loadTemplateParamsFromStorage(name string) (io.Reader, error) {
+	f, err := GetStorageFile(config, TEMPLATE_FILE_STORE, name+".parameters.json")
+	if err != nil {
+		return nil, err
+	}
+	return f.Body, nil
 }
 
-// CheckTemplateValid returns whether or not a template file is valid
-func CheckTemplateValid(template []byte) (bool, error) {
-	//TODO
+// CheckTemplateValid returns map if valid json
+func CheckTemplateValid(template []byte) (*map[string]interface{}, error) {
 
-	//log.Printf("Content: %s", string(template))
-	return true, nil
+	myMap := make(map[string]interface{})
+	err := json.Unmarshal(template, &myMap)
+
+	if err != nil {
+		log.Printf("Template not valid: %s", err)
+		return nil, err
+	}
+	return &myMap, nil
+}
+
+// CheckParametersValid returns struct if valid parameters json
+func CheckParametersValid(parameters []byte) (*TemplateParameterFile, error) {
+
+	myMap := TemplateParameterFile{}
+	err := json.Unmarshal(parameters, &myMap)
+
+	if err != nil {
+		log.Printf("Template not valid: %s", err)
+		return nil, err
+	}
+	return &myMap, nil
+}
+
+// GetDefaultParametersFile returns default empty parameters file with schema and stuff
+func GetDefaultParametersFile() []byte {
+	return []byte(`{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {}
+}`)
 }
