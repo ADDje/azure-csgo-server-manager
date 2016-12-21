@@ -25,6 +25,7 @@ type Config struct {
 	UseCloudStorage     bool   `json:"use_cloud_storage"`
 	AzureStorageServer  string `json:"azure_storage_server"`
 	AzureStorageKey     string `json:"azure_storage_key"`
+	AzureSASToken       string `json:"azure_sas_token"`
 
 	ConfFile string `json:"-"`
 }

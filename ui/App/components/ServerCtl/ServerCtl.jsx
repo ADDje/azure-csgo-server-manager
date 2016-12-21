@@ -24,9 +24,9 @@ class ServerCtl extends React.Component {
         }
 
         this.state = {
-            serverName: "",
-            serverUsername: "",
-            serverPassword: "",
+            vmName: "",
+            adminUserName: "",
+            adminPassword: "",
             numberOfServers: 10,
 
             selectedConfigName: selectedConfigName,
@@ -38,9 +38,9 @@ class ServerCtl extends React.Component {
             validationErrors: []
         }
 
-        this.changeServerName = this.changeServerName.bind(this)
-        this.changeServerUsername = this.changeServerUsername.bind(this)
-        this.changeServerPassword = this.changeServerPassword.bind(this)
+        this.changeVmName = this.changeVmName.bind(this)
+        this.changeAdminUserName = this.changeAdminUserName.bind(this)
+        this.changeAdminPassword = this.changeAdminPassword.bind(this)
         this.changeNumberOfServers = this.changeNumberOfServers.bind(this)
         this.increaseNumberOfServers = this.increaseNumberOfServers.bind(this)
         this.decreaseNumberOfServers = this.decreaseNumberOfServers.bind(this)
@@ -106,24 +106,43 @@ class ServerCtl extends React.Component {
         e.preventDefault()
         var errors = [];
 
-        if (this.isValidPassword(this.state.serverPassword)) {
-            errors.push("serverPassword")
+        if (this.state.vmName.length < 1
+            && this.getPlaceholder("vmName") === "UNDEFINED") {
+            errors.push("vmName")
         }
-        if (this.state.serverName.length < 1) {
-            errors.push("serverName")
+
+        if (this.state.adminUserName.length < 1
+            && this.getPlaceholder("adminUserName") === "UNDEFINED") {
+            errors.push("adminUserName")
         }
+
+        if (this.state.adminPassword.length < 1) {
+            var placeholder = this.getPlaceholder("adminPassword")
+            if (placeholder === "UNDEFINED") {
+                errors.push("adminPassword")
+            } else {
+                // Check the predefined value is validation
+                if (!this.isValidPassword(placeholder)) {
+                    errors.push("adminPassword")
+                }
+            }
+        } else {
+            if (!this.isValidPassword(this.state.adminPassword)) {
+                errors.push("adminPassword")
+            }
+        }
+
         if (parseInt(this.state.numberOfServers) === NaN ||
                 parseInt(this.state.numberOfServers) < 1) {
             errors.push("numberOfServers")
         }
-        if (this.state.selectedConfigName === "") {
+        if (this.state.selectedConfigName.length < 1) {
             errors.push("selectedConfigName")
         }
-        if (this.state.selectedTemplateName === "") {
+        if (this.state.selectedTemplateName.length < 1) {
             errors.push("selectedTemplateName")
         }
 
-        console.log(errors)
         this.setState({validationErrors: errors})
 
         if (errors.length > 0) {
@@ -131,19 +150,17 @@ class ServerCtl extends React.Component {
         }
 
         let serverSettings = {
-            serverName: this.state.serverName,
-            serverUsername: this.state.serverUsername,
-            serverPassword: this.state.serverPassword,
+            vmName: this.state.vmName,
+            adminUserName: this.state.adminUserName,
+            adminPassword: this.state.adminPassword,
             numberOfServers: this.state.numberOfServers,
             configFile: this.state.selectedConfigName,
             templateFile: this.state.selectedTemplateName
         }
 
-        $.ajax({
-            type: "POST",
-            url: "/api/server/start",
-            dataType: "json",
-            data: serverSettings,
+        $.post({
+            url: "/api/server/deploy",
+            data: JSON.stringify(serverSettings),
             success: (resp) => {
                 this.props.getServStatus();
                 this.props.getStatus();
@@ -171,21 +188,21 @@ class ServerCtl extends React.Component {
         e.preventDefault()
     }
 
-    changeServerName(e) {
+    changeVmName(e) {
         this.setState({
-            serverName: e.target.value
+            vmName: e.target.value
         })
     }
 
-    changeServerPassword(e) {
+    changeAdminPassword(e) {
         this.setState({
-            serverPassword: e.target.value
+            adminPassword: e.target.value
         })
     }
 
-    changeServerUsername(e) {
+    changeAdminUserName(e) {
         this.setState({
-            serverUsername: e.target.value
+            adminUserName: e.target.value
         })
     }
 
@@ -240,10 +257,13 @@ class ServerCtl extends React.Component {
         if (this.state.validationErrors.indexOf(name) !== -1) {
             var msg;
             switch(name) {
-                case "serverName":
+                case "vmName":
                     msg = "Server name is required"
                     break
-                case "serverPassword":
+                case "adminUserName":
+                    msg = "VM username is required"
+                    break
+                case "adminPassword":
                     msg = "The supplied password must be between 6-72 characters long"
                     msg += " and must satisfy at least 3 of password complexity requirements"
                     msg += " from the following: \r\n1) Contains an uppercase character\r\n2)"
@@ -301,28 +321,28 @@ class ServerCtl extends React.Component {
 
                             <h4>Quick Overrides</h4>
 
-                            <div className={this.getFormClass("serverName")}>
+                            <div className={this.getFormClass("vmName")}>
                                 <label>Azure Server Name</label>
                                 <div className="input-group">
-                                    <input type="text" className="form-control" onChange={this.changeServerName} value={this.state.serverName} placeholder={this.getPlaceholder("vmName")} />
+                                    <input type="text" className="form-control" onChange={this.changeVmName} value={this.state.vmName} placeholder={this.getPlaceholder("vmName")} />
                                 </div>
-                                {this.getHelp("serverName")}
+                                {this.getHelp("vmName")}
                             </div>
 
-                            <div className={this.getFormClass("serverUsername")}>
+                            <div className={this.getFormClass("adminUserName")}>
                                 <label>VM Username</label>
                                 <div className="input-group">
-                                    <input type="text" className="form-control" onChange={this.changeServerUsername} value={this.state.serverUsername} placeholder={this.getPlaceholder("adminUserName")} />
+                                    <input type="text" className="form-control" onChange={this.changeAdminUserName} value={this.state.adminUserName} placeholder={this.getPlaceholder("adminUserName")} />
                                 </div>
-                                {this.getHelp("serverUsername")}
+                                {this.getHelp("adminUserName")}
                             </div>
 
-                            <div className={this.getFormClass("serverPassword")}>
+                            <div className={this.getFormClass("adminPassword")}>
                                 <label>VM Password</label>
                                 <div className="input-group">
-                                    <input type="Password" className="form-control" onChange={this.changeServerPassword} value={this.state.serverPassword} placeholder={this.getPlaceholder("adminPassword")} />
+                                    <input type="Password" className="form-control" onChange={this.changeAdminPassword} value={this.state.adminPassword} placeholder={this.getPlaceholder("adminPassword")} />
                                 </div>
-                                {this.getHelp("serverPassword")}
+                                {this.getHelp("adminPassword")}
                             </div>
 
                             <h4>Server Settings</h4>

@@ -132,6 +132,7 @@ class App extends React.Component {
             url: "/api/azure/servers/getall",
             dataType: "json",
             success: (data) => {
+                console.log(data.data)
                 this.setState({azureServerStatus: data.data})
             },
             error: (xhr, status, err) => {

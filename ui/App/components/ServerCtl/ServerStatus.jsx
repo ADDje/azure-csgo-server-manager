@@ -17,25 +17,26 @@ class ServerStatus extends React.Component {
             return result
         } 
 
-        return serverStatus
+        return "Unknown"
     }
 
     render() {
 
-        var keys = Object.keys(this.props.azureServerStatus)
         
         var content = null
         var stop = null;
-        if (keys.length > 0) {
-            content = keys.map(function(key) {
+        if (this.props.azureServerStatus.length > 0) {
+            content = this.props.azureServerStatus.map(function(server) {
                 return(
-                    <tr key={key}>
+                    <tr key={server.name}>
                         <td />
-                        <td>key</td>
-                        <td>{this.formatServerStatus(this.props.serverStatus[key])}</td>
+                        <td>{server.name}</td>
+                        <td>{this.formatServerStatus(server)}</td>
                     </tr>
                 )                                                  
             }, this);
+
+            console.log(content )
 
             stop = (<div className="col-md-4">
                 <button className="btn btn-block btn-danger" type="button" onClick={this.stopServer}><i className="fa fa-stop fa-fw" />Stop CS:GO Servers</button>

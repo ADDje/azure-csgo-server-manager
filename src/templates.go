@@ -49,16 +49,14 @@ func GetTemplatesFromFile() (map[string]*DeploymentTemplate, error) {
 
 		var templateName = name[:len(name)-5]
 		// Check that parameters file exists
-		var paramFile []byte
-		paramFile, err = loadTemplateParamsFromFile(templateName)
+		paramFile, err := loadTemplateParamsFromFile(templateName)
 
 		if err != nil {
 			log.Printf("Matching parameters not found for %s", name)
 			continue
 		}
 
-		var templateFile []byte
-		templateFile, err = loadTemplateFromFile(templateName)
+		templateFile, err := loadTemplateFromFile(templateName)
 
 		if err != nil {
 			log.Printf("Could not open template file %s: %s", templateName, err)
@@ -173,9 +171,9 @@ func loadTemplateParamsFromStorage(name string) (io.Reader, error) {
 }
 
 // CheckTemplateValid returns map if valid json
-func CheckTemplateValid(template []byte) (*map[string]interface{}, error) {
+func CheckTemplateValid(template []byte) (*TemplateParameterFile, error) {
 
-	myMap := make(map[string]interface{})
+	myMap := TemplateParameterFile{}
 	err := json.Unmarshal(template, &myMap)
 
 	if err != nil {

@@ -6,10 +6,6 @@ class HiddenSidebar extends React.Component {
         super(props);
     }
 
-    capitalizeFirstLetter(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    }
-
     render() {
         var username;
         if (this.props.loggedIn) {
@@ -57,11 +53,11 @@ class HiddenSidebar extends React.Component {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {Object.keys(this.props.azureServerStatus).map(function(key) {
+                                    {this.props.azureServerStatus.map(function(server) {
                                         return(
-                                            <tr key={key}>
-                                                <td>{this.capitalizeFirstLetter(key)}</td>
-                                                <td>{this.props.azureServerStatus[key]}</td>
+                                            <tr key={server.name}>
+                                                <td>{server.name}</td>
+                                                <td>(Unknown)</td>
                                             </tr>
                                         )                                                  
                                     }, this)}        

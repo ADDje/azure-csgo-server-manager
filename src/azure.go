@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"regexp"
+	"strconv"
 
 	"github.com/Azure/azure-sdk-for-go/arm/resources/resources"
 	"github.com/Azure/azure-sdk-for-go/storage"
@@ -13,18 +14,15 @@ import (
 
 const DEPLOYMENT_NAME string = "csgo-server-manager"
 
-func DeployTemplate(config Config, number int, serverName string, serverUsername string,
-	serverPassword string, configName string, templateName string) error {
+func DeployTemplate(config Config, number int, vmName string, adminUserName string,
+	adminPassword string, configName string, templateName string) error {
 
 	client, err := getDeploymentClient(config)
 	if err != nil {
 		return err
 	}
 
-	uri, err := GetStorageFileLink(config, TEMPLATE_FILE_STORE, templateName)
-	if err != nil {
-		return err
-	}
+	templateUri := GetStorageFileLink(config, TEMPLATE_FILE_STORE, templateName+".json")
 
 	parameters, err := GetStorageFile(config, TEMPLATE_FILE_STORE, templateName+".parameters.json")
 	if err != nil {
@@ -40,14 +38,14 @@ func DeployTemplate(config Config, number int, serverName string, serverUsername
 	}
 
 	// Replace values from file with overrides
-	if serverName != "" {
-		parametersJSON.Parameters["vmName"] = TemplateParameter{Value: serverName}
+	if vmName != "" {
+		parametersJSON.Parameters["vmName"] = TemplateParameter{Value: vmName}
 	}
-	if serverUsername != "" {
-		parametersJSON.Parameters["adminUserName"] = TemplateParameter{Value: serverUsername}
+	if adminUserName != "" {
+		parametersJSON.Parameters["adminUserName"] = TemplateParameter{Value: adminUserName}
 	}
-	if serverPassword != "" {
-		parametersJSON.Parameters["adminPassword"] = TemplateParameter{Value: serverPassword}
+	if adminPassword != "" {
+		parametersJSON.Parameters["adminPassword"] = TemplateParameter{Value: adminPassword}
 	}
 
 	// Replace any variables in parameters with their values
@@ -56,33 +54,29 @@ func DeployTemplate(config Config, number int, serverName string, serverUsername
 		return err
 	}
 
-	configLink, err := GetStorageFileLink(config, CONFIG_FILE_STORE, configName)
-	if err != nil {
-		return err
-	}
+	configLink := GetStorageFileLink(config, CONFIG_FILE_STORE, configName)
 
 	// Add config file, needed for automated config deployment
 	parametersJSON.Parameters["configFileUrl"] = TemplateParameter{Value: configLink}
 	parametersJSON.Parameters["configFileName"] = TemplateParameter{Value: configName}
 
-	deploymentName := DEPLOYMENT_NAME + "-" + string(number)
+	deploymentName := DEPLOYMENT_NAME + "-" + strconv.Itoa(number)
 
-	exportParameters, err := convertParameters(parametersJSON)
-	if err != nil {
-		return err
-	}
+	exportParameters := convertParameters(parametersJSON)
+
+	log.Printf("%s", exportParameters)
 
 	template := resources.TemplateLink{
-		URI: &uri,
+		URI: &templateUri,
 	}
 	properties := resources.DeploymentProperties{
 		TemplateLink: &template,
 		Parameters:   &exportParameters,
+		Mode:         "Incremental",
 	}
 	deployment := resources.Deployment{Properties: &properties}
 
-	log.Printf("Deploy goes here: %s %s %s", deployment, deploymentName, client)
-	//_, err = client.CreateOrUpdate(config.ResourceGroup, deploymentName, deployment, nil)
+	_, err = client.CreateOrUpdate(config.ResourceGroup, deploymentName, deployment, nil)
 	if err != nil {
 		log.Printf("Error creating deployment: %s", err)
 	}
@@ -107,19 +101,9 @@ func GetServers(config Config) (*[]resources.GenericResource, error) {
 	return results.Value, nil
 }
 
-func GetStorageFileLink(config Config, store string, file string) (string, error) {
-	client, err := getStorageClient(config)
-	if err != nil {
-		return "", err
-	}
-
-	fileProperties, err := client.GetFileProperties(store + "/" + file)
-	if err != nil {
-		log.Printf("Error in azure GetStorageFileLink: %s", err)
-		return "", err
-	}
-
-	return fileProperties.CopySource, nil
+func GetStorageFileLink(config Config, store string, file string) string {
+	return "https://" + config.AzureStorageServer + ".file.core.windows.net/" + store +
+		"/" + file + config.AzureSASToken
 }
 
 // GetStorageFile Returns file from cloud storage by name and store
@@ -269,26 +253,34 @@ func CreateStorageFile(config Config, store string, file string, contents []byte
 }
 
 // This isn't very nice
-func convertParameters(parameters TemplateParameterFile) (map[string]interface{}, error) {
-	bytes, err := json.Marshal(parameters)
-	if err != nil {
-		log.Printf("Error converting parameters 1: %s", err)
-		return nil, err
-	}
+func convertParameters(parameters TemplateParameterFile) map[string]interface{} {
 
-	// And back
 	myMap := make(map[string]interface{})
-	err = json.Unmarshal(bytes, &myMap)
-	if err != nil {
-		log.Printf("Error converting parameters 2: %s", err)
-		return nil, err
+	for k, v := range parameters.Parameters {
+		myMap[k] = v
 	}
 
-	return myMap, nil
+	return myMap
+
+	// bytes, err := json.Marshal(parameters)
+	// if err != nil {
+	// 	log.Printf("Error converting parameters 1: %s", err)
+	// 	return nil, err
+	// }
+
+	// // And back
+	// myMap := make(map[string]interface{})
+	// err = json.Unmarshal(bytes, &myMap)
+	// if err != nil {
+	// 	log.Printf("Error converting parameters 2: %s", err)
+	// 	return nil, err
+	// }
+
+	// return myMap, nil
 }
 
 func replaceParameterVariables(parametersJSON *TemplateParameterFile, number int) error {
-	reg, err := regexp.Compile("${n}")
+	reg, err := regexp.Compile(`(\${n})`)
 	if err != nil {
 		log.Printf("Invalid regex: %s", err)
 		return err
@@ -297,8 +289,10 @@ func replaceParameterVariables(parametersJSON *TemplateParameterFile, number int
 	for key, param := range parametersJSON.Parameters {
 		value := param.Value.(string)
 
-		parametersJSON.Parameters[key] = TemplateParameter{Value: reg.ReplaceAllString(value, string(number))}
+		parametersJSON.Parameters[key] = TemplateParameter{Value: reg.ReplaceAllString(value, strconv.Itoa(number))}
 	}
+
+	log.Printf("%s", parametersJSON)
 
 	return nil
 }

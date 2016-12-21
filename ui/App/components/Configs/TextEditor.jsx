@@ -127,7 +127,7 @@ class TextEditor extends React.Component {
                 {errorMessage}
                 <div className="text-editor">
                     <textarea className="full-text" value={this.state.content} onChange={this.changeText} />
-                    <button onClick={this.save}>Update</button>
+                    <button onClick={this.save} className="btn btn-primary">Update</button>
                 </div>
                 {overlay}
             </div>

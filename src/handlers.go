@@ -56,21 +56,23 @@ func DeployServers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	argumentsJSON := make(map[string]interface{})
-	err = json.Unmarshal(body, argumentsJSON)
+	err = json.Unmarshal(body, &argumentsJSON)
 	if err != nil {
-		log.Printf("Invalid parameters json: %s", err)
+		log.Printf("Invalid arguments json: %s", err)
 		return
 	}
 
-	numberOfServers, _ := argumentsJSON["numberOfServers"].(int)
-	serverName, _ := argumentsJSON["serverName"].(string)
-	serverUsername, _ := argumentsJSON["serverUsername"].(string)
-	serverPassword, _ := argumentsJSON["serverPassword"].(string)
+	numberOfServers, _ := argumentsJSON["numberOfServers"].(float64)
+	vmName, _ := argumentsJSON["vmName"].(string)
+	adminUserName, _ := argumentsJSON["adminUserName"].(string)
+	adminPassword, _ := argumentsJSON["adminPassword"].(string)
 	configFile, _ := argumentsJSON["configFile"].(string)
 	templateFile, _ := argumentsJSON["templateFile"].(string)
 
-	for t := 1; t < numberOfServers; t++ {
-		DeployTemplate(config, t, serverName, serverUsername, serverPassword, configFile, templateFile)
+	for t := 1; t < int(numberOfServers); t++ {
+		log.Printf("Deploying server: %d", t)
+		DeployTemplate(config, t, vmName, adminUserName, adminPassword, configFile, templateFile)
+		break
 	}
 
 	resp.Success = true
@@ -294,12 +296,15 @@ func UpdateTemplateParameters(w http.ResponseWriter, r *http.Request) {
 		azureFile, err := GetStorageFile(config, TEMPLATE_FILE_STORE, fileName)
 		if err != nil {
 			log.Printf("Could not read azure parameters file: %s", err)
+			return
 		}
 		err = json.NewDecoder(azureFile.Body).Decode(&existingParameters)
+		log.Printf(azureFile.Properties.ContentType)
 	} else {
 		file, err := ioutil.ReadFile(TEMPLATE_DIRECTORY + fileName)
 		if err != nil {
 			log.Printf("Could not read parameters file: %s", err)
+			return
 		}
 		err = json.Unmarshal(file, &existingParameters)
 	}
