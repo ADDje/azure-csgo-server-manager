@@ -32,7 +32,7 @@ func GetAllServers(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 
-	resp.Data, err = GetServers(config)
+	resp.Data, err = GetVms(config)
 	if err != nil {
 		resp.Data = fmt.Sprintf("Error in GetAllServers handler: %s", err)
 	} else {

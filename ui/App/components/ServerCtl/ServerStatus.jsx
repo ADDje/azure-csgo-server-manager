@@ -7,17 +7,20 @@ class ServerStatus extends React.Component {
     }
 
     formatServerStatus(serverStatus) {
-        var result = {}
 
-        if (serverStatus === "running") {
-            result = <span className="label label-success">Running</span>
-            return result
-        } else if (serverStatus === "stopped") {
-            result = <span className="label label-danger">Not Running</span>
-            return result
-        } 
+        console.log(serverStatus)
 
-        return "Unknown"
+        var status = serverStatus.properties.instanceView.statuses.filter(function(s) {
+            return s.code.indexOf("PowerState") > -1
+        })
+        
+        if (status.length === 0) {
+            return <span className="label label-warning">Unknown</span>
+        }
+
+        var labelClass = "label label-" + ((status[0].code.indexOf("running") > 0) ? "success" : "danger")
+
+        return <span className={labelClass}>{status[0].displayStatus}</span>
     }
 
     render() {
@@ -36,10 +39,8 @@ class ServerStatus extends React.Component {
                 )                                                  
             }, this);
 
-            console.log(content )
-
             stop = (<div className="col-md-4">
-                <button className="btn btn-block btn-danger" type="button" onClick={this.stopServer}><i className="fa fa-stop fa-fw" />Stop CS:GO Servers</button>
+                <button className="btn btn-block btn-danger" type="button" onClick={this.stopServer}><i className="fa fa-stop fa-fw" />Stop All CS:GO Servers</button>
             </div>)
         } else {
             content = <tr><td colSpan="3" className="text-center">No Servers Found</td></tr>

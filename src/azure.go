@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strconv"
 
+	"github.com/Azure/azure-sdk-for-go/arm/compute"
 	"github.com/Azure/azure-sdk-for-go/arm/resources/resources"
 	"github.com/Azure/azure-sdk-for-go/storage"
 	"github.com/Azure/go-autorest/autorest/azure"
@@ -84,21 +85,45 @@ func DeployTemplate(config Config, number int, vmName string, adminUserName stri
 	return nil
 }
 
-// GetServers Get csgo servers/vms
-func GetServers(config Config) (*[]resources.GenericResource, error) {
-	client, err := getResourcesClient(config)
+// GetVms Gets VMs from the ResourceGroup defined in the config
+func GetVms(config Config) (*[]compute.VirtualMachine, error) {
+	client, err := getVMClient(config)
 	if err != nil {
 		return nil, err
 	}
 
-	results, err := client.List("resourceGroup eq '"+config.ResourceGroup+"' and resourceType eq 'Microsoft.Compute/virtualMachines'", "", nil)
-
+	results, err := client.List(config.ResourceGroup)
 	if err != nil {
 		log.Printf("Error in azure getServers: %s", err)
 		return nil, err
 	}
 
+	// VM properties are missing InstanceViewStatus which is where the status comes from
+	// TODO: Make parallel
+
+	for k, vm := range *results.Value {
+		vmInfo, err := GetVmStatus(config, *vm.Name)
+		if err == nil {
+			(*results.Value)[k].VirtualMachineProperties.InstanceView = vmInfo
+		}
+	}
+
 	return results.Value, nil
+}
+
+func GetVmStatus(config Config, vmName string) (*compute.VirtualMachineInstanceView, error) {
+	client, err := getVMClient(config)
+	if err != nil {
+		return nil, err
+	}
+
+	results, err := client.Get(config.ResourceGroup, vmName, "instanceView")
+	if err != nil {
+		log.Printf("Error in azure GetVmStatus: %s", err)
+		return nil, err
+	}
+
+	return results.VirtualMachineProperties.InstanceView, nil
 }
 
 func GetStorageFileLink(config Config, store string, file string) string {
@@ -314,7 +339,6 @@ func getResourcesClient(c Config) (*resources.Client, error) {
 
 	spt, err := getServicePricipalToken(c)
 	if err != nil {
-		log.Printf("Error getting service token: %s", err)
 		return nil, err
 	}
 	client.Authorizer = spt
@@ -323,13 +347,23 @@ func getResourcesClient(c Config) (*resources.Client, error) {
 }
 
 func getStorageClient(c Config) (*storage.FileServiceClient, error) {
-	client, err := storage.NewBasicClient(config.AzureStorageServer, config.AzureStorageKey)
+	client, err := storage.NewBasicClient(c.AzureStorageServer, c.AzureStorageKey)
 	if err != nil {
 		log.Printf("Error in azure getStorageClient: %s", err)
 		return nil, err
 	}
 	fs := client.GetFileService()
 	return &fs, nil
+}
+
+func getVMClient(c Config) (*compute.VirtualMachinesClient, error) {
+	client := compute.NewVirtualMachinesClient(c.AzureSubscriptionID)
+	spt, err := getServicePricipalToken(c)
+	if err != nil {
+		return nil, err
+	}
+	client.Authorizer = spt
+	return &client, nil
 }
 
 func getServicePricipalToken(config Config) (*azure.ServicePrincipalToken, error) {
