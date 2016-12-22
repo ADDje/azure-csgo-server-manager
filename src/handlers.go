@@ -18,6 +18,7 @@ type JSONResponse struct {
 
 // JSON write json response. Doesn't need to be public but otherwise namespaces collide
 func JSON(w http.ResponseWriter, resp JSONResponse) {
+	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
 		log.Printf("Error encoding response: %s", err)
 	}
@@ -29,8 +30,6 @@ func GetAllServers(w http.ResponseWriter, r *http.Request) {
 	resp := JSONResponse{
 		Success: false,
 	}
-
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 
 	resp.Data, err = GetVms(config)
 	if err != nil {
@@ -47,7 +46,6 @@ func DeployServers(w http.ResponseWriter, r *http.Request) {
 	resp := JSONResponse{
 		Success: false,
 	}
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -79,6 +77,49 @@ func DeployServers(w http.ResponseWriter, r *http.Request) {
 	JSON(w, resp)
 }
 
+// StartServer starts an existing VM that has been stopped (deallocated)
+func StartServer(w http.ResponseWriter, r *http.Request) {
+	resp := JSONResponse{
+		Success: false,
+	}
+
+	vars := mux.Vars(r)
+
+	err := StartVM(config, vars["vmName"])
+
+	if err != nil {
+		resp.Data = err
+	} else {
+		resp.Success = true
+	}
+
+	JSON(w, resp)
+}
+
+// StopServer deallocates a VM, as just "stopping" it retains resources
+func StopServer(w http.ResponseWriter, r *http.Request) {
+	resp := JSONResponse{
+		Success: false,
+	}
+
+	vars := mux.Vars(r)
+
+	err := DeallocateVM(config, vars["vmName"])
+
+	if err != nil {
+		resp.Data = err
+	} else {
+		resp.Success = true
+	}
+
+	JSON(w, resp)
+}
+
+// DeleteServer deletes a VM and associated components (network, IP)
+func DeleteServer(w http.ResponseWriter, r *http.Request) {
+
+}
+
 // GetDefaultServerConfig Returns JSON response of default server config
 func GetDefaultServerConfig(w http.ResponseWriter, r *http.Request) {
 
@@ -86,7 +127,6 @@ func GetDefaultServerConfig(w http.ResponseWriter, r *http.Request) {
 		Success: false,
 		Data:    GetDefaultSettings(),
 	}
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 
 	resp.Success = true
 
@@ -98,8 +138,6 @@ func GetServerConfigs(w http.ResponseWriter, r *http.Request) {
 	resp := JSONResponse{
 		Success: false,
 	}
-
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 
 	var err error
 	if config.UseCloudStorage {
@@ -122,8 +160,6 @@ func GetServerConfigByName(w http.ResponseWriter, r *http.Request) {
 		Success: false,
 	}
 
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
-
 	var err error
 	vars := mux.Vars(r)
 
@@ -145,8 +181,6 @@ func GetServerConfigTextByName(w http.ResponseWriter, r *http.Request) {
 	resp := JSONResponse{
 		Success: false,
 	}
-
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 
 	var err error
 	vars := mux.Vars(r)
@@ -174,8 +208,6 @@ func UpdateServerConfigText(w http.ResponseWriter, r *http.Request) {
 	resp := JSONResponse{
 		Success: false,
 	}
-
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 
 	vars := mux.Vars(r)
 
@@ -217,7 +249,6 @@ func CreateServerConfig(w http.ResponseWriter, r *http.Request) {
 		Success: false,
 	}
 
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 	vars := mux.Vars(r)
 
 	var err error
@@ -242,7 +273,6 @@ func DeleteServerConfig(w http.ResponseWriter, r *http.Request) {
 		Success: false,
 	}
 
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 	vars := mux.Vars(r)
 
 	var err error
@@ -408,7 +438,6 @@ func CreateDeploymentTemplate(w http.ResponseWriter, r *http.Request) {
 		Success: false,
 	}
 
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 	vars := mux.Vars(r)
 	templateFileName := vars["templateName"] + ".json"
 	parameterFileName := vars["templateName"] + ".parameters.json"
@@ -446,7 +475,6 @@ func DeleteDeploymentTemplate(w http.ResponseWriter, r *http.Request) {
 		Success: false,
 	}
 
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 	vars := mux.Vars(r)
 
 	templateFileName := vars["templateName"] + ".json"
@@ -485,8 +513,6 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		Success: false,
 	}
 
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
-
 	var user User
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -523,8 +549,6 @@ func LogoutUser(w http.ResponseWriter, r *http.Request) {
 		Success: false,
 	}
 
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
-
 	if err := Auth.aaa.Logout(w, r); err != nil {
 		log.Printf("Error logging out current user")
 		return
@@ -539,8 +563,6 @@ func GetCurrentLogin(w http.ResponseWriter, r *http.Request) {
 	resp := JSONResponse{
 		Success: false,
 	}
-
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 
 	user, err := Auth.aaa.CurrentUser(w, r)
 	if err != nil {
@@ -562,8 +584,6 @@ func ListUsers(w http.ResponseWriter, r *http.Request) {
 		Success: false,
 	}
 
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
-
 	users, err := Auth.listUsers()
 	if err != nil {
 		log.Printf("Error in ListUsers handler: %s", err)
@@ -581,8 +601,6 @@ func AddUser(w http.ResponseWriter, r *http.Request) {
 	resp := JSONResponse{
 		Success: false,
 	}
-
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 
 	user := User{}
 	body, err := ioutil.ReadAll(r.Body)
@@ -625,8 +643,6 @@ func RemoveUser(w http.ResponseWriter, r *http.Request) {
 		Success: false,
 	}
 
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
-
 	user := User{}
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -666,8 +682,6 @@ func GetSettings(w http.ResponseWriter, r *http.Request) {
 		Success: false,
 	}
 
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
-
 	resp.Data = config
 	resp.Success = true
 
@@ -679,8 +693,6 @@ func UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	resp := JSONResponse{
 		Success: false,
 	}
-
-	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {

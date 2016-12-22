@@ -27,7 +27,6 @@ func NewRouter() *mux.Router {
 			Path(route.Pattern).
 			Name(route.Name).
 			Handler(AuthorizeHandler(route.HandlerFunc))
-		//Handler(route.HandlerFunc)
 	}
 
 	// The login handler does not check for authentication.
@@ -95,7 +94,7 @@ var apiRoutes = Routes{
 	Route{
 		"GetServers",
 		"GET",
-		"/azure/servers/getall",
+		"/servers/getall",
 		GetAllServers,
 	}, {
 		"GetDefaultConfig",
@@ -107,6 +106,21 @@ var apiRoutes = Routes{
 		"POST",
 		"/server/deploy",
 		DeployServers,
+	}, {
+		"StartServer",
+		"POST",
+		"/server/{vmName}/start",
+		StartServer,
+	}, {
+		"StopServer",
+		"POST",
+		"/server/{vmName}/stop",
+		StopServer,
+	}, {
+		"DeleteServer",
+		"POST",
+		"/server/{vmName}/delete",
+		DeleteServer,
 	},
 	// User things
 	{

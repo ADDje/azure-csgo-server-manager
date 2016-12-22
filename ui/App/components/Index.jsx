@@ -37,6 +37,7 @@ class Index extends React.Component {
 
                 <ServerStatus 
                     azureServerStatus={this.props.azureServerStatus}
+                    reloadServers={this.props.reloadServers}
                 />
 
                 <ServerCtl 

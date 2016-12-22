@@ -129,7 +129,7 @@ class App extends React.Component {
 
     getStatus() {
         $.ajax({
-            url: "/api/azure/servers/getall",
+            url: "/api/servers/getall",
             dataType: "json",
             success: (data) => {
                 console.log(data.data)
@@ -173,7 +173,8 @@ class App extends React.Component {
                         getConfig: this.getConfig,
                         getTemplates: this.getTemplates,
                         username: this.state.username,
-                        getServStatus: this.getServStatus,}
+                        getServStatus: this.getServStatus,
+                        reloadServers: this.getStatus}
                     )}
 
                     <Footer />

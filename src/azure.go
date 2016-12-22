@@ -85,6 +85,34 @@ func DeployTemplate(config Config, number int, vmName string, adminUserName stri
 	return nil
 }
 
+func StartVM(config Config, vmName string) error {
+	client, err := getVMClient(config)
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Start(config.ResourceGroup, vmName, nil)
+	if err != nil {
+		log.Printf("Error Starting VM: %s", err)
+		return err
+	}
+	return nil
+}
+
+func DeallocateVM(config Config, vmName string) error {
+	client, err := getVMClient(config)
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Deallocate(config.ResourceGroup, vmName, nil)
+	if err != nil {
+		log.Printf("Error Starting VM: %s", err)
+		return err
+	}
+	return nil
+}
+
 // GetVms Gets VMs from the ResourceGroup defined in the config
 func GetVms(config Config) (*[]compute.VirtualMachine, error) {
 	client, err := getVMClient(config)
