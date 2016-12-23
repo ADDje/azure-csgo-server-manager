@@ -4,13 +4,15 @@
 This tool allows for servers to be deployed, monitored and managed on Azure using various templates and server configuration files.
 
 ## Features
-* Monitor running servers (VMs) in Azure Resource Group
-* Deploy servers using deployment templates
-* Upload and change server configs
-* View number of players connected to server
-* Execute RCON commands on the server
-* Allow viewing of the server logs
-* Authentication for protecting against unauthorized users
+- [x] Monitor running servers (VMs) in Azure Resource Group
+- [x] Manage deployment templates and parameters
+- [x] Deploy multiple servers using deployment templates
+- [x] Delete servers and their associated resources and hard drives (.vhd's)
+- [x] Upload and change server configs (server.cfg)
+- [] View number of players connected to server
+- [] Execute RCON commands on the server
+- [] Allow viewing of the server logs
+- [x] Authentication for protecting against unauthorized users
 
 ## Installation
 1. Download the latest release
