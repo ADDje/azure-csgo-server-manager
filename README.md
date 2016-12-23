@@ -8,10 +8,11 @@ This tool allows for servers to be deployed, monitored and managed on Azure usin
 - [x] Manage deployment templates and parameters
 - [x] Deploy multiple servers using deployment templates
 - [x] Delete servers and their associated resources and hard drives (.vhd's)
-- [x] Upload and change server configs (server.cfg)
-- [ ] View number of players connected to server
-- [ ] Execute RCON commands on the server
-- [ ] Allow viewing of the server logs
+- [x] Upload and change game server configs (server.cfg)
+- [ ] View number of players connected to game server
+- [ ] Execute RCON commands on the game server
+- [ ] Allow viewing of the game server logs
+- [ ] View management server logs of deployments etc.
 - [x] Authentication for protecting against unauthorized users
 
 ## Installation
