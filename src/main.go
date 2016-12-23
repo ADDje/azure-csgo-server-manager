@@ -4,25 +4,31 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
+
+	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 )
 
 type Config struct {
+	Username            string `json:"username"`
+	Password            string `json:"password"`
 	LogFolder           string `json:"log_folder"`
+	DatabaseFile        string `json:"database_file"`
+	CookieEncryptionKey string `json:"cookie_encryption_key"`
+	//MaxUploadSize       int64  `json:"max_upload_size"`
+	ServerIP            string `json:"server_ip"`
+	ServerPort          string `json:"server_port"`
+	UseSsl              bool   `json:"use_ssl"`
+	SslCert             string `json:"ssl_cert"`
+	SslKey              string `json:"ssl_key"`
 	AzureClientID       string `json:"azure_client_id"`
 	AzureClientSecret   string `json:"azure_client_secret"`
 	AzureSubscriptionID string `json:"azure_subscription_id"`
 	AzureTenantID       string `json:"azure_tenant_id"`
 	ResourceGroup       string `json:"resource_group"`
-	ServerIP            string `json:"server_ip"`
-	ServerPort          string `json:"server_port"`
-	MaxUploadSize       int64  `json:"max_upload_size"`
-	Username            string `json:"username"`
-	Password            string `json:"password"`
-	DatabaseFile        string `json:"database_file"`
-	CookieEncryptionKey string `json:"cookie_encryption_key"`
 	UseCloudStorage     bool   `json:"use_cloud_storage"`
 	AzureStorageServer  string `json:"azure_storage_server"`
 	AzureStorageKey     string `json:"azure_storage_key"`
@@ -69,12 +75,28 @@ func parseFlags() {
 	config.MaxUploadSize = *serverMaxUpload
 }
 
+func setupLogging() {
+
+	logFolder := config.LogFolder
+	if logFolder == "" {
+		log.Printf("WARNING: Using local log folder as none specified")
+		logFolder = "./log"
+	}
+
+	// TODO: Toggle this in production
+	mw := io.MultiWriter(os.Stdout, &lumberjack.Logger{
+		Dir:     logFolder,
+		MaxSize: 100,
+		MaxAge:  7,
+	})
+	log.SetOutput(mw)
+}
+
 func main() {
 	parseFlags()
 	loadServerConfig(config.ConfFile)
 
-	// Setup logging
-	log.SetOutput(config.log)
+	setupLogging()
 
 	// Initialize authentication system
 	Auth = initAuth()
@@ -83,6 +105,12 @@ func main() {
 
 	router := NewRouter()
 
-	fmt.Printf("Starting server on: %s:%s", config.ServerIP, config.ServerPort)
-	log.Fatal(http.ListenAndServeTLS(config.ServerIP+":"+config.ServerPort, "certs/cert.pem", "certs/key.pem", router))
+	if config.UseSsl {
+		log.Printf("Starting server on: https://%s:%s", config.ServerIP, config.ServerPort)
+		log.Fatal(http.ListenAndServeTLS(config.ServerIP+":"+config.ServerPort, config.SslCert, config.SslKey, router))
+	} else {
+		log.Printf("Starting server on: http://%s:%s", config.ServerIP, config.ServerPort)
+		log.Fatal(http.ListenAndServe(config.ServerIP+":"+config.ServerPort, router))
+	}
+
 }

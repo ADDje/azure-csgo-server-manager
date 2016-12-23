@@ -1,16 +1,36 @@
 {
+    // Default login credentials
     "username": "admin",
     "password": "mypassword",
+    
+    // Log storage folder
+    "log_folder": "./log",
+    
+    // Name of auth db
     "database_file": "auth.leveldb",
+    // Encryption used for cookies. CHANGE THIS
     "cookie_encryption_key": "topsecretkey",
 
+    // Default listening settings
+    "server_ip": "0.0.0.0",
+    "server_port": "8090",
+    
+    // Azure credentials to get VM info. See https://docs.microsoft.com/en-gb/azure/active-directory/active-directory-protocols-oauth-code
     "azure_client_id": "my-guid-goes-here",
     "azure_client_secret": "somesecret",
     "azure_subscription_id": "another-guid-goes-here",
     "azure_tenant_id": "guess-what-another-guid",
+    
+    // Resource group where VMs are located
     "resource_group": "CSGO-Something",
     
+    // Cloud storage for Templates/Configs
     "use_cloud_storage": true,
     "azure_storage_server": "",
     "azure_storage_key": ""
+    "azure_sas_token": "",
+    
+    // VM VHD storage account, required to properly delete VMs
+    "vm_vhd_storage_server": "",
+    "vm_vhd_storage_key": ""
 }

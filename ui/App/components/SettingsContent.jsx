@@ -43,7 +43,12 @@ class SettingsContent extends React.Component {
             success: (data) => {
                 console.log(data);
                 if (data.success === true) {
-                    console.log("settings updated") 
+                    swal({
+                        timer: 1000,
+                        title: "Nice!",
+                        text: "Settings Updated",
+                        type: "success"
+                    })
                 }
             }
         })

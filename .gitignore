@@ -9,6 +9,7 @@ src/debug*
 src/vendor
 /templates/
 /configs/
-build/
-certs/
+/build/
+/certs/
 npm-debug.log
+/log/
