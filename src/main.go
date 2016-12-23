@@ -10,6 +10,7 @@ import (
 )
 
 type Config struct {
+	LogFolder           string `json:"log_folder"`
 	AzureClientID       string `json:"azure_client_id"`
 	AzureClientSecret   string `json:"azure_client_secret"`
 	AzureSubscriptionID string `json:"azure_subscription_id"`
@@ -26,6 +27,8 @@ type Config struct {
 	AzureStorageServer  string `json:"azure_storage_server"`
 	AzureStorageKey     string `json:"azure_storage_key"`
 	AzureSASToken       string `json:"azure_sas_token"`
+	VMVhdStorageServer  string `json:"vm_vhd_storage_server"`
+	VMVhdStorageKey     string `json:"vm_vhd_storage_key"`
 
 	ConfFile string `json:"-"`
 }
@@ -69,6 +72,9 @@ func parseFlags() {
 func main() {
 	parseFlags()
 	loadServerConfig(config.ConfFile)
+
+	// Setup logging
+	log.SetOutput(config.log)
 
 	// Initialize authentication system
 	Auth = initAuth()

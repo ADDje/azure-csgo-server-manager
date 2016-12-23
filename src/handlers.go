@@ -85,6 +85,7 @@ func StartServer(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 
+	log.Printf("Starting Server: %s", vars["vmName"])
 	err := StartVM(config, vars["vmName"])
 
 	if err != nil {
@@ -104,6 +105,7 @@ func StopServer(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 
+	log.Printf("Stopping (deallocating) Server: %s", vars["vmName"])
 	err := DeallocateVM(config, vars["vmName"])
 
 	if err != nil {
@@ -117,7 +119,23 @@ func StopServer(w http.ResponseWriter, r *http.Request) {
 
 // DeleteServer deletes a VM and associated components (network, IP)
 func DeleteServer(w http.ResponseWriter, r *http.Request) {
+	resp := JSONResponse{
+		Success: false,
+	}
 
+	vars := mux.Vars(r)
+
+	log.Printf("Beginning deletion of VM: %s", vars["vmName"])
+	err := FullDeleteVM(config, vars["vmName"])
+
+	if err != nil {
+		resp.Data = err
+	} else {
+		resp.Success = true
+		log.Printf("VM Successfully deleted: %s", vars["vmName"])
+	}
+
+	JSON(w, resp)
 }
 
 // GetDefaultServerConfig Returns JSON response of default server config
@@ -679,11 +697,9 @@ func RemoveUser(w http.ResponseWriter, r *http.Request) {
 // GetSettings Return JSON response of conf.json file
 func GetSettings(w http.ResponseWriter, r *http.Request) {
 	resp := JSONResponse{
-		Success: false,
+		Success: true,
+		Data:    config,
 	}
-
-	resp.Data = config
-	resp.Success = true
 
 	JSON(w, resp)
 }

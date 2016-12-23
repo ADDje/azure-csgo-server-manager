@@ -48,7 +48,6 @@ class Index extends React.Component {
                     getStatus={this.props.getStatus}
                 />
 
-
                 </section>
             </div>
         )

@@ -6,32 +6,60 @@ class ServerStatus extends React.Component {
         this.formatServerStatus = this.formatServerStatus.bind(this)
         this.getButtons = this.getButtons.bind(this)
 
+        this.state = {
+            loading: false
+        }
+
         this.clickStart = this.clickStart.bind(this)
         this.clickStop = this.clickStop.bind(this)
         this.clickTrash = this.clickTrash.bind(this)
+        this.doTrash = this.doTrash.bind(this)
+        this.reload = this.reload.bind(this)
     }
 
     componentWillMount() {
-        this.reloader = setInterval(this.props.reloadServers, 5000)
+        this.reloader = setInterval(this.reload, 5000)
     }
 
     componentWillUnmount() {
         clearInterval(this.reloader)
     }
 
+    reload() {
+        this.setState({loading: true});
+        // TODO: Callback and do this properly
+        setTimeout(function() {
+            this.setState({loading: false})
+        }.bind(this), 500)
+        this.props.reloadServers()
+    }
+
     formatServerStatus(serverStatus) {
 
-        var status = serverStatus.properties.instanceView.statuses.filter(function(s) {
-            return s.code.indexOf("PowerState") > -1
-        })
+        var statuses = serverStatus.properties.instanceView.statuses;
         
-        if (status.length === 0) {
+        if (statuses.length === 0) {
             return <span className="label label-warning">Unknown</span>
         }
 
-        var labelClass = "label label-" + ((status[0].code.indexOf("running") > -1) ? "success" : "danger")
+        var icons = []
+        for (var s in statuses) {
+            var parts = statuses[s].code.split("/")
 
-        return <span className={labelClass}>{status[0].displayStatus}</span>
+            switch (parts[0]) {
+                case "PowerState":
+                    var labelClass = "label label-" + ((statuses[s].code.indexOf("running") > -1) ? "success" : "danger")
+                    icons.push(<span key={parts[0]} className={labelClass}>{statuses[s].displayStatus}</span>)
+                    break
+                case "ProvisioningState":
+                    if (parts[1] !== "succeeded" && parts[2] !== "deallocated") {
+                        icons.push(<span key={parts[0]} className="label label-danger">{statuses[s].displayStatus}</span>)
+                    }
+                    break
+            }
+        }
+
+        return icons
     }
 
     clickStart(name) {
@@ -55,7 +83,29 @@ class ServerStatus extends React.Component {
     }
 
     clickTrash(name) {
+        swal({
+            title: "Are you sure?",
+            text: "You will not be able to recover " + name,
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Yes, delete it!",
+            closeOnConfirm: true
+        },
+        function(){
+            this.doTrash(name)
+        }.bind(this));
+    }
 
+    doTrash(name) {
+        $.post({
+            url: "/api/server/" + name + "/delete",
+            success: (resp) => {
+                console.log("Deleted")
+            }
+        })
+        this.props.reloadServers()
+        console.log("Deleting")
     }
 
     getButtons(serverStatus) {
@@ -83,6 +133,11 @@ class ServerStatus extends React.Component {
 
     render() {
         
+        var loading = null
+        if (this.state.loading) {
+            loading = <i className="fa fa-refresh fa-spin" />
+        }
+
         var content = null
         var stop = null;
         if (this.props.azureServerStatus.length > 0) {
@@ -112,6 +167,7 @@ class ServerStatus extends React.Component {
             <div className="box">
                 <div className="box-header">
                     <h3 className="box-title">Server Status</h3>
+                    {loading}
                 </div>
                 
                 <div className="box-body">

@@ -6,14 +6,18 @@ import (
 	"log"
 	"regexp"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/Azure/azure-sdk-for-go/arm/compute"
+	"github.com/Azure/azure-sdk-for-go/arm/network"
 	"github.com/Azure/azure-sdk-for-go/arm/resources/resources"
 	"github.com/Azure/azure-sdk-for-go/storage"
 	"github.com/Azure/go-autorest/autorest/azure"
 )
 
 const DEPLOYMENT_NAME string = "csgo-server-manager"
+const VHD_CONTAINER_NAME string = "vhds"
 
 func DeployTemplate(config Config, number int, vmName string, adminUserName string,
 	adminPassword string, configName string, templateName string) error {
@@ -113,6 +117,131 @@ func DeallocateVM(config Config, vmName string) error {
 	return nil
 }
 
+func DeleteVM(config Config, vmName string) error {
+	client, err := getVMClient(config)
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Delete(config.ResourceGroup, vmName, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteVhd(config Config, vhdUri string) error {
+	client, err := storage.NewBasicClient(config.VMVhdStorageServer, config.VMVhdStorageKey)
+	if err != nil {
+		log.Printf("Delete Vhd Error: %s", err)
+		return err
+	}
+
+	parts := strings.Split(vhdUri, "/")
+	name := parts[len(parts)-1]
+	store := parts[len(parts)-2 : len(parts)-1][0]
+
+	t, err := client.GetBlobService().BreakLease(store, name)
+	if err != nil && !strings.Contains(string(err.Error()), "no lease on the blob") {
+		log.Printf("Vhd Break lease err: %s", err)
+		return err
+	}
+	if t > 0 {
+		log.Printf("Waiting %d for lease to expire", t)
+		time.Sleep(time.Duration(t) * time.Second)
+	}
+	myMap := make(map[string]string)
+	err = client.GetBlobService().DeleteBlob(store, name, myMap)
+	if err != nil {
+		log.Printf("Could not delete vhd: %s", err)
+		return err
+	}
+
+	return nil
+}
+
+func DeleteVMNetworkThings(config Config, vmName string,
+	vmProps *compute.VirtualMachineProperties) error {
+
+	resourcesClient, err := getResourcesClient(config)
+	if err != nil {
+		return err
+	}
+
+	networkClient, err := getInterfacesClient(config)
+	if err != nil {
+		return err
+	}
+
+	nic := *(*vmProps.NetworkProfile.NetworkInterfaces)[0].ID
+	nicParts := strings.Split(nic, "/")
+	nicName := nicParts[len(nicParts)-1]
+
+	nicDetails, err := networkClient.Get(config.ResourceGroup, nicName, "")
+	if err != nil {
+		log.Printf("Could not get NIC Details for %s: %s", nicName, err)
+		return err
+	}
+
+	ip := (*nicDetails.IPConfigurations)[0]
+	ipID := *ip.PublicIPAddress.ID
+
+	netParts := strings.Split(*ip.Subnet.ID, "/")
+	net := strings.Join(netParts[0:len(netParts)-2], "/")
+
+	log.Printf("Deleting: \nNIC: %s, \nIP:  %s, \nNet: %s", nic, ipID, net)
+
+	_, err = resourcesClient.DeleteByID(nic, nil)
+	if err != nil {
+		log.Printf("Could not delete NIC %s: %s", nic, err)
+		return err
+	}
+	log.Printf("Deleted NIC: %s", nic)
+	_, err = resourcesClient.DeleteByID(ipID, nil)
+	if err != nil {
+		log.Printf("Could not delete IP %s: %s", ipID, err)
+		return err
+	}
+	log.Printf("Deleted IP:  %s", ipID)
+	_, err = resourcesClient.DeleteByID(net, nil)
+	if err != nil {
+		log.Printf("Could not delete Network %s: %s", net, err)
+		return err
+	}
+	log.Printf("Deleted Net: %s", net)
+
+	return nil
+}
+
+// FullDeleteVM deletes a VM, its network resources and ip address
+// Unfortunately this isn't very dynamic, and may fail using a different template
+// or with different resources
+func FullDeleteVM(config Config, vmName string) error {
+	vmDetails, err := GetVmProperties(config, vmName)
+	if err != nil {
+		return err
+	}
+
+	err = DeleteVM(config, vmName)
+	if err != nil {
+		return err
+	}
+
+	err = DeleteVMNetworkThings(config, vmName, vmDetails)
+	if err != nil {
+		return err
+	}
+
+	vhdURI := vmDetails.StorageProfile.OsDisk.Vhd.URI
+	err = DeleteVhd(config, *vhdURI)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // GetVms Gets VMs from the ResourceGroup defined in the config
 func GetVms(config Config) (*[]compute.VirtualMachine, error) {
 	client, err := getVMClient(config)
@@ -130,16 +259,16 @@ func GetVms(config Config) (*[]compute.VirtualMachine, error) {
 	// TODO: Make parallel
 
 	for k, vm := range *results.Value {
-		vmInfo, err := GetVmStatus(config, *vm.Name)
+		vmInfo, err := GetVmProperties(config, *vm.Name)
 		if err == nil {
-			(*results.Value)[k].VirtualMachineProperties.InstanceView = vmInfo
+			(*results.Value)[k].VirtualMachineProperties.InstanceView = vmInfo.InstanceView
 		}
 	}
 
 	return results.Value, nil
 }
 
-func GetVmStatus(config Config, vmName string) (*compute.VirtualMachineInstanceView, error) {
+func GetVmProperties(config Config, vmName string) (*compute.VirtualMachineProperties, error) {
 	client, err := getVMClient(config)
 	if err != nil {
 		return nil, err
@@ -151,9 +280,11 @@ func GetVmStatus(config Config, vmName string) (*compute.VirtualMachineInstanceV
 		return nil, err
 	}
 
-	return results.VirtualMachineProperties.InstanceView, nil
+	return results.VirtualMachineProperties, nil
 }
 
+// GetStorageFileLink returns an externally accessible link to a storage file
+// Uses a secure token so should not be used frivolously
 func GetStorageFileLink(config Config, store string, file string) string {
 	return "https://" + config.AzureStorageServer + ".file.core.windows.net/" + store +
 		"/" + file + config.AzureSASToken
@@ -382,6 +513,16 @@ func getStorageClient(c Config) (*storage.FileServiceClient, error) {
 	}
 	fs := client.GetFileService()
 	return &fs, nil
+}
+
+func getInterfacesClient(c Config) (*network.InterfacesClient, error) {
+	client := network.NewInterfacesClient(c.AzureSubscriptionID)
+	spt, err := getServicePricipalToken(c)
+	if err != nil {
+		return nil, err
+	}
+	client.Authorizer = spt
+	return &client, nil
 }
 
 func getVMClient(c Config) (*compute.VirtualMachinesClient, error) {
