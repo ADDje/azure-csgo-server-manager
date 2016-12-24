@@ -65,14 +65,14 @@ func parseFlags() {
 	confFile := flag.String("conf", "./conf.json", "Specify location of Azure CSGO Server Manager config file.")
 	webserverIP := flag.String("host", "0.0.0.0", "Specify IP for webserver to listen on.")
 	webserverPort := flag.String("port", "8090", "Specify a port for the server.")
-	serverMaxUpload := flag.Int64("max-upload", 1024*1024*20, "Maximum filesize for uploaded files (default 20MB).")
+	//serverMaxUpload := flag.Int64("max-upload", 1024*1024*20, "Maximum filesize for uploaded files (default 20MB).")
 
 	flag.Parse()
 
 	config.ConfFile = *confFile
 	config.ServerIP = *webserverIP
 	config.ServerPort = *webserverPort
-	config.MaxUploadSize = *serverMaxUpload
+	//config.MaxUploadSize = *serverMaxUpload
 }
 
 func setupLogging() {

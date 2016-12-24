@@ -1,6 +1,7 @@
 SET NODE_ENV=Production
 
-rmdir -Recurse build
+rmdir -Recurse -Force build
+
 mkdir build
 cd src
 go build -o ../build/azure-csgo-server-windows.exe

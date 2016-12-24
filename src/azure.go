@@ -161,8 +161,7 @@ func DeleteVhd(config Config, vhdUri string) error {
 	return nil
 }
 
-func DeleteVMNetworkThings(config Config, vmName string,
-	vmProps *compute.VirtualMachineProperties) error {
+func DeleteVMNetworkThings(config Config, vmProps *compute.VirtualMachineProperties) error {
 
 	resourcesClient, err := getResourcesClient(config)
 	if err != nil {
@@ -228,7 +227,7 @@ func FullDeleteVM(config Config, vmName string) error {
 		return err
 	}
 
-	err = DeleteVMNetworkThings(config, vmName, vmDetails)
+	err = DeleteVMNetworkThings(config, vmDetails)
 	if err != nil {
 		return err
 	}
@@ -484,7 +483,7 @@ func replaceParameterVariables(parametersJSON *TemplateParameterFile, number int
 func getDeploymentClient(c Config) (*resources.DeploymentsClient, error) {
 	client := resources.NewDeploymentsClient(c.AzureSubscriptionID)
 
-	spt, err := getServicePricipalToken(c)
+	spt, err := getServicePrincipalToken(c)
 	if err != nil {
 		return nil, err
 	}
@@ -496,7 +495,7 @@ func getDeploymentClient(c Config) (*resources.DeploymentsClient, error) {
 func getResourcesClient(c Config) (*resources.Client, error) {
 	client := resources.NewClient(c.AzureSubscriptionID)
 
-	spt, err := getServicePricipalToken(c)
+	spt, err := getServicePrincipalToken(c)
 	if err != nil {
 		return nil, err
 	}
@@ -517,7 +516,7 @@ func getStorageClient(c Config) (*storage.FileServiceClient, error) {
 
 func getInterfacesClient(c Config) (*network.InterfacesClient, error) {
 	client := network.NewInterfacesClient(c.AzureSubscriptionID)
-	spt, err := getServicePricipalToken(c)
+	spt, err := getServicePrincipalToken(c)
 	if err != nil {
 		return nil, err
 	}
@@ -527,7 +526,7 @@ func getInterfacesClient(c Config) (*network.InterfacesClient, error) {
 
 func getVMClient(c Config) (*compute.VirtualMachinesClient, error) {
 	client := compute.NewVirtualMachinesClient(c.AzureSubscriptionID)
-	spt, err := getServicePricipalToken(c)
+	spt, err := getServicePrincipalToken(c)
 	if err != nil {
 		return nil, err
 	}
@@ -535,7 +534,7 @@ func getVMClient(c Config) (*compute.VirtualMachinesClient, error) {
 	return &client, nil
 }
 
-func getServicePricipalToken(config Config) (*azure.ServicePrincipalToken, error) {
+func getServicePrincipalToken(config Config) (*azure.ServicePrincipalToken, error) {
 	spt, err := newServicePrincipalTokenFromCredentials(config, azure.PublicCloud.ResourceManagerEndpoint)
 	if err != nil {
 		log.Printf("Error getting service principal: %s", err)
@@ -545,7 +544,7 @@ func getServicePricipalToken(config Config) (*azure.ServicePrincipalToken, error
 	return spt, nil
 }
 
-func newServicePrincipalTokenFromCredentials(c Config, scope string) (*azure.ServicePrincipalToken, error) {
+func newServicePrincipalTokenFromCredentials(config Config, scope string) (*azure.ServicePrincipalToken, error) {
 	oauthConfig, err := azure.PublicCloud.OAuthConfigForTenant(config.AzureTenantID)
 	if err != nil {
 		panic(err)

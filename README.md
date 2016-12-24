@@ -13,14 +13,23 @@ This tool allows for servers to be deployed, monitored and managed on Azure usin
 - [ ] Execute RCON commands on the game server
 - [ ] Allow viewing of the game server logs
 - [ ] View management server logs of deployments etc.
+- [ ] Scheduler. Support for automation hits from (https://azure.microsoft.com/en-gb/services/scheduler/)[Azure Scheduler] to complete various preconfigured tasks
 - [x] Authentication for protecting against unauthorized users
+
+## Future
+* Permissions Support. Users and admins (+other?). Users can't see things like storage keys. Maybe they can't delete VMs, etc.
+* Cache things. Only really designed for one user right now, could have performance issues
+* Expire cookies (configure)
+* Download Demos
+* External API? Could be used for things like automatically configuring maps or team names
+* Reboot server manually (or just restart hlds)
 
 ## Installation
 1. Download the latest release
   * [https://github.com/MetalMichael/azure-csgo-server-manager/releases](https://github.com/MajorMJR/factorio-server-manager/releases)
 2. Configure the config.json file to your [azure credentials](https://docs.microsoft.com/en-gb/azure/active-directory/active-directory-protocols-oauth-code) 
 3. Run the server binary file
-4. Visit [localhost:8080](localhost:8080) in your web browser.
+4. Visit [localhost:8090](localhost:8090) in your web browser.
 
 ## Development
 The backend is built as a REST API via the Go web application.  
@@ -50,7 +59,7 @@ Frontend is built using React and the AdminLTE CSS framework. See app/dist/ for 
 
 The root of the UI application is served at app/index.html.  Run the npm build script and the Go application during development to get live rebuilding of the UI code.
 
-All necessary CSS and Javascript files are included for running the UI.
+All necessary CSS and JavaScript files are included for running the UI.
 
 Transpiled bundle.js application is output to app/bundle.js, 'npm run build' script starts webpack to build the React application for development
 ```

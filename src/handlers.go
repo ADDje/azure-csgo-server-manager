@@ -568,7 +568,7 @@ func LogoutUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := Auth.aaa.Logout(w, r); err != nil {
-		log.Printf("Error logging out current user")
+		log.Print("Error logging out current user")
 		return
 	}
 
