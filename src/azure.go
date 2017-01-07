@@ -19,7 +19,7 @@ import (
 const DEPLOYMENT_NAME string = "csgo-server-manager"
 const VHD_CONTAINER_NAME string = "vhds"
 
-func DeployTemplate(config Config, number int, vmName string, adminUserName string,
+func DeployXTemplates(x int, config Config, vmName string, adminUserName string,
 	adminPassword string, configName string, templateName string) error {
 
 	client, err := getDeploymentClient(config)
@@ -53,23 +53,33 @@ func DeployTemplate(config Config, number int, vmName string, adminUserName stri
 		parametersJSON.Parameters["adminPassword"] = TemplateParameter{Value: adminPassword}
 	}
 
-	// Replace any variables in parameters with their values
-	err = replaceParameterVariables(&parametersJSON, number)
-	if err != nil {
-		return err
-	}
-
 	configLink := GetStorageFileLink(config, CONFIG_FILE_STORE, configName)
 
 	// Add config file, needed for automated config deployment
 	parametersJSON.Parameters["configFileUrl"] = TemplateParameter{Value: configLink}
 	parametersJSON.Parameters["configFileName"] = TemplateParameter{Value: configName}
 
+	for t := 1; t < x; t++ {
+		log.Printf("Deploying server: %d", t)
+		deployTemplate(client, config, t, vmName, adminUserName, adminPassword, configName, templateUri, parametersJSON)
+		break
+	}
+
+	return nil
+}
+
+func deployTemplate(client *resources.DeploymentsClient, config Config, number int, vmName string, adminUserName string,
+	adminPassword string, configName string, templateUri string, parametersJSON TemplateParameterFile) error {
+
+	// Replace any variables in parameters with their values
+	replacedParametersJson, err := replaceParameterVariables(parametersJSON, number)
+	if err != nil {
+		return err
+	}
+
 	deploymentName := DEPLOYMENT_NAME + "-" + strconv.Itoa(number)
 
-	exportParameters := convertParameters(parametersJSON)
-
-	log.Printf("%s", exportParameters)
+	exportParameters := convertParameters(*replacedParametersJson)
 
 	template := resources.TemplateLink{
 		URI: &templateUri,
@@ -445,39 +455,38 @@ func convertParameters(parameters TemplateParameterFile) map[string]interface{} 
 
 	return myMap
 
-	// bytes, err := json.Marshal(parameters)
-	// if err != nil {
-	// 	log.Printf("Error converting parameters 1: %s", err)
-	// 	return nil, err
-	// }
-
-	// // And back
-	// myMap := make(map[string]interface{})
-	// err = json.Unmarshal(bytes, &myMap)
-	// if err != nil {
-	// 	log.Printf("Error converting parameters 2: %s", err)
-	// 	return nil, err
-	// }
-
-	// return myMap, nil
 }
 
-func replaceParameterVariables(parametersJSON *TemplateParameterFile, number int) error {
+func replaceParameter(template string, number int) (string, error) {
 	reg, err := regexp.Compile(`(\${n})`)
 	if err != nil {
 		log.Printf("Invalid regex: %s", err)
-		return err
+		return "", err
+	}
+
+	return reg.ReplaceAllString(template, strconv.Itoa(number)), nil
+}
+
+func replaceParameterVariables(parametersJSON TemplateParameterFile, number int) (*TemplateParameterFile, error) {
+	outParams := TemplateParameterFile{
+		Schema:         parametersJSON.Schema,
+		ContentVersion: parametersJSON.ContentVersion,
+	}
+	reg, err := regexp.Compile(`(\${n})`)
+	if err != nil {
+		log.Printf("Invalid regex: %s", err)
+		return nil, err
 	}
 
 	for key, param := range parametersJSON.Parameters {
 		value := param.Value.(string)
 
-		parametersJSON.Parameters[key] = TemplateParameter{Value: reg.ReplaceAllString(value, strconv.Itoa(number))}
+		outParams.Parameters[key] = TemplateParameter{Value: reg.ReplaceAllString(value, strconv.Itoa(number))}
 	}
 
 	log.Printf("%s", parametersJSON)
 
-	return nil
+	return &outParams, nil
 }
 
 func getDeploymentClient(c Config) (*resources.DeploymentsClient, error) {

@@ -149,7 +149,7 @@ class ServerStatus extends React.Component {
                         <td><input type="checkbox" /></td>
                         <td>{server.name}</td>
                         <td>{buttons}</td>
-                        <td></td>
+                        <td />
                         <td>{this.formatServerStatus(server)}</td>
                     </tr>
                 )                                                  
@@ -159,7 +159,7 @@ class ServerStatus extends React.Component {
                 <button className="btn btn-block btn-danger" type="button" onClick={this.stopServer}><i className="fa fa-stop fa-fw" />Stop All CS:GO Servers</button>
             </div>)
         } else {
-            content = <tr><td colSpan="3" className="text-center">No Servers Found</td></tr>
+            content = <tr><td colSpan="5" className="text-center">No Servers Found</td></tr>
         }
 
 

@@ -35,6 +35,7 @@ type Config struct {
 	AzureSASToken       string `json:"azure_sas_token"`
 	VMVhdStorageServer  string `json:"vm_vhd_storage_server"`
 	VMVhdStorageKey     string `json:"vm_vhd_storage_key"`
+	ExternalApiKey      string `json:"external_api_key"`
 
 	ConfFile string `json:"-"`
 }

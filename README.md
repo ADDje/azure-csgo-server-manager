@@ -13,7 +13,7 @@ This tool allows for servers to be deployed, monitored and managed on Azure usin
 - [ ] Execute RCON commands on the game server
 - [ ] Allow viewing of the game server logs
 - [ ] View management server logs of deployments etc.
-- [ ] Scheduler. Support for automation hits from (https://azure.microsoft.com/en-gb/services/scheduler/)[Azure Scheduler] to complete various preconfigured tasks
+- [x] Scheduler. Support for automation hits from (https://azure.microsoft.com/en-gb/services/scheduler/)[Azure Scheduler] to complete various preconfigured tasks
 - [x] Authentication for protecting against unauthorized users
 
 ## Future

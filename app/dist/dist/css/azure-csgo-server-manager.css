@@ -11,18 +11,23 @@
     top: 0; left: 0; bottom: 0; right: 0;
 }
 
-.row-link {
-    display: block;
-    width: 100%;
-    height: 40px;
-}
-
 .row-link button {
     margin: 5px;
 }
 
-.row-link:hover {
+.row-link td {
+    height: 50px;
+    vertical-align: middle !important;
+}
+
+.row-link:hover td {
     background-color: rgba(200,200,200,0.15);
+    cursor: pointer;
+}
+
+.row-link input {
+    width: 400px;
+    font-weight: normal;
 }
 
 .full-text {
@@ -36,4 +41,12 @@
 
 .selected-row {
     font-weight: bold;
+}
+
+#accordion h4 {
+    width: 100%;
+}
+
+#accordion h4 a {
+    display: block;
 }

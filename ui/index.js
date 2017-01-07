@@ -9,6 +9,7 @@ import SavesContent from './App/components/SavesContent.jsx'
 import SettingsContent from './App/components/SettingsContent.jsx'
 import LoginContent from './App/components/LoginContent.jsx'
 import UsersContent from './App/components/UsersContent.jsx'
+import SchedulerContent from './App/components/SchedulerContent.jsx'
 import Index from './App/components/Index.jsx'
 
 
@@ -24,6 +25,7 @@ ReactDOM.render(
             <Route path="/templates" component={TemplateContent} /> 
             <Route path="/logs" component={LogsContent} /> 
             <Route path="/saves" component={SavesContent} /> 
+            <Route path="/scheduler" component={SchedulerContent} />
         </Route>
     </Router>
 , document.getElementById('app'));

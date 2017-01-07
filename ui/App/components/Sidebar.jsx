@@ -50,6 +50,7 @@ class Sidebar extends React.Component {
                     <li><Link to="/logs" activeClassName="active"><i className="fa fa-file-text-o" /><span>Logs</span></Link></li>
                     <li><Link to="/saves" activeClassName="active"><i className="fa fa-floppy-o" /><span>Saves</span></Link></li>
                     <li><Link to="/users" activeClassName="active"><i className="fa fa-users" /><span>Users</span></Link></li>
+                    <li><Link to="/scheduler" activeClassName="active"><i className="fa fa-clock-o" /><span>Scheduler Actions</span></Link></li>
                     <li><Link to="/settings" activeClassName="active"><i className="fa fa-cogs" /><span>Settings</span></Link></li>
                 </ul>
                 </section>

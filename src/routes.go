@@ -35,6 +35,12 @@ func NewRouter() *mux.Router {
 		Name("LoginUser").
 		HandlerFunc(LoginUser)
 
+	// External endpoint uses api key as auth
+	r.Path("/external/action/{actionName}/exec").
+		Methods("POST").
+		Name("ExecuteScheduleAction").
+		Handler(AuthorizeExternalHandler(http.HandlerFunc(ExecuteAction)))
+
 	// Serves the frontend application from the app directory
 	// Uses basic file server to serve index.html and Javascript application
 	// Routes match the ones defined in React application
@@ -66,6 +72,10 @@ func NewRouter() *mux.Router {
 		Methods("GET").
 		Name("Server").
 		Handler(AuthorizeHandler(http.StripPrefix("/server", http.FileServer(http.Dir("./app/")))))
+	r.Path("/scheduler").
+		Methods("GET").
+		Name("Scheduler").
+		Handler(AuthorizeHandler(http.StripPrefix("/scheduler", http.FileServer(http.Dir("./app/")))))
 	r.PathPrefix("/").
 		Methods("GET").
 		Name("Index").
@@ -81,6 +91,20 @@ func AuthorizeHandler(h http.Handler) http.Handler {
 		if err := Auth.aaa.Authorize(w, r, true); err != nil {
 			log.Printf("Unauthenticated request %s %s %s", r.Method, r.Host, r.RequestURI)
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+		h.ServeHTTP(w, r)
+	})
+}
+
+func AuthorizeExternalHandler(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		params := r.URL.Query()
+		key, ok := params["key"]
+
+		if !ok || len(key) < 1 || key[0] != config.ExternalApiKey {
+			log.Printf("Unauthorized external request %s %s %s", r.Method, r.Host, r.RequestURI)
+			w.WriteHeader(http.StatusForbidden)
 			return
 		}
 		h.ServeHTTP(w, r)
@@ -230,5 +254,25 @@ var apiRoutes = Routes{
 		"POST",
 		"/templates/delete/{templateName}",
 		DeleteDeploymentTemplate,
+	},
+
+	// Schedules
+	{
+		"GetScheduleActions",
+		"GET",
+		"/schedule/getall",
+		GetAllActions,
+	},
+	{
+		"CreateOrUpdateScheduleAction",
+		"POST",
+		"/schedule/{actionName}",
+		CreateOrUpdateAction,
+	},
+	{
+		"DeleteScheduleAction",
+		"POST",
+		"/schedule/{actionName}/delete",
+		DeleteAction,
 	},
 }

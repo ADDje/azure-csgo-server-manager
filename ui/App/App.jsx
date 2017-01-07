@@ -3,7 +3,6 @@ import {browserHistory} from 'react-router';
 import Header from './components/Header.jsx';
 import Sidebar from './components/Sidebar.jsx';
 import Footer from './components/Footer.jsx';
-import HiddenSidebar from './components/HiddenSidebar.jsx';
 import update from 'immutability-helper';
 
 
@@ -17,6 +16,7 @@ class App extends React.Component {
         this.getConfig = this.getConfig.bind(this)
         this.getTemplates = this.getTemplates.bind(this)
         this.getStatus = this.getStatus.bind(this)
+        this.getScheduleActions = this.getScheduleActions.bind(this)
         this.state = {
             serverRunning: "stopped",
             azureServerStatus: [],
@@ -26,6 +26,7 @@ class App extends React.Component {
             username: "",
             messages: [],
             showMessage: false,
+            scheduleActions: {},
         }
     }
 
@@ -141,6 +142,17 @@ class App extends React.Component {
         })
     }
 
+    getScheduleActions() {
+        $.ajax({
+            url: "/api/schedule/getall",
+            dataType: "json",
+            success: (data) => {
+                console.log(data.data)
+                this.setState({scheduleActions: data.data})
+            }
+        })
+    }
+
     render() {
         // render main application, 
         // if logged in show application
@@ -174,17 +186,12 @@ class App extends React.Component {
                         getTemplates: this.getTemplates,
                         username: this.state.username,
                         getServStatus: this.getServStatus,
-                        reloadServers: this.getStatus}
+                        reloadServers: this.getStatus,
+                        getScheduleActions: this.getScheduleActions,
+                        scheduleActions: this.state.scheduleActions}
                     )}
 
                     <Footer />
-
-                    <HiddenSidebar 
-                        azureServerStatus={this.state.azureServerStatus}
-                        username={this.state.username}
-                        loggedIn={this.state.loggedIn}
-                        checkLogin={this.checkLogin}
-                    />
                 </div>)
         } else {
             var resp = <div><p>Not Logged in</p></div>;

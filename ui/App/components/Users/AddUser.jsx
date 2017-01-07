@@ -61,23 +61,23 @@ class AddUser extends React.Component {
                         <div className="col-md-4">
                             <form action="" onSubmit={this.createUser}>
                                 <div className="form-group">
-                                    <label for="username">Username</label>
+                                    <label htmlFor="username">Username</label>
                                     <input ref="username" type="text" className="form-control" id="username" placeholder="Enter username" />
                                 </div> 
                                 <div className="form-group">
-                                    <label for="email">Email address</label>
+                                    <label htmlFor="email">Email address</label>
                                     <input ref="email" type="text" className="form-control" id="email" placeholder="Enter email" />
                                 </div> 
                                 <div className="form-group">
-                                    <label for="password">Password</label>
+                                    <label htmlFor="password">Password</label>
                                     <input ref="password" type="password" className="form-control" id="password" placeholder="Enter password" />
                                 </div> 
                                 <div className="form-group">
-                                    <label for="password">Password confirmation</label>
+                                    <label htmlFor="password">Password confirmation</label>
                                     <input ref="passwordConfirm" type="password" className="form-control" id="password" placeholder="Enter password again" />
                                 </div> 
                             
-                                <button className="btn btn-block btn-success" type="submit"><i className="fa fa-plus fa-fw"></i>Add User</button>
+                                <button className="btn btn-block btn-success" type="submit"><i className="fa fa-plus fa-fw" />Add User</button>
                             </form>
                         </div>
                     </div>

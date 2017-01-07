@@ -67,11 +67,8 @@ func DeployServers(w http.ResponseWriter, r *http.Request) {
 	configFile, _ := argumentsJSON["configFile"].(string)
 	templateFile, _ := argumentsJSON["templateFile"].(string)
 
-	for t := 1; t < int(numberOfServers); t++ {
-		log.Printf("Deploying server: %d", t)
-		DeployTemplate(config, t, vmName, adminUserName, adminPassword, configFile, templateFile)
-		break
-	}
+	DeployXTemplates(int(numberOfServers), config, vmName, adminUserName,
+		adminPassword, configFile, templateFile)
 
 	resp.Success = true
 	JSON(w, resp)
@@ -747,5 +744,115 @@ func UpdateSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp.Success = true
+	JSON(w, resp)
+}
+
+func GetAllActions(w http.ResponseWriter, r *http.Request) {
+	resp := JSONResponse{
+		Success: false,
+	}
+
+	actions, err := GetScheduleActions()
+	if err == nil {
+		resp.Success = true
+		resp.Data = actions
+	}
+
+	JSON(w, resp)
+}
+
+func CreateOrUpdateAction(w http.ResponseWriter, r *http.Request) {
+	resp := JSONResponse{
+		Success: false,
+	}
+
+	vars := mux.Vars(r)
+
+	name, ok := vars["actionName"]
+	if !ok {
+		log.Printf("Missing action name")
+		return
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Invalid Body: %s", err)
+		return
+	}
+	log.Printf("Body: %s", body)
+
+	action := ScheduleAction{}
+	err = json.Unmarshal(body, &action)
+	if err != nil {
+		log.Printf("Invalid schedule action: %s", err)
+		return
+	}
+
+	err = AddOrUpdateScheduleAction(name, &action)
+	if err != nil {
+		log.Printf("Could not add or update action: %s", err)
+		return
+	}
+
+	resp.Success = true
+
+	JSON(w, resp)
+}
+
+func DeleteAction(w http.ResponseWriter, r *http.Request) {
+	resp := JSONResponse{
+		Success: false,
+	}
+
+	vars := mux.Vars(r)
+
+	name, ok := vars["actionName"]
+	if !ok {
+		log.Printf("Missing action name")
+		return
+	}
+
+	err := DeleteScheduleAction(name)
+	if err != nil {
+		log.Printf("Could delete action: %s", err)
+		return
+	}
+
+	resp.Success = true
+
+	JSON(w, resp)
+}
+
+func ExecuteAction(w http.ResponseWriter, r *http.Request) {
+	resp := JSONResponse{
+		Success: false,
+	}
+
+	vars := mux.Vars(r)
+
+	name, ok := vars["actionName"]
+	if !ok {
+		log.Printf("Missing action name")
+		return
+	}
+
+	params := r.URL.Query()
+
+	// Flatten params, only support the first value for each param.
+	// Easier to deal with in the scheduler
+	newParams := make(map[string]string)
+	for k, v := range params {
+		newParams[k] = v[0]
+	}
+
+	log.Printf("Executing action: %s", name)
+	err := ExecuteScheduleAction(name, newParams)
+	if err != nil {
+		resp.Data = fmt.Sprintf("Error: %s", err)
+		log.Printf("Could execute action %s: %s", name, err)
+	} else {
+		resp.Success = true
+	}
+
 	JSON(w, resp)
 }
