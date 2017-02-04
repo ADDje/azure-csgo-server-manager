@@ -162,13 +162,7 @@ class ServerCtl extends React.Component {
             url: "/api/server/deploy",
             data: JSON.stringify(serverSettings),
             success: (resp) => {
-                this.props.getServStatus();
-                this.props.getStatus();
-                if (resp.success === true) {
-                    swal("CS:GO Server Started", resp.data)
-                } else {
-                    swal("Error", "Error starting CS:GO Server", "error")
-                }
+                
             }
         })
     }
@@ -179,7 +173,6 @@ class ServerCtl extends React.Component {
             url: "/api/server/stop",
             dataType: "json",
             success: (resp) => {
-                this.props.getServStatus();
                 this.props.getStatus();
                 console.log(resp)
                 swal(resp.data)

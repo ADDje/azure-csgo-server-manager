@@ -59,10 +59,9 @@ func DeployXTemplates(x int, config Config, vmName string, adminUserName string,
 	parametersJSON.Parameters["configFileUrl"] = TemplateParameter{Value: configLink}
 	parametersJSON.Parameters["configFileName"] = TemplateParameter{Value: configName}
 
-	for t := 1; t < x; t++ {
-		log.Printf("Deploying server: %d", t)
-		deployTemplate(client, config, t, vmName, adminUserName, adminPassword, configName, templateUri, parametersJSON)
-		break
+	for t := 1; t <= x; t++ {
+		log.Printf("Deploying server: %d of %d", t, x)
+		go deployTemplate(client, config, t, vmName, adminUserName, adminPassword, configName, templateUri, parametersJSON)
 	}
 
 	return nil
@@ -471,6 +470,7 @@ func replaceParameterVariables(parametersJSON TemplateParameterFile, number int)
 	outParams := TemplateParameterFile{
 		Schema:         parametersJSON.Schema,
 		ContentVersion: parametersJSON.ContentVersion,
+		Parameters:     make(map[string]TemplateParameter),
 	}
 	reg, err := regexp.Compile(`(\${n})`)
 	if err != nil {

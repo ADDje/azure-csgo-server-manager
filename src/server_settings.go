@@ -82,6 +82,8 @@ type CsgoServerSettings struct {
 	RconPassword                         string  `csgo:"rcon_password"`
 	TvEnable                             int     `csgo:"tv_enable"`
 	TvDelay                              int     `csgo:"tv_delay"`
+	TvAdvertiseWatchable                 int     `csgo:"tv_advertise_watchable"`
+	TvAutoRecord                         int     `csgo:"tv_auto_record"`
 	SpecFreezeTime                       int     `csgo:"spec_freeze_time"`                // Time spend frozen in observer freeze cam.
 	SpecFreezePanelExtendedTime          int     `csgo:"spec_freeze_panel_extended_time"` // Time spent with the freeze panel still up after observer freeze cam is done.
 	SpecFreezeTimeLock                   int     `csgo:"spec_freeze_time_lock"`
