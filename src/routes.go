@@ -145,6 +145,11 @@ var apiRoutes = Routes{
 		"POST",
 		"/server/{vmName}/delete",
 		DeleteServer,
+	}, {
+		"SaveServerReplays",
+		"POST",
+		"/server/{vmName}/replay",
+		ReplayServer,
 	},
 	// User things
 	{

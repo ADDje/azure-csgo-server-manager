@@ -10,10 +10,6 @@ class ServerStatus extends React.Component {
             loading: false
         }
 
-        this.clickStart = this.clickStart.bind(this)
-        this.clickStop = this.clickStop.bind(this)
-        this.clickTrash = this.clickTrash.bind(this)
-        this.doTrash = this.doTrash.bind(this)
         this.reload = this.reload.bind(this)
     }
 
@@ -62,6 +58,52 @@ class ServerStatus extends React.Component {
         return icons
     }
 
+    clickReplay(name) {
+        swal({
+            title: "VM Username",
+            text: "Please enter the VM Username for '" + name + "'",
+            type: "input",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55"
+        },
+        function(username){
+            if (username === false || username === "")
+                return false
+            
+            swal.close()
+
+            window.setTimeout(function() {
+            swal({
+                title: "VM Password",
+                text: "Please enter the VM Password for '" + name + "'",
+                type: "input",
+                inputType: "password",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55"
+            },
+            function(password){
+                console.log("pass")
+                if (password === false || password === "")
+                    return false;
+
+                $.post({
+                    url: "/api/server/" + name + "/replay",
+                    data: JSON.stringify({
+                        username: username,
+                        password: password
+                    }),
+                    success: (resp) => {
+                        console.log("Replay saved")
+                    }
+                })
+
+                swal.close()
+            })
+            }, 1000);
+        })
+        
+    }
+
     clickStart(name) {
         $.post({
             url: "/api/server/" + name + "/start",
@@ -69,7 +111,6 @@ class ServerStatus extends React.Component {
                 console.log("Started")
             }
         })
-        this.props.reloadServers()
     }
 
     clickStop(name) {
@@ -79,7 +120,6 @@ class ServerStatus extends React.Component {
                 console.log("Stopped")
             }
         })
-        this.props.reloadServers()
     }
 
     clickTrash(name) {
@@ -104,8 +144,6 @@ class ServerStatus extends React.Component {
                 console.log("Deleted")
             }
         })
-        this.props.reloadServers()
-        console.log("Deleting")
     }
 
     getButtons(serverStatus) {
@@ -117,6 +155,7 @@ class ServerStatus extends React.Component {
         var startDisabled = !(status.length > 0 && status[0].code.indexOf("deallocated") > -1)
         var stopDisabled = !(status.length > 0 && status[0].code.indexOf("running") > -1)
         var trashDisabled = !(status.length > 0)
+        var replayDisabled = !(status.length > 0 && status[0].code.indexOf("running") > -1)
 
         return (<div className="vm-buttons btn-group">
             <button className="btn btn-sm btn-primary" disabled={startDisabled} onClick={this.clickStart.bind(this, serverStatus.name)}>
@@ -124,6 +163,9 @@ class ServerStatus extends React.Component {
             </button>
             <button className="btn btn-sm btn-primary" disabled={stopDisabled} onClick={this.clickStop.bind(this, serverStatus.name)}>
                 <i className="fa fa-stop fa-fw" />
+            </button>
+            <button className="btn btn-sm btn-primary" disabled={replayDisabled} onClick={this.clickReplay.bind(this, serverStatus.name)}>
+                <i className="fa fa-film fa-fw" />
             </button>
             <button className="btn btn-sm btn-primary" disabled={trashDisabled} onClick={this.clickTrash.bind(this, serverStatus.name)}>
                 <i className="fa fa-trash fa-fw" />

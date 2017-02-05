@@ -170,6 +170,38 @@ func DeleteVhd(config Config, vhdUri string) error {
 	return nil
 }
 
+func GetNicDetails(config Config, nicName string) (*network.Interface, error) {
+	networkClient, err := getInterfacesClient(config)
+	if err != nil {
+		return nil, err
+	}
+
+	nicDetails, err := networkClient.Get(config.ResourceGroup, nicName, "")
+	if err != nil {
+		log.Printf("Could not get NIC Details for %s: %s", nicName, err)
+		return nil, err
+	}
+
+	return &nicDetails, nil
+}
+
+func GetIpDetails(config Config, ipId string) (*network.PublicIPAddress, error) {
+	ipClient, err := getIpClient(config)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("Getting IP... %s", ipId)
+	ipDetails, err := ipClient.Get(config.ResourceGroup, ipId, "")
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("%s", *ipDetails.IPAddress)
+
+	return &ipDetails, nil
+}
+
 func DeleteVMNetworkThings(config Config, vmProps *compute.VirtualMachineProperties) error {
 
 	resourcesClient, err := getResourcesClient(config)
@@ -525,6 +557,16 @@ func getStorageClient(c Config) (*storage.FileServiceClient, error) {
 
 func getInterfacesClient(c Config) (*network.InterfacesClient, error) {
 	client := network.NewInterfacesClient(c.AzureSubscriptionID)
+	spt, err := getServicePrincipalToken(c)
+	if err != nil {
+		return nil, err
+	}
+	client.Authorizer = spt
+	return &client, nil
+}
+
+func getIpClient(c Config) (*network.PublicIPAddressesClient, error) {
+	client := network.NewPublicIPAddressesClient(c.AzureSubscriptionID)
 	spt, err := getServicePrincipalToken(c)
 	if err != nil {
 		return nil, err

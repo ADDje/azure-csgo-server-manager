@@ -135,6 +135,39 @@ func DeleteServer(w http.ResponseWriter, r *http.Request) {
 	JSON(w, resp)
 }
 
+// ReplayServer exports a server's replays (demos)
+func ReplayServer(w http.ResponseWriter, r *http.Request) {
+	resp := JSONResponse{
+		Success: false,
+	}
+
+	vars := mux.Vars(r)
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Invalid Body: %s", err)
+		return
+	}
+	bodyJSON := make(map[string]interface{})
+	err = json.Unmarshal(body, &bodyJSON)
+	if err != nil {
+		log.Printf("Invalid body JSON: %s", err)
+		return
+	}
+
+	log.Printf("Exporting replays for VM: %s", vars["vmName"])
+	err = ExportReplays(config, vars["vmName"], bodyJSON["username"].(string), bodyJSON["password"].(string))
+
+	if err != nil {
+		resp.Data = err
+	} else {
+		resp.Success = true
+		log.Printf("Replays Successfully exported: %s", vars["vmName"])
+	}
+
+	JSON(w, resp)
+}
+
 // GetDefaultServerConfig Returns JSON response of default server config
 func GetDefaultServerConfig(w http.ResponseWriter, r *http.Request) {
 

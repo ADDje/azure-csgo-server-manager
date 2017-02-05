@@ -43,6 +43,7 @@ type Config struct {
 var (
 	config Config
 	Auth   *AuthHTTP
+	mw     io.Writer
 )
 
 func failOnError(err error, msg string) {
@@ -85,7 +86,7 @@ func setupLogging() {
 	}
 
 	// TODO: Toggle this in production
-	mw := io.MultiWriter(os.Stdout, &lumberjack.Logger{
+	mw = io.MultiWriter(os.Stdout, &lumberjack.Logger{
 		Dir:     logFolder,
 		MaxSize: 100,
 		MaxAge:  7,
