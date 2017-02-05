@@ -88,7 +88,7 @@ func setupLogging() {
 	// TODO: Toggle this in production
 	mw = io.MultiWriter(os.Stdout, &lumberjack.Logger{
 		Dir:     logFolder,
-		MaxSize: 100,
+		MaxSize: 1024 * 100,
 		MaxAge:  7,
 	})
 	log.SetOutput(mw)
