@@ -136,10 +136,20 @@ var apiRoutes = Routes{
 		"/server/{vmName}/start",
 		StartServer,
 	}, {
+		"StartMultipleServers",
+		"POST",
+		"/server/start",
+		StartMultipleServers,
+	}, {
 		"StopServer",
 		"POST",
 		"/server/{vmName}/stop",
 		StopServer,
+	}, {
+		"StopMultipleServers",
+		"POST",
+		"/server/stop",
+		StopMultipleServers,
 	}, {
 		"DeleteServer",
 		"POST",
@@ -150,6 +160,11 @@ var apiRoutes = Routes{
 		"POST",
 		"/server/{vmName}/replay",
 		ReplayServer,
+	}, {
+		"SaveMultipleServers",
+		"POST",
+		"/server/save",
+		SaveMultipleServers,
 	},
 	// User things
 	{

@@ -11,6 +11,15 @@ class ServerStatus extends React.Component {
         }
 
         this.reload = this.reload.bind(this)
+
+        this.clickStopAll = this.clickStopAll.bind(this)
+        this.stopAll = this.stopAll.bind(this)
+
+        this.clickSaveAll = this.clickSaveAll.bind(this)
+        this.saveAll = this.saveAll.bind(this)
+        
+        this.clickStartAll = this.clickStartAll.bind(this)
+        this.startAll = this.startAll.bind(this)
     }
 
     componentWillMount() {
@@ -73,32 +82,32 @@ class ServerStatus extends React.Component {
             swal.close()
 
             window.setTimeout(function() {
-            swal({
-                title: "VM Password",
-                text: "Please enter the VM Password for '" + name + "'",
-                type: "input",
-                inputType: "password",
-                showCancelButton: true,
-                confirmButtonColor: "#DD6B55"
-            },
-            function(password){
-                console.log("pass")
-                if (password === false || password === "")
-                    return false;
+                swal({
+                    title: "VM Password",
+                    text: "Please enter the VM Password for '" + name + "'",
+                    type: "input",
+                    inputType: "password",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55"
+                },
+                function(password){
+                    console.log("pass")
+                    if (password === false || password === "")
+                        return false;
 
-                $.post({
-                    url: "/api/server/" + name + "/replay",
-                    data: JSON.stringify({
-                        username: username,
-                        password: password
-                    }),
-                    success: (resp) => {
-                        console.log("Replay saved")
-                    }
+                    $.post({
+                        url: "/api/server/" + name + "/replay",
+                        data: JSON.stringify({
+                            username: username,
+                            password: password
+                        }),
+                        success: (resp) => {
+                            console.log("Replay saved")
+                        }
+                    })
+
+                    swal.close()
                 })
-
-                swal.close()
-            })
             }, 1000);
         })
         
@@ -146,6 +155,118 @@ class ServerStatus extends React.Component {
         })
     }
 
+    clickStopAll() {
+        swal({
+            title: "Are you sure?",
+            text: "This will stop all servers and deallocate their resources.",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Yes, stop them!",
+            closeOnConfirm: true
+        },
+        function(){
+            this.stopAll()
+        }.bind(this));
+    }
+
+    stopAll() {
+        $.post({
+            url: "/api/server/stop",
+            success: (resp) => {
+                console.log("Stopped all")
+            }
+        })
+    }
+
+    clickSaveAll() {
+        swal({
+            title: "Are you sure?",
+            text: "This may take some time and involves lots of SSH sessions.\nAlso all VMs must have the same login details",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Yes, save them!",
+            closeOnConfirm: true
+        },
+        function() {
+            window.setTimeout(function() {
+                this.saveAll()
+            }.bind(this), 1000)
+        }.bind(this))
+    }
+
+    saveAll() {
+
+        swal({
+            title: "VM Username",
+            text: "Please enter the VM Username",
+            type: "input",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55"
+        },
+        function(username){
+            if (username === false || username === "")
+                return false
+            
+            swal.close()
+
+            window.setTimeout(function() {
+                swal({
+                    title: "VM Password",
+                    text: "Please enter the VM Password",
+                    type: "input",
+                    inputType: "password",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55"
+                },
+                function(password){
+                    console.log("pass")
+                    if (password === false || password === "")
+                        return false;
+
+                    $.post({
+                        url: "/api/server/save",
+                        data: JSON.stringify({
+                            username: username,
+                            password: password
+                        }),
+                        success: (resp) => {
+                            console.log("Replay saved")
+                        }
+                    })
+
+                    swal.close()
+                })
+            }, 1000);
+        })
+        
+    }
+    
+    clickStartAll() {
+        swal({
+            title: "Are you sure?",
+            text: "This will start all servers and start costing ££.",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Yes, start them!",
+            closeOnConfirm: true
+        },
+        function(){
+            this.startAll()
+        }.bind(this));
+    }
+
+    startAll() {
+        $.post({
+            url: "/api/server/start",
+            success: (resp) => {
+                console.log("Started all")
+            }
+        })        
+    }
+
     getButtons(serverStatus) {
 
         var status = serverStatus.properties.instanceView.statuses.filter(function(s) {
@@ -173,6 +294,20 @@ class ServerStatus extends React.Component {
         </div>)
     }
 
+    getGlobalButtons() {
+        return (<div>
+                <div className="col-md-4">
+                    <button className="btn btn-block btn-danger" type="button" onClick={this.clickStopAll}><i className="fa fa-stop fa-fw" />Stop All CS:GO Servers</button>
+                </div>
+                <div className="col-md-4">
+                    <button className="btn btn-block btn-warning" type="button" onClick={this.clickSaveAll}><i className="fa fa-film fa-fw" />Save All Replays</button>
+                </div>
+                <div className="col-md-4">
+                    <button className="btn btn-block btn-success" type="button" onClick={this.clickStartAll}><i className="fa fa-play fa-fw" />Start All CS:GO Servers</button>
+                </div>
+            </div>)
+    }
+
     render() {
         
         var loading = null
@@ -181,7 +316,7 @@ class ServerStatus extends React.Component {
         }
 
         var content = null
-        var stop = null;
+        var buttons = null;
         if (this.props.azureServerStatus.length > 0) {
 
             content = this.props.azureServerStatus.map(function(server) {
@@ -197,9 +332,7 @@ class ServerStatus extends React.Component {
                 )                                                  
             }, this);
 
-            stop = (<div className="col-md-4">
-                <button className="btn btn-block btn-danger" type="button" onClick={this.stopServer}><i className="fa fa-stop fa-fw" />Stop All CS:GO Servers</button>
-            </div>)
+            buttons = this.getGlobalButtons()
         } else {
             content = <tr><td colSpan="5" className="text-center">No Servers Found</td></tr>
         }
@@ -228,7 +361,7 @@ class ServerStatus extends React.Component {
                                 {content}
                             </tbody>
                         </table>
-                        {stop}
+                        {buttons}
                     </div>
                 </div>
             </div>

@@ -99,6 +99,9 @@ func deployTemplate(client *resources.DeploymentsClient, config Config, number i
 }
 
 func StartVM(config Config, vmName string) error {
+
+	log.Printf("Starting VM: %s", vmName)
+
 	client, err := getVMClient(config)
 	if err != nil {
 		return err
@@ -113,6 +116,9 @@ func StartVM(config Config, vmName string) error {
 }
 
 func DeallocateVM(config Config, vmName string) error {
+
+	log.Printf("Deallocating VM: %s", vmName)
+
 	client, err := getVMClient(config)
 	if err != nil {
 		return err

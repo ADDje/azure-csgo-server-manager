@@ -33,6 +33,8 @@ func GetInfoForServer(serverAddress string) (*steam.InfoResponse, error) {
 
 func ExportReplays(config Config, vmName string, vmUsername string, vmPassword string) error {
 
+	log.Printf("Exporting Replays for: %s", vmName)
+
 	vmInfo, err := GetVmProperties(config, vmName)
 	if err != nil {
 		return err
@@ -65,9 +67,9 @@ func ExportReplays(config Config, vmName string, vmUsername string, vmPassword s
 	pubIP := *ip.PublicIPAddress
 
 	ipParts := strings.Split(*pubIP.ID, "/")
-	ipId := ipParts[len(ipParts)-1]
+	ipID := ipParts[len(ipParts)-1]
 
-	ipDetails, err := GetIpDetails(config, ipId)
+	ipDetails, err := GetIpDetails(config, ipID)
 	if err != nil {
 		return err
 	}
@@ -111,6 +113,8 @@ func exportReplaysViaSSH(ip string, vmUsername string, vmPassword string) error 
 	}
 
 	session.Run("cd /home/steam/ && ./upload.sh")
+
+	log.Printf("Export for %s complete", ip)
 
 	return nil
 }

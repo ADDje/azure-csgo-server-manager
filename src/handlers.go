@@ -34,6 +34,7 @@ func GetAllServers(w http.ResponseWriter, r *http.Request) {
 	resp.Data, err = GetVms(config)
 	if err != nil {
 		resp.Data = fmt.Sprintf("Error in GetAllServers handler: %s", err)
+		log.Println(resp.Data)
 	} else {
 		resp.Success = true
 	}
@@ -94,6 +95,40 @@ func StartServer(w http.ResponseWriter, r *http.Request) {
 	JSON(w, resp)
 }
 
+func StartMultipleServers(w http.ResponseWriter, r *http.Request) {
+	resp := JSONResponse{
+		Success: false,
+	}
+
+	// TODO: Selective delete
+	// body, err := ioutil.ReadAll(r.Body)
+	// if err != nil {
+	// 	log.Printf("Invalid Body: %s", err)
+	// 	return
+	// }
+	// bodyJSON := make(map[string]interface{})
+	// err = json.Unmarshal(body, &bodyJSON)
+	// if err != nil {
+	// 	log.Printf("Invalid body JSON: %s", err)
+	// 	return
+	// }
+
+	allServers, err := GetVms(config)
+	if err != nil {
+		resp.Data = fmt.Sprintf("Couldn't get VM Info: %s", err)
+		log.Println(resp.Data)
+		JSON(w, resp)
+		return
+	}
+
+	for _, server := range *allServers {
+		go StartVM(config, *server.Name)
+	}
+
+	resp.Success = true
+	JSON(w, resp)
+}
+
 // StopServer deallocates a VM, as just "stopping" it retains resources
 func StopServer(w http.ResponseWriter, r *http.Request) {
 	resp := JSONResponse{
@@ -111,6 +146,41 @@ func StopServer(w http.ResponseWriter, r *http.Request) {
 		resp.Success = true
 	}
 
+	JSON(w, resp)
+}
+
+// StopMultipleServers delallocates multiple servers. If none are specified, all are stopped
+func StopMultipleServers(w http.ResponseWriter, r *http.Request) {
+	resp := JSONResponse{
+		Success: false,
+	}
+
+	// TODO: Selective delete
+	// body, err := ioutil.ReadAll(r.Body)
+	// if err != nil {
+	// 	log.Printf("Invalid Body: %s", err)
+	// 	return
+	// }
+	// bodyJSON := make(map[string]interface{})
+	// err = json.Unmarshal(body, &bodyJSON)
+	// if err != nil {
+	// 	log.Printf("Invalid body JSON: %s", err)
+	// 	return
+	// }
+
+	allServers, err := GetVms(config)
+	if err != nil {
+		resp.Data = fmt.Sprintf("Couldn't get VM Info: %s", err)
+		log.Println(resp.Data)
+		JSON(w, resp)
+		return
+	}
+
+	for _, server := range *allServers {
+		go DeallocateVM(config, *server.Name)
+	}
+
+	resp.Success = true
 	JSON(w, resp)
 }
 
@@ -165,6 +235,40 @@ func ReplayServer(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Replays Successfully exported: %s", vars["vmName"])
 	}
 
+	JSON(w, resp)
+}
+
+func SaveMultipleServers(w http.ResponseWriter, r *http.Request) {
+	resp := JSONResponse{
+		Success: false,
+	}
+
+	// TODO: Selective delete
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Invalid Body: %s", err)
+		return
+	}
+	bodyJSON := make(map[string]interface{})
+	err = json.Unmarshal(body, &bodyJSON)
+	if err != nil {
+		log.Printf("Invalid body JSON: %s", err)
+		return
+	}
+
+	allServers, err := GetVms(config)
+	if err != nil {
+		resp.Data = fmt.Sprintf("Couldn't get VM Info: %s", err)
+		log.Println(resp.Data)
+		JSON(w, resp)
+		return
+	}
+
+	for _, server := range *allServers {
+		go ExportReplays(config, *server.Name, bodyJSON["username"].(string), bodyJSON["password"].(string))
+	}
+
+	resp.Success = true
 	JSON(w, resp)
 }
 
