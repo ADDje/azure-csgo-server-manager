@@ -192,16 +192,48 @@ func DeleteServer(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 
-	log.Printf("Beginning deletion of VM: %s", vars["vmName"])
 	err := FullDeleteVM(config, vars["vmName"])
 
 	if err != nil {
 		resp.Data = err
 	} else {
 		resp.Success = true
-		log.Printf("VM Successfully deleted: %s", vars["vmName"])
 	}
 
+	JSON(w, resp)
+}
+
+func DeleteMultipleServers(w http.ResponseWriter, r *http.Request) {
+	resp := JSONResponse{
+		Success: false,
+	}
+
+	// TODO: Selective delete
+	// body, err := ioutil.ReadAll(r.Body)
+	// if err != nil {
+	// 	log.Printf("Invalid Body: %s", err)
+	// 	return
+	// }
+	// bodyJSON := make(map[string]interface{})
+	// err = json.Unmarshal(body, &bodyJSON)
+	// if err != nil {
+	// 	log.Printf("Invalid body JSON: %s", err)
+	// 	return
+	// }
+
+	allServers, err := GetVms(config)
+	if err != nil {
+		resp.Data = fmt.Sprintf("Couldn't get VM Info: %s", err)
+		log.Println(resp.Data)
+		JSON(w, resp)
+		return
+	}
+
+	for _, server := range *allServers {
+		go FullDeleteVM(config, *server.Name)
+	}
+
+	resp.Success = true
 	JSON(w, resp)
 }
 

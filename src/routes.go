@@ -156,6 +156,11 @@ var apiRoutes = Routes{
 		"/server/{vmName}/delete",
 		DeleteServer,
 	}, {
+		"DeleteMultipleServers",
+		"POST",
+		"/server/delete",
+		DeleteMultipleServers,
+	}, {
 		"SaveServerReplays",
 		"POST",
 		"/server/{vmName}/replay",

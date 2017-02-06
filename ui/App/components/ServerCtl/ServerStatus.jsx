@@ -20,10 +20,13 @@ class ServerStatus extends React.Component {
         
         this.clickStartAll = this.clickStartAll.bind(this)
         this.startAll = this.startAll.bind(this)
+
+        this.clickTrashAll = this.clickTrashAll.bind(this)
+        this.trashAll = this.trashAll.bind(this)
     }
 
     componentWillMount() {
-        this.reloader = setInterval(this.reload, 5000)
+        this.reloader = setInterval(this.reload, 10000)
     }
 
     componentWillUnmount() {
@@ -155,6 +158,30 @@ class ServerStatus extends React.Component {
         })
     }
 
+    clickTrashAll() {
+        swal({
+            title: "Are you sure?",
+            text: "This will delete all servers, their resources, hard drives and replays.",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Yes, delete them all!",
+            closeOnConfirm: true
+        },
+        function() {
+            this.trashAll()
+        }.bind(this));
+    }
+
+    trashAll() {
+        $.post({
+            url: "/api/server/delete",
+            success: (resp) => {
+                console.log("Deleted all")
+            }
+        })
+    }
+
     clickStopAll() {
         swal({
             title: "Are you sure?",
@@ -165,7 +192,7 @@ class ServerStatus extends React.Component {
             confirmButtonText: "Yes, stop them!",
             closeOnConfirm: true
         },
-        function(){
+        function() {
             this.stopAll()
         }.bind(this));
     }
@@ -296,13 +323,16 @@ class ServerStatus extends React.Component {
 
     getGlobalButtons() {
         return (<div>
-                <div className="col-md-4">
+                <div className="col-md-3">
+                    <button className="btn btn-block btn-danger" type="button" onClick={this.clickTrashAll}><i className="fa fa-trash fa-fw" />Delete All CS:GO Servers</button>
+                </div>
+                <div className="col-md-3">
                     <button className="btn btn-block btn-danger" type="button" onClick={this.clickStopAll}><i className="fa fa-stop fa-fw" />Stop All CS:GO Servers</button>
                 </div>
-                <div className="col-md-4">
+                <div className="col-md-3">
                     <button className="btn btn-block btn-warning" type="button" onClick={this.clickSaveAll}><i className="fa fa-film fa-fw" />Save All Replays</button>
                 </div>
-                <div className="col-md-4">
+                <div className="col-md-3">
                     <button className="btn btn-block btn-success" type="button" onClick={this.clickStartAll}><i className="fa fa-play fa-fw" />Start All CS:GO Servers</button>
                 </div>
             </div>)

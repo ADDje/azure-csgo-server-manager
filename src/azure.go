@@ -264,6 +264,9 @@ func DeleteVMNetworkThings(config Config, vmProps *compute.VirtualMachinePropert
 // Unfortunately this isn't very dynamic, and may fail using a different template
 // or with different resources
 func FullDeleteVM(config Config, vmName string) error {
+
+	log.Printf("Full deleting VM: %s", vmName)
+
 	vmDetails, err := GetVmProperties(config, vmName)
 	if err != nil {
 		return err
@@ -284,6 +287,8 @@ func FullDeleteVM(config Config, vmName string) error {
 	if err != nil {
 		return err
 	}
+
+	log.Printf("Finished deleting VM: %s", vmName)
 
 	return nil
 }
