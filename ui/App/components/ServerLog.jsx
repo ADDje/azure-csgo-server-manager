@@ -30,17 +30,19 @@ class ServerLog extends React.Component {
 
         return(
             <div className="log-footer">
-                <div className="log-expand">
-                    <button className="btn btn-xs" onClick={this.expand}>
-                        <i className={buttonClass} />
-                    </button>
-                </div>
-                <div className={summaryClass}>
-                    <i className="fa fa-tv" />
-                    <p>Stuff happened</p>
-                </div>
+                <a onClick={this.expand} href="#">
+                    <div className={summaryClass}>
+                        <i className="fa fa-tv" />
+                        <p>Stuff happened</p>
+                    </div>
+                </a>
                 <div className={mainClass} id="server-log">
-                    <h4>Server Manager Log</h4>
+                    <div className="server-log-title">
+                        <a onClick={this.expand} href="#">
+                            <i className="fa fa-tv" />
+                            <h4>Server Manager Log</h4>
+                        </a>
+                    </div>
                     <div id="log">
                         <p>Something</p>
                         <p>Something else</p>

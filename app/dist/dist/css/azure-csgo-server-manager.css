@@ -88,8 +88,22 @@
     width: 100%;
 }
 
-.log-footer #server-log h4 {
+.log-footer #server-log .server-log-title {
+    border-bottom: 1px solid white;
+}
+
+.log-footer #server-log .server-log-title a {
+    text-decoration: none;
+    color: white;
+}
+
+.log-footer #server-log .server-log-title h4 {
     margin-top: 0;
+    padding-bottom: 5px;
+
+    margin-bottom: 5px;
+    margin-left: 5px;
+    display: inline-block;
 }
 
 .log-footer #server-log p {
