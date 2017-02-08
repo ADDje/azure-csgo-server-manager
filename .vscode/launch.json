@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch",
+            "type": "go",
+            "request": "launch",
+            "mode": "exec",
+            "remotePath": "",
+            "port": 8091,
+            "host": "127.0.0.1",
+            "program": "${workspaceRoot}/src.exe",
+            "env": {},
+            "args": [],
+            "showLog": true,
+            "preLaunchTask": "build",
+            "internalConsoleOptions":"openOnSessionStart"
+        }
+    ]
+}

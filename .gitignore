@@ -3,7 +3,6 @@ bundle.js
 auth.leveldb*
 conf.json
 *.exe
-.vscode
 src/glide.lock
 src/debug*
 src/vendor
@@ -13,3 +12,4 @@ src/vendor
 /certs/
 npm-debug.log
 /log/
+build.rar

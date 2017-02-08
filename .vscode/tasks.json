@@ -1,0 +1,15 @@
+{
+    "version": "0.1.0",
+    "command": "cmd",
+    "isShellCommand": true,
+    "args": ["/C"],
+    "showOutput": "always",
+    "echoCommand": true,
+    "suppressTaskName": true,
+    "tasks": [
+        { 
+            "taskName": "build",
+            "args": ["cd ${workspaceRoot}/src & go build & move \"src.exe\" \"${workspaceRoot}/src.exe\""]
+        }
+    ]
+}

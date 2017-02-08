@@ -60,4 +60,4 @@ class UsersContent extends React.Component {
     }
 }
 
-export default UsersContent;
+export default UsersContent

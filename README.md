@@ -15,12 +15,12 @@ This tool allows for servers to be deployed, monitored and managed on Azure usin
 - [ ] View management server logs of deployments etc.
 - [x] Scheduler. Support for automation hits from (https://azure.microsoft.com/en-gb/services/scheduler/)[Azure Scheduler] to complete various preconfigured tasks
 - [x] Authentication for protecting against unauthorized users
+- [x] Export demos (.dem) to permanent storage
 
 ## Future
 * Permissions Support. Users and admins (+other?). Users can't see things like storage keys. Maybe they can't delete VMs, etc.
 * Cache things. Only really designed for one user right now, could have performance issues
 * Expire cookies (configure)
-* Download Demos
 * External API? Could be used for things like automatically configuring maps or team names
 * Reboot server manually (or just restart hlds)
 

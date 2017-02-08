@@ -50,3 +50,53 @@
 #accordion h4 a {
     display: block;
 }
+
+.log-footer {
+    padding-left: 230px;
+
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+
+    z-index: 100;
+}
+
+.log-footer .log-last-line {
+    height: 25px;
+    background-color: #444;
+    color: white;
+    line-height: 25px;
+    padding-left: 5px;
+}
+
+.log-footer .log-last-line p {
+    display: inline-block;
+    margin-left: 5px;
+}
+
+.log-footer .log-expand {
+    float: right;
+}
+
+.log-footer #server-log {
+    background-color: #444;
+    color: white;
+
+    height: 200px;
+    margin-top: -177px;
+    padding: 5px;
+    width: 100%;
+}
+
+.log-footer #server-log h4 {
+    margin-top: 0;
+}
+
+.log-footer #server-log p {
+    margin: 0;
+    width: 100%;
+}
+
+.main-footer {
+    padding-bottom: 35px;
+}

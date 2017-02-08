@@ -3,6 +3,7 @@ import {browserHistory} from 'react-router';
 import Header from './components/Header.jsx';
 import Sidebar from './components/Sidebar.jsx';
 import Footer from './components/Footer.jsx';
+import ServerLog from './components/ServerLog.jsx'
 import update from 'immutability-helper';
 
 
@@ -192,6 +193,8 @@ class App extends React.Component {
                     )}
 
                     <Footer />
+
+                    <ServerLog />
                 </div>)
         } else {
             var resp = <div><p>Not Logged in</p></div>;
