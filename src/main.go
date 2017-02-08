@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -20,7 +21,7 @@ type Config struct {
 	CookieEncryptionKey string `json:"cookie_encryption_key"`
 	//MaxUploadSize       int64  `json:"max_upload_size"`
 	ServerIP            string `json:"server_ip"`
-	ServerPort          string `json:"server_port"`
+	ServerPort          int    `json:"server_port"`
 	UseSsl              bool   `json:"use_ssl"`
 	SslCert             string `json:"ssl_cert"`
 	SslKey              string `json:"ssl_key"`
@@ -36,8 +37,10 @@ type Config struct {
 	VMVhdStorageServer  string `json:"vm_vhd_storage_server"`
 	VMVhdStorageKey     string `json:"vm_vhd_storage_key"`
 	ExternalApiKey      string `json:"external_api_key"`
+	WebsocketPort       int    `json:"websocket_port"`
 
-	ConfFile string `json:"-"`
+	ConfFile     string `json:"-"`
+	WebSocketKey string `json:"-"`
 }
 
 var (
@@ -66,7 +69,7 @@ func loadServerConfig(f string) {
 func parseFlags() {
 	confFile := flag.String("conf", "./conf.json", "Specify location of Azure CSGO Server Manager config file.")
 	webserverIP := flag.String("host", "0.0.0.0", "Specify IP for webserver to listen on.")
-	webserverPort := flag.String("port", "8090", "Specify a port for the server.")
+	webserverPort := flag.Int("port", 8090, "Specify a port for the server.")
 	//serverMaxUpload := flag.Int64("max-upload", 1024*1024*20, "Maximum filesize for uploaded files (default 20MB).")
 
 	flag.Parse()
@@ -79,18 +82,27 @@ func parseFlags() {
 
 func setupLogging() {
 
+	// Setup WebSocket key
+	b := make([]byte, 12)
+	if _, err := rand.Read(b); err != nil {
+		panic(err)
+	}
+	config.WebSocketKey = fmt.Sprintf("%X", b)
+
 	logFolder := config.LogFolder
 	if logFolder == "" {
 		log.Printf("WARNING: Using local log folder as none specified")
 		logFolder = "./log"
 	}
 
-	// TODO: Toggle this in production
+	logWriter := SetupLogWs()
+	go RunLogWs(config)
+
 	mw = io.MultiWriter(os.Stdout, &lumberjack.Logger{
 		Dir:     logFolder,
 		MaxSize: 1024 * 100,
 		MaxAge:  7,
-	})
+	}, logWriter)
 	log.SetOutput(mw)
 }
 
@@ -107,12 +119,13 @@ func main() {
 
 	router := NewRouter()
 
+	addr := fmt.Sprintf("%s:%d", config.ServerIP, config.ServerPort)
 	if config.UseSsl {
-		log.Printf("Starting server on: https://%s:%s", config.ServerIP, config.ServerPort)
-		log.Fatal(http.ListenAndServeTLS(config.ServerIP+":"+config.ServerPort, config.SslCert, config.SslKey, router))
+		log.Printf("Starting server on: https://%s", addr)
+		log.Fatal(http.ListenAndServeTLS(addr, config.SslCert, config.SslKey, router))
 	} else {
-		log.Printf("Starting server on: http://%s:%s", config.ServerIP, config.ServerPort)
-		log.Fatal(http.ListenAndServe(config.ServerIP+":"+config.ServerPort, router))
+		log.Printf("Starting server on: http://%s", addr)
+		log.Fatal(http.ListenAndServe(addr, router))
 	}
 
 }

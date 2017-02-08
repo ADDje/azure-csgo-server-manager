@@ -1025,3 +1025,20 @@ func ExecuteAction(w http.ResponseWriter, r *http.Request) {
 
 	JSON(w, resp)
 }
+
+func GetWebsocketInfo(w http.ResponseWriter, r *http.Request) {
+
+	data := struct {
+		Address string
+		Port    int
+	}{
+		"",
+		config.WebsocketPort,
+	}
+
+	resp := JSONResponse{
+		Success: true,
+		Data:    data,
+	}
+	JSON(w, resp)
+}

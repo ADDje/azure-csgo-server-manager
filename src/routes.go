@@ -300,4 +300,12 @@ var apiRoutes = Routes{
 		"/schedule/{actionName}/delete",
 		DeleteAction,
 	},
+
+	// Server Log
+	{
+		"GetWebsocketGet",
+		"GET",
+		"/websocketinfo",
+		GetWebsocketInfo,
+	},
 }

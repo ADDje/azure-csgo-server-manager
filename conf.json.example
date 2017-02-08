@@ -13,7 +13,8 @@
 
     // Default listening settings
     "server_ip": "0.0.0.0",
-    "server_port": "8090",
+    "server_port": 8090,
+    "websocket_port": 8091,
     "use_ssl": true,
     
     // SSL Keys. See: http://www.kaihag.com/https-and-go/
