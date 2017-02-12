@@ -59,7 +59,7 @@ func (h *Hub) run() {
 		select {
 		case client := <-h.register:
 			h.clients[client] = true
-			client.send <- getCurrentLog()
+			sendCurrentLog(client.send)
 		case client := <-h.unregister:
 			if _, ok := h.clients[client]; ok {
 				delete(h.clients, client)
@@ -139,16 +139,10 @@ func (c *Client) writePump() {
 	}
 }
 
-func getCurrentLog() []byte {
-	var outBuffer []byte
-
+func sendCurrentLog(c chan []byte) {
 	for _, msg := range messageBuffer {
-		for _, b := range msg {
-			outBuffer = append(outBuffer, b)
-		}
+		c <- msg
 	}
-
-	return outBuffer
 }
 
 func handleLog(hub *Hub, w http.ResponseWriter, r *http.Request) {
