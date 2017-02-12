@@ -12,6 +12,9 @@ import (
 	"github.com/kidoman/go-steam"
 )
 
+const REPLAY_CONTAINER_NAME = "replays"
+const REPLAY_FOLDER = "/home/steam/steamcmd/cs_go/csgo/*.dem"
+
 func GetInfoForServer(serverAddress string) (*steam.InfoResponse, error) {
 
 	server, err := steam.Connect(serverAddress)
@@ -31,9 +34,9 @@ func GetInfoForServer(serverAddress string) (*steam.InfoResponse, error) {
 	return info, nil
 }
 
-func ExportReplays(config Config, vmName string, vmUsername string, vmPassword string) error {
+func ExportReplays(config Config, week string, vmName string, vmUsername string, vmPassword string) error {
 
-	log.Printf("Exporting Replays for: %s", vmName)
+	log.Printf("Exporting Replays for: %s with label: %s", vmName, week)
 
 	vmInfo, err := GetVmProperties(config, vmName)
 	if err != nil {
@@ -74,11 +77,11 @@ func ExportReplays(config Config, vmName string, vmUsername string, vmPassword s
 		return err
 	}
 
-	return exportReplaysViaSSH(*ipDetails.IPAddress, vmUsername, vmPassword)
+	return exportReplaysViaSSH(config, week, *ipDetails.IPAddress, vmUsername, vmPassword)
 }
 
-func exportReplaysViaSSH(ip string, vmUsername string, vmPassword string) error {
-	config := ssh.ClientConfig{
+func exportReplaysViaSSH(config Config, week string, ip string, vmUsername string, vmPassword string) error {
+	sshConfig := ssh.ClientConfig{
 		User: vmUsername,
 		Auth: []ssh.AuthMethod{
 			ssh.Password(vmPassword),
@@ -88,7 +91,7 @@ func exportReplaysViaSSH(ip string, vmUsername string, vmPassword string) error 
 
 	ip = fmt.Sprintf("%s:%d", ip, 22)
 	log.Printf("Connecting to: %s", ip)
-	conn, err := ssh.Dial("tcp", ip, &config)
+	conn, err := ssh.Dial("tcp", ip, &sshConfig)
 	if err != nil {
 		log.Printf("Couldn't connect to server: %s", err)
 		return errors.New("Couldn't connect to server")
@@ -112,7 +115,20 @@ func exportReplaysViaSSH(ip string, vmUsername string, vmPassword string) error 
 		return errors.New("Request for terminal failed")
 	}
 
-	session.Run("cd /home/steam/ && ./upload.sh")
+	replayFolder := week + "/$hostname"
+	script := "#!/bin/bash\n\n" +
+		"export AZURE_STORAGE_ACCOUNT=" + config.AzureStorageServer + "\n" +
+		"export AZURE_STORAGE_ACCESS_KEY=" + config.AzureStorageKey + "\n" +
+
+		"azure telemetry --disable\n" +
+
+		"for f in " + REPLAY_FOLDER + "\n" +
+		"do\n" +
+		"echo \"Uploading $f file... ($hostname)\"\n" +
+		"azure storage blob upload -q $f " + REPLAY_CONTAINER_NAME + " \"" + replayFolder + "/$(basename $f)\"\n" +
+		"done"
+
+	session.Run("echo '" + script + "' > ~/upload.sh && chmod +x ~/upload.sh && ~/upload.sh")
 
 	log.Printf("Export for %s complete", ip)
 

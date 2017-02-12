@@ -258,7 +258,7 @@ func ReplayServer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("Exporting replays for VM: %s", vars["vmName"])
-	err = ExportReplays(config, vars["vmName"], bodyJSON["username"].(string), bodyJSON["password"].(string))
+	err = ExportReplays(config, bodyJSON["week"].(string), vars["vmName"], bodyJSON["username"].(string), bodyJSON["password"].(string))
 
 	if err != nil {
 		resp.Data = err
@@ -297,7 +297,7 @@ func SaveMultipleServers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, server := range *allServers {
-		go ExportReplays(config, *server.Name, bodyJSON["username"].(string), bodyJSON["password"].(string))
+		go ExportReplays(config, bodyJSON["week"].(string), *server.Name, bodyJSON["username"].(string), bodyJSON["password"].(string))
 	}
 
 	resp.Success = true

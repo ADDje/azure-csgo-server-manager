@@ -17,7 +17,6 @@ class ServerLog extends React.Component {
     }
 
     componentDidMount() {
-        // TODO: Port number duplication, pull from server
         $.get({
             url: "/api/websocketinfo",
             success: (data) => {

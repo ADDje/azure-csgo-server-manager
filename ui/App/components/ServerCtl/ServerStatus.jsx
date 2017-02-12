@@ -71,49 +71,67 @@ class ServerStatus extends React.Component {
     }
 
     clickReplay(name) {
+
+        // TODO: Fix callback hell
         swal({
-            title: "VM Username",
-            text: "Please enter the VM Username for '" + name + "'",
+            title: "Replay Label",
+            text: "Please enter the storage label for these replays",
             type: "input",
             showCancelButton: true,
-            confirmButtonColor: "#DD6B55"
-        },
-        function(username){
-            if (username === false || username === "")
+            confirmButtonColor: "#DD6B55",
+            placeholder: "week x"
+        }, function(week) {
+            if (week === false || week === "")
                 return false
-            
-            swal.close()
 
+            swal.close();
             window.setTimeout(function() {
+        
                 swal({
-                    title: "VM Password",
-                    text: "Please enter the VM Password for '" + name + "'",
+                    title: "VM Username",
+                    text: "Please enter the VM Username for '" + name + "'",
                     type: "input",
-                    inputType: "password",
                     showCancelButton: true,
                     confirmButtonColor: "#DD6B55"
                 },
-                function(password){
-                    console.log("pass")
-                    if (password === false || password === "")
-                        return false;
-
-                    $.post({
-                        url: "/api/server/" + name + "/replay",
-                        data: JSON.stringify({
-                            username: username,
-                            password: password
-                        }),
-                        success: (resp) => {
-                            console.log("Replay saved")
-                        }
-                    })
-
+                function(username){
+                    if (username === false || username === "")
+                        return false
+                    
                     swal.close()
+
+                    window.setTimeout(function() {
+                        swal({
+                            title: "VM Password",
+                            text: "Please enter the VM Password for '" + name + "'",
+                            type: "input",
+                            inputType: "password",
+                            showCancelButton: true,
+                            confirmButtonColor: "#DD6B55"
+                        },
+                        function(password){
+                            console.log("pass")
+                            if (password === false || password === "")
+                                return false;
+
+                            $.post({
+                                url: "/api/server/" + name + "/replay",
+                                data: JSON.stringify({
+                                    username: username,
+                                    password: password,
+                                    week: week
+                                }),
+                                success: (resp) => {
+                                    console.log("Replay saved")
+                                }
+                            })
+
+                            swal.close()
+                        })
+                    }, 1000);
                 })
             }, 1000);
         })
-        
     }
 
     clickStart(name) {
