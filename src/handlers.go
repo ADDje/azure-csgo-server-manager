@@ -372,7 +372,7 @@ func GetServerConfigTextByName(w http.ResponseWriter, r *http.Request) {
 	if config.UseCloudStorage {
 		azureFile, err2 := GetStorageFile(config, CONFIG_FILE_STORE, vars["configName"])
 		err = err2
-		myBytes, err := ReadConfigIntoBytes(azureFile.Body)
+		myBytes, err := ReadConfigIntoBytes(*azureFile)
 		if err == nil {
 			resp.Data = string(myBytes)
 		}
@@ -512,8 +512,7 @@ func UpdateTemplateParameters(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Could not read azure parameters file: %s", err)
 			return
 		}
-		err = json.NewDecoder(azureFile.Body).Decode(&existingParameters)
-		log.Printf(azureFile.Properties.ContentType)
+		err = json.NewDecoder(*azureFile).Decode(&existingParameters)
 	} else {
 		file, err := ioutil.ReadFile(TEMPLATE_DIRECTORY + fileName)
 		if err != nil {

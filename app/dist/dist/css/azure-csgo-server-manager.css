@@ -88,6 +88,10 @@
     width: 100%;
 }
 
+.log-footer #server-log {
+    overflow: auto;
+}
+
 .log-footer #server-log .server-log-title {
     border-bottom: 1px solid white;
 }

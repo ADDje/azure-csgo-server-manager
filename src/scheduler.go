@@ -72,7 +72,7 @@ func loadActions() error {
 			return err
 		}
 		if actionsFile != nil {
-			err = json.NewDecoder(actionsFile.Body).Decode(&actions)
+			err = json.NewDecoder(*actionsFile).Decode(&actions)
 		}
 	} else {
 		actionsFile, err := ioutil.ReadFile(ACTIONS_FILE)

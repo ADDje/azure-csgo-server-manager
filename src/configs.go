@@ -52,7 +52,7 @@ func GetServerConfigsFromAzure() (map[string]*CsgoServerSettings, error) {
 			return nil, err
 		}
 
-		myBytes, err := ReadConfigIntoBytes(azureFile.Body)
+		myBytes, err := ReadConfigIntoBytes(*azureFile)
 		if err != nil {
 			return nil, err
 		}

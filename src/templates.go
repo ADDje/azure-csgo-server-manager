@@ -125,13 +125,13 @@ func GetTemplatesFromAzure() (map[string]*DeploymentTemplate, error) {
 		}
 
 		template := DeploymentTemplate{}
-		err = json.NewDecoder(templateFile).Decode(&template.Template)
+		err = json.NewDecoder(*templateFile).Decode(&template.Template)
 		if err != nil {
 			log.Printf("Invalid JSON for template %s: %s", templateName, err)
 			continue
 		}
 
-		err = json.NewDecoder(paramFile).Decode(&template.Parameters)
+		err = json.NewDecoder(*paramFile).Decode(&template.Parameters)
 		if err != nil {
 			log.Printf("Invalid JSON for parameters %s: %s", templateName, err)
 		}
@@ -154,20 +154,20 @@ func loadTemplateParamsFromFile(name string) ([]byte, error) {
 	return ioutil.ReadFile(TEMPLATE_DIRECTORY + name + ".parameters.json")
 }
 
-func loadTemplateFromStorage(name string) (io.Reader, error) {
+func loadTemplateFromStorage(name string) (*io.ReadCloser, error) {
 	f, err := GetStorageFile(config, TEMPLATE_FILE_STORE, name+".json")
 	if err != nil {
 		return nil, err
 	}
-	return f.Body, nil
+	return f, nil
 }
 
-func loadTemplateParamsFromStorage(name string) (io.Reader, error) {
+func loadTemplateParamsFromStorage(name string) (*io.ReadCloser, error) {
 	f, err := GetStorageFile(config, TEMPLATE_FILE_STORE, name+".parameters.json")
 	if err != nil {
 		return nil, err
 	}
-	return f.Body, nil
+	return f, nil
 }
 
 // CheckTemplateValid returns map if valid json

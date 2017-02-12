@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"log"
 	"regexp"
 	"strconv"
@@ -16,8 +17,9 @@ import (
 	"github.com/Azure/go-autorest/autorest/azure"
 )
 
-const DEPLOYMENT_NAME string = "csgo-server-manager"
-const VHD_CONTAINER_NAME string = "vhds"
+const DEPLOYMENT_NAME = "csgo-server-manager"
+const VHD_CONTAINER_NAME = "vhds"
+const FILE_CONTAINER_NAME = "server-manager"
 
 func DeployXTemplates(x int, config Config, vmName string, adminUserName string,
 	adminPassword string, configName string, templateName string) error {
@@ -36,7 +38,7 @@ func DeployXTemplates(x int, config Config, vmName string, adminUserName string,
 
 	// Read the file into a json map
 	parametersJSON := TemplateParameterFile{}
-	err = json.NewDecoder(parameters.Body).Decode(&parametersJSON)
+	err = json.NewDecoder(*parameters).Decode(&parametersJSON)
 	if err != nil {
 		log.Printf("Invalid parameters json: %s", err)
 		return err
@@ -342,19 +344,19 @@ func GetStorageFileLink(config Config, store string, file string) string {
 }
 
 // GetStorageFile Returns file from cloud storage by name and store
-func GetStorageFile(config Config, store string, file string) (*storage.FileStream, error) {
+func GetStorageFile(config Config, store string, file string) (*io.ReadCloser, error) {
 	client, err := getStorageClient(config)
 	if err != nil {
 		return nil, err
 	}
 
-	fileStream, err2 := client.GetFile(store+"/"+file, nil)
+	fileStream, err2 := client.GetBlob(FILE_CONTAINER_NAME, store+"/"+file)
 	if err2 != nil {
 		log.Printf("Error in azure GetStorageFile: %s", err2)
 		return nil, err2
 	}
 
-	return fileStream, nil
+	return &fileStream, nil
 }
 
 // // GetStorageFileText Returns file contents from cloud storage by name and store
@@ -379,26 +381,23 @@ func GetStorageFile(config Config, store string, file string) (*storage.FileStre
 // }
 
 // GetStorageFiles Returns files from cloud storage by name and store
-func GetStorageFiles(config Config, store string) ([]storage.File, error) {
+func GetStorageFiles(config Config, store string) ([]storage.Blob, error) {
 	client, err := getStorageClient(config)
 	if err != nil {
 		return nil, err
 	}
 
-	exists, err2 := client.ShareExists(store)
-	if err2 != nil || !exists {
-		log.Printf("Error in azure GetStorageFiles: %s", err)
-		return nil, err
+	params := storage.ListBlobsParameters{
+		Prefix: store + "/",
 	}
 
-	params := storage.ListDirsAndFilesParameters{}
-	files, err3 := client.ListDirsAndFiles(store, params)
+	blobs, err3 := client.ListBlobs(FILE_CONTAINER_NAME, params)
 	if err3 != nil {
 		log.Printf("Error in azure GetStorageFiles: %s", err)
 		return nil, err
 	}
 
-	return files.Files, nil
+	return blobs.Blobs, nil
 }
 
 // DeleteStorageFile Deletes a file in cloud storage using name and store
@@ -408,15 +407,13 @@ func DeleteStorageFile(config Config, store string, file string) error {
 		return err
 	}
 
-	_, err2 := client.GetFile(store+"/"+file, nil)
+	_, err2 := client.GetBlob(FILE_CONTAINER_NAME, store+"/"+file)
 	if err2 != nil {
 		log.Printf("Error in azure DeleteStorageFile: %s", err2)
 		return err2
 	}
 
-	// Updating a file in storage is falls back to reading writing individual bytes
-	// Probably just easier to delete then add
-	err3 := client.DeleteFile(store + "/" + file)
+	err3 := client.DeleteBlob(FILE_CONTAINER_NAME, store+"/"+file, nil)
 	if err3 != nil {
 		log.Printf("Error in azure DeleteStorageFile delete: %s", err3)
 		return err3
@@ -433,7 +430,7 @@ func UpdateStorageFile(config Config, store string, file string, contents []byte
 		return err
 	}
 
-	_, err2 := client.GetFile(store+"/"+file, nil)
+	_, err2 := client.GetBlob(FILE_CONTAINER_NAME, store+"/"+file)
 	if err2 != nil {
 		log.Printf("Error in azure UpdateStorageFile: %s", err2)
 		return err2
@@ -441,7 +438,7 @@ func UpdateStorageFile(config Config, store string, file string, contents []byte
 
 	// Updating a file in storage is falls back to reading writing individual bytes
 	// Probably just easier to delete then add
-	err3 := client.DeleteFile(store + "/" + file)
+	err3 := client.DeleteBlob(FILE_CONTAINER_NAME, store+"/"+file, nil)
 	if err3 != nil {
 		log.Printf("Error in azure UpdateStorageFile delete: %s", err3)
 		return err3
@@ -463,25 +460,11 @@ func CreateStorageFile(config Config, store string, file string, contents []byte
 		return err
 	}
 
-	err2 := client.CreateFile(store+"/"+file, uint64(len(contents)), nil)
+	r := bytes.NewReader(contents)
+	err2 := client.CreateBlockBlobFromReader(FILE_CONTAINER_NAME, store+"/"+file, uint64(len(contents)), r, nil)
 	if err2 != nil {
 		log.Printf("Error in azure CreateStorageFile create: %s", err2)
 		return err2
-	}
-
-	if len(contents) <= 0 {
-		return nil
-	}
-
-	r := bytes.NewReader(contents)
-	fileRange := storage.FileRange{
-		Start: 0,
-		End:   uint64(len(contents)) - 1,
-	}
-	err3 := client.PutRange(store+"/"+file, r, fileRange)
-	if err3 != nil {
-		log.Printf("Error in azure CreateStorageFile write: %s", err3)
-		return err3
 	}
 
 	return nil
@@ -556,14 +539,14 @@ func getResourcesClient(c Config) (*resources.Client, error) {
 	return &client, nil
 }
 
-func getStorageClient(c Config) (*storage.FileServiceClient, error) {
+func getStorageClient(c Config) (*storage.BlobStorageClient, error) {
 	client, err := storage.NewBasicClient(c.AzureStorageServer, c.AzureStorageKey)
 	if err != nil {
 		log.Printf("Error in azure getStorageClient: %s", err)
 		return nil, err
 	}
-	fs := client.GetFileService()
-	return &fs, nil
+	bs := client.GetBlobService()
+	return &bs, nil
 }
 
 func getInterfacesClient(c Config) (*network.InterfacesClient, error) {
