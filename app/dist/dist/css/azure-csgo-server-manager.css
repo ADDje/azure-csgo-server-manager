@@ -88,8 +88,9 @@
     width: 100%;
 }
 
-.log-footer #server-log {
+.log-footer #server-log #log {
     overflow: auto;
+    height: 165px;
 }
 
 .log-footer #server-log .server-log-title {

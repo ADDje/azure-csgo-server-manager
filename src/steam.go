@@ -115,7 +115,7 @@ func exportReplaysViaSSH(config Config, week string, ip string, vmUsername strin
 		return errors.New("Request for terminal failed")
 	}
 
-	replayFolder := week + "/$hostname"
+	replayFolder := week + "/$(hostname)"
 	script := "#!/bin/bash\n\n" +
 		"export AZURE_STORAGE_ACCOUNT=" + config.AzureStorageServer + "\n" +
 		"export AZURE_STORAGE_ACCESS_KEY=" + config.AzureStorageKey + "\n" +
@@ -124,7 +124,7 @@ func exportReplaysViaSSH(config Config, week string, ip string, vmUsername strin
 
 		"for f in " + REPLAY_FOLDER + "\n" +
 		"do\n" +
-		"echo \"Uploading $f file... ($hostname)\"\n" +
+		"echo \"Uploading $f file... ($(hostname))\"\n" +
 		"azure storage blob upload -q $f " + REPLAY_CONTAINER_NAME + " \"" + replayFolder + "/$(basename $f)\"\n" +
 		"done"
 

@@ -374,11 +374,11 @@ func GetRawStorageFile(config Config, file string) (*io.ReadCloser, error) {
 // 	log.Printf("%d", fileStream.Properties.ContentLength)
 // 	buffer := make([]byte, fileStream.Properties.ContentLength)
 // 	if fileStream.Properties.ContentLength > 0 {
-// 		r, err3 := fileStream.Body.Read(buffer)
+// 		r, err := fileStream.Body.Read(buffer)
 // 		log.Printf("%d bytes read", r)
-// 		if err3 != nil && err3 != io.EOF {
-// 			log.Printf("Error in azure GetStorageFileText: %s", err3)
-// 			return "", err3
+// 		if err != nil && err != io.EOF {
+// 			log.Printf("Error in azure GetStorageFileText: %s", err)
+// 			return "", err
 // 		}
 // 	}
 
@@ -396,8 +396,8 @@ func GetStorageFiles(config Config, store string) ([]storage.Blob, error) {
 		Prefix: store + "/",
 	}
 
-	blobs, err3 := client.ListBlobs(FILE_CONTAINER_NAME, params)
-	if err3 != nil {
+	blobs, err := client.ListBlobs(FILE_CONTAINER_NAME, params)
+	if err != nil {
 		log.Printf("Error in azure GetStorageFiles: %s", err)
 		return nil, err
 	}
@@ -412,16 +412,19 @@ func DeleteStorageFile(config Config, store string, file string) error {
 		return err
 	}
 
-	_, err2 := client.GetBlob(FILE_CONTAINER_NAME, store+"/"+file)
-	if err2 != nil {
-		log.Printf("Error in azure DeleteStorageFile: %s", err2)
-		return err2
+	fileName := store + "/" + file
+	log.Printf("Deleting Azure File: %s", fileName)
+
+	_, err = client.GetBlob(FILE_CONTAINER_NAME, fileName)
+	if err != nil {
+		log.Printf("Error in azure DeleteStorageFile: %s", err)
+		return err
 	}
 
-	err3 := client.DeleteBlob(FILE_CONTAINER_NAME, store+"/"+file, nil)
-	if err3 != nil {
-		log.Printf("Error in azure DeleteStorageFile delete: %s", err3)
-		return err3
+	err = client.DeleteBlob(FILE_CONTAINER_NAME, fileName, nil)
+	if err != nil {
+		log.Printf("Error in azure DeleteStorageFile delete: %s", err)
+		return err
 	}
 
 	return nil
@@ -435,24 +438,27 @@ func UpdateStorageFile(config Config, store string, file string, contents []byte
 		return err
 	}
 
-	_, err2 := client.GetBlob(FILE_CONTAINER_NAME, store+"/"+file)
-	if err2 != nil {
-		log.Printf("Error in azure UpdateStorageFile: %s", err2)
-		return err2
+	fileName := store + "/" + file
+	log.Printf("Updating Azure File: %s", fileName)
+
+	_, err = client.GetBlob(FILE_CONTAINER_NAME, fileName)
+	if err != nil {
+		log.Printf("Error in azure UpdateStorageFile: %s", err)
+		return err
 	}
 
 	// Updating a file in storage is falls back to reading writing individual bytes
 	// Probably just easier to delete then add
-	err3 := client.DeleteBlob(FILE_CONTAINER_NAME, store+"/"+file, nil)
-	if err3 != nil {
-		log.Printf("Error in azure UpdateStorageFile delete: %s", err3)
-		return err3
+	err = client.DeleteBlob(FILE_CONTAINER_NAME, fileName, nil)
+	if err != nil {
+		log.Printf("Error in azure UpdateStorageFile delete: %s", err)
+		return err
 	}
 
-	err4 := CreateStorageFile(config, store, file, contents)
-	if err4 != nil {
-		log.Printf("Error in azure UpdateStorageFile create: %s", err4)
-		return err4
+	err = CreateStorageFile(config, store, file, contents)
+	if err != nil {
+		log.Printf("Error in azure UpdateStorageFile create: %s", err)
+		return err
 	}
 
 	return nil
@@ -466,10 +472,10 @@ func CreateStorageFile(config Config, store string, file string, contents []byte
 	}
 
 	r := bytes.NewReader(contents)
-	err2 := client.CreateBlockBlobFromReader(FILE_CONTAINER_NAME, store+"/"+file, uint64(len(contents)), r, nil)
-	if err2 != nil {
-		log.Printf("Error in azure CreateStorageFile create: %s", err2)
-		return err2
+	err = client.CreateBlockBlobFromReader(FILE_CONTAINER_NAME, store+"/"+file, uint64(len(contents)), r, nil)
+	if err != nil {
+		log.Printf("Error in azure CreateStorageFile create: %s", err)
+		return err
 	}
 
 	return nil
@@ -513,8 +519,6 @@ func replaceParameterVariables(parametersJSON TemplateParameterFile, number int)
 
 		outParams.Parameters[key] = TemplateParameter{Value: reg.ReplaceAllString(value, strconv.Itoa(number))}
 	}
-
-	log.Printf("%s", parametersJSON)
 
 	return &outParams, nil
 }

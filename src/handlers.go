@@ -370,11 +370,12 @@ func GetServerConfigTextByName(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	if config.UseCloudStorage {
-		azureFile, err2 := GetStorageFile(config, CONFIG_FILE_STORE, vars["configName"])
-		err = err2
-		myBytes, err := ReadConfigIntoBytes(*azureFile)
+		azureFile, err := GetStorageFile(config, CONFIG_FILE_STORE, vars["configName"])
 		if err == nil {
-			resp.Data = string(myBytes)
+			myBytes, err := ReadConfigIntoBytes(*azureFile)
+			if err == nil {
+				resp.Data = string(myBytes)
+			}
 		}
 	} else {
 		resp.Data, err = GetServerConfigTextFromFile(vars["configName"])
@@ -979,6 +980,8 @@ func DeleteAction(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Missing action name")
 		return
 	}
+
+	log.Printf("Deleting Action: %s", vars["actionName"])
 
 	err := DeleteScheduleAction(name)
 	if err != nil {
