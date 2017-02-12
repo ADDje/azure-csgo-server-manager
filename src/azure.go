@@ -338,22 +338,27 @@ func GetVmProperties(config Config, vmName string) (*compute.VirtualMachinePrope
 
 // GetStorageFileLink returns an externally accessible link to a storage file
 // Uses a secure token so should not be used frivolously
-func GetStorageFileLink(config Config, store string, file string) string {
-	return "https://" + config.AzureStorageServer + ".file.core.windows.net/" + store +
+func GetStorageFileLink(config Config, store, file string) string {
+	return "https://" + config.AzureStorageServer + ".blob.core.windows.net/" + FILE_CONTAINER_NAME + "/" + store +
 		"/" + file + config.AzureSASToken
 }
 
 // GetStorageFile Returns file from cloud storage by name and store
-func GetStorageFile(config Config, store string, file string) (*io.ReadCloser, error) {
+func GetStorageFile(config Config, store, file string) (*io.ReadCloser, error) {
+	return GetRawStorageFile(config, store+"/"+file)
+}
+
+// GetRawStorageFile Returns file from cloud storage using exact name
+func GetRawStorageFile(config Config, file string) (*io.ReadCloser, error) {
 	client, err := getStorageClient(config)
 	if err != nil {
 		return nil, err
 	}
 
-	fileStream, err2 := client.GetBlob(FILE_CONTAINER_NAME, store+"/"+file)
-	if err2 != nil {
-		log.Printf("Error in azure GetStorageFile: %s", err2)
-		return nil, err2
+	fileStream, err := client.GetBlob(FILE_CONTAINER_NAME, file)
+	if err != nil {
+		log.Printf("Error in azure GetStorageFile: %s", err)
+		return nil, err
 	}
 
 	return &fileStream, nil
@@ -470,7 +475,6 @@ func CreateStorageFile(config Config, store string, file string, contents []byte
 	return nil
 }
 
-// This isn't very nice
 func convertParameters(parameters TemplateParameterFile) map[string]interface{} {
 
 	myMap := make(map[string]interface{})
@@ -595,4 +599,9 @@ func newServicePrincipalTokenFromCredentials(config Config, scope string) (*azur
 		panic(err)
 	}
 	return azure.NewServicePrincipalToken(*oauthConfig, config.AzureClientID, config.AzureClientSecret, scope)
+}
+
+func getBlobName(blob string) string {
+	parts := strings.Split(blob, "/")
+	return parts[len(parts)-1]
 }

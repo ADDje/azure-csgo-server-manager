@@ -47,7 +47,7 @@ func GetServerConfigsFromAzure() (map[string]*CsgoServerSettings, error) {
 	configs := make(map[string]*CsgoServerSettings)
 
 	for _, file := range configFiles {
-		azureFile, err := GetStorageFile(config, CONFIG_FILE_STORE, file.Name)
+		azureFile, err := GetRawStorageFile(config, file.Name)
 		if err != nil {
 			return nil, err
 		}
@@ -59,7 +59,7 @@ func GetServerConfigsFromAzure() (map[string]*CsgoServerSettings, error) {
 
 		config, err := loadConfig(myBytes)
 		if err == nil {
-			configs[file.Name] = config
+			configs[getBlobName(file.Name)] = config
 		} else {
 			log.Printf("Error Reading Config %s: %s", file.Name, err)
 		}
