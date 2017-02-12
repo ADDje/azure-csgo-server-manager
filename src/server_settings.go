@@ -96,6 +96,7 @@ type CsgoServerSettings struct {
 	SvAlternateticks                     int     `csgo:"sv_alternateticks"`             // If set, server only simulates entities on even numbered ticks.
 	SvCheats                             int     `csgo:"sv_cheats"`                     // Allow cheats on server
 	SvClockcorrectionMsecs               int     `csgo:"sv_clockcorrection_msecs"`      // The server tries to keep each player's m_nTickBase withing this many msecs of the server absolute tickcount
+	SvCoachingEnabled                    int     `csgo:"sv_coaching_enabled"`           //Allows coaches
 	SvConsistency                        int     `csgo:"sv_consistency"`                // Whether the server enforces file consistency for critical files
 	SvContact                            int     `csgo:"sv_contact"`                    // Contact email for server sysop
 	SvDamagePrintEnable                  int     `csgo:"sv_damage_print_enable"`        // Turn this off to disable the player's damage feed in the console after getting killed.
