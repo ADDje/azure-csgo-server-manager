@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/Azure/azure-sdk-for-go/arm/compute"
@@ -309,14 +310,20 @@ func GetVms(config Config) (*[]compute.VirtualMachine, error) {
 	}
 
 	// VM properties are missing InstanceViewStatus which is where the status comes from
-	// TODO: Make parallel
 
+	var wg sync.WaitGroup
+	wg.Add(len(*results.Value))
 	for k, vm := range *results.Value {
-		vmInfo, err := GetVmProperties(config, *vm.Name)
-		if err == nil {
-			(*results.Value)[k].VirtualMachineProperties.InstanceView = vmInfo.InstanceView
-		}
+		go func(k int, vm compute.VirtualMachine) {
+			vmInfo, err := GetVmProperties(config, *vm.Name)
+			if err == nil {
+				(*results.Value)[k].VirtualMachineProperties.InstanceView = vmInfo.InstanceView
+			}
+
+			wg.Done()
+		}(k, vm)
 	}
+	wg.Wait()
 
 	return results.Value, nil
 }
