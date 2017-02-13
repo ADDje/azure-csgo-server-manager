@@ -263,6 +263,40 @@ func DeleteVMNetworkThings(config Config, vmProps *compute.VirtualMachinePropert
 	return nil
 }
 
+func GetVmIp(config Config, vmName string) (*string, error) {
+	vmInfo, err := GetVmProperties(config, vmName)
+	if err != nil {
+		return nil, err
+	}
+
+	return GetVmIpWithProperties(config, vmInfo)
+}
+
+func GetVmIpWithProperties(config Config, props *compute.VirtualMachineProperties) (*string, error) {
+	nic := *(*props.NetworkProfile.NetworkInterfaces)[0].ID
+	nicParts := strings.Split(nic, "/")
+	nicName := nicParts[len(nicParts)-1]
+
+	nicDetails, err := GetNicDetails(config, nicName)
+	if err != nil {
+		return nil, err
+	}
+	nicDetails2 := *nicDetails
+
+	ip := (*nicDetails2.IPConfigurations)[0]
+	pubIP := *ip.PublicIPAddress
+
+	ipParts := strings.Split(*pubIP.ID, "/")
+	ipID := ipParts[len(ipParts)-1]
+
+	ipDetails, err := GetIpDetails(config, ipID)
+	if err != nil {
+		return nil, err
+	}
+
+	return ipDetails.IPAddress, nil
+}
+
 // FullDeleteVM deletes a VM, its network resources and ip address
 // Unfortunately this isn't very dynamic, and may fail using a different template
 // or with different resources

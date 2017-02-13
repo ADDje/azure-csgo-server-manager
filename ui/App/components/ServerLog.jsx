@@ -29,9 +29,7 @@ class ServerLog extends React.Component {
                 }
 
                 this.ws.onmessage = function(msg) {
-                    console.log(msg)
                     var splitData = msg.data.split("\n").filter(function(d) { return d !== "" })
-                    console.log(splitData)
                     this.setState({messages: update(this.state.messages, {
                         $push: splitData
                     })})

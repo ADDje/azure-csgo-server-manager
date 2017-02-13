@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"strings"
 	"time"
 
 	"golang.org/x/crypto/ssh"
@@ -56,28 +55,12 @@ func ExportReplays(config Config, week string, vmName string, vmUsername string,
 		return errors.New("VM is not on")
 	}
 
-	nic := *(*vmInfo.NetworkProfile.NetworkInterfaces)[0].ID
-	nicParts := strings.Split(nic, "/")
-	nicName := nicParts[len(nicParts)-1]
-
-	nicDetails, err := GetNicDetails(config, nicName)
+	ip, err := GetVmIpWithProperties(config, vmInfo)
 	if err != nil {
-		return err
-	}
-	nicDetails2 := *nicDetails
-
-	ip := (*nicDetails2.IPConfigurations)[0]
-	pubIP := *ip.PublicIPAddress
-
-	ipParts := strings.Split(*pubIP.ID, "/")
-	ipID := ipParts[len(ipParts)-1]
-
-	ipDetails, err := GetIpDetails(config, ipID)
-	if err != nil {
-		return err
+		return nil
 	}
 
-	return exportReplaysViaSSH(config, week, *ipDetails.IPAddress, vmUsername, vmPassword)
+	return exportReplaysViaSSH(config, week, *ip, vmUsername, vmPassword)
 }
 
 func exportReplaysViaSSH(config Config, week string, ip string, vmUsername string, vmPassword string) error {

@@ -121,6 +121,11 @@ var apiRoutes = Routes{
 		"/servers/getall",
 		GetAllServers,
 	}, {
+		"GetServerIp",
+		"GET",
+		"/servers/{vmName}/ip",
+		GetServerIP,
+	}, {
 		"GetDefaultConfig",
 		"GET",
 		"/server/defaultconfig",

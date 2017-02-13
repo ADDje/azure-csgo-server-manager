@@ -42,8 +42,24 @@ func GetAllServers(w http.ResponseWriter, r *http.Request) {
 	JSON(w, resp)
 }
 
+func GetServerIP(w http.ResponseWriter, r *http.Request) {
+	resp := JSONResponse{
+		Success: false,
+	}
+
+	vars := mux.Vars(r)
+
+	ip, err := GetVmIp(config, vars["vmName"])
+	if err != nil {
+		JSON(w, resp)
+	}
+
+	resp.Success = true
+	resp.Data = ip
+	JSON(w, resp)
+}
+
 func DeployServers(w http.ResponseWriter, r *http.Request) {
-	var err error
 	resp := JSONResponse{
 		Success: false,
 	}

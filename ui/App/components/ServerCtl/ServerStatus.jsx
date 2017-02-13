@@ -1,4 +1,5 @@
 import React from 'react';
+import update from 'immutability-helper';
 
 class ServerStatus extends React.Component {
     constructor(props) {
@@ -7,7 +8,8 @@ class ServerStatus extends React.Component {
         this.getButtons = this.getButtons.bind(this)
 
         this.state = {
-            loading: false
+            loading: false,
+            serverIps: {}
         }
 
         this.reload = this.reload.bind(this)
@@ -23,10 +25,42 @@ class ServerStatus extends React.Component {
 
         this.clickTrashAll = this.clickTrashAll.bind(this)
         this.trashAll = this.trashAll.bind(this)
+
+        this.displayIp = this.displayIp.bind(this)
     }
 
     componentWillMount() {
         this.reloader = setInterval(this.reload, 10000)
+    }
+
+    componentWillReceiveProps(nextProps) {
+        var changes = {}
+        for (var serverId in nextProps.azureServerStatus) {
+            var server = nextProps.azureServerStatus[serverId]
+            if (this.state.serverIps[server.name] === undefined) {
+                changes[server.name] = {$set: {
+                    loading: false,
+                    ip: ""
+                }}
+
+                $.get({
+                    url: "/api/servers/" + server.name + "/ip",
+                    success: function(name, data) {
+                        var param = {}
+                        param[name] = {$set: {loading: false, ip: data.data}}
+                        this.setState({
+                            serverIps: update(this.state.serverIps, param)
+                        })
+                    }.bind(this, server.name)
+                })
+            }
+        }
+
+        if (Object.keys(changes).length > 0) {
+            this.setState({
+                serverIps: update(this.state.serverIps, changes)
+            })
+        }
     }
 
     componentWillUnmount() {
@@ -356,6 +390,10 @@ class ServerStatus extends React.Component {
             </div>)
     }
 
+    displayIp(server) {
+        return (this.state.serverIps[server.name].loading) ? "Loading..." : this.state.serverIps[server.name].ip
+    }
+
     render() {
         
         var loading = null
@@ -369,12 +407,13 @@ class ServerStatus extends React.Component {
 
             content = this.props.azureServerStatus.map(function(server) {
                 var buttons = this.getButtons(server)
+                var ip = this.displayIp(server)
                 return(
                     <tr key={server.name}>
                         <td><input type="checkbox" /></td>
                         <td>{server.name}</td>
                         <td>{buttons}</td>
-                        <td />
+                        <td>{ip}</td>
                         <td>{this.formatServerStatus(server)}</td>
                     </tr>
                 )                                                  
