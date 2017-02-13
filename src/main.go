@@ -97,10 +97,10 @@ func parseFlags() {
 	//config.MaxUploadSize = *serverMaxUpload
 
 	port := os.Getenv("HTTP_PLATFORM_PORT")
-	log.Printf("HTTP_PLATFORM_PORT: %s", port)
 	if port != "" {
 		myPort, err := strconv.Atoi(port)
 		if err == nil {
+			log.Printf("Using HTTP_PLATFORM_PORT: %d", myPort)
 			config.ServerPort = myPort
 			config.OverrideSSL = true
 		} else {
@@ -108,8 +108,6 @@ func parseFlags() {
 		}
 		config.UseSsl = false
 	}
-
-	log.Printf("Server port: %d", config.ServerPort)
 }
 
 func setupLogging() {

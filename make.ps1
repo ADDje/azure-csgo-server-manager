@@ -3,9 +3,13 @@ SET NODE_ENV=Production
 rmdir -Recurse -Force build
 
 mkdir build
-cd src
+cd ui
+npm run build
+cd ../src
+
 go build -o ../build/azure-csgo-server.exe
 cd ../
+
 copy -R app/ build/
 copy conf.json build/
 copy -R configs/ build/

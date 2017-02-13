@@ -39,7 +39,7 @@ class ServerStatus extends React.Component {
             var server = nextProps.azureServerStatus[serverId]
             if (this.state.serverIps[server.name] === undefined) {
                 changes[server.name] = {$set: {
-                    loading: false,
+                    loading: true,
                     ip: ""
                 }}
 
