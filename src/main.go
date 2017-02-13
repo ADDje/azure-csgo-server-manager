@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 )
@@ -41,6 +42,8 @@ type Config struct {
 
 	ConfFile     string `json:"-"`
 	WebSocketKey string `json:"-"`
+	// Used to force not SSL inside tomcat
+	OverrideSSL bool `json:"-"`
 }
 
 var (
@@ -60,10 +63,24 @@ func failOnError(err error, msg string) {
 // JSON config file contains default values,
 // config file will overwrite any provided flags
 func loadServerConfig(f string) {
+	// Preserve some configs
+	oldPort := config.ServerPort
+	oldIP := config.ServerIP
+
 	file, err := os.Open(f)
 	failOnError(err, "Error loading config file.")
 
 	err = json.NewDecoder(file).Decode(&config)
+
+	if oldPort != 0 {
+		config.ServerPort = oldPort
+	}
+	if oldIP != "" {
+		config.ServerIP = oldIP
+	}
+	if config.OverrideSSL {
+		config.UseSsl = false
+	}
 }
 
 func parseFlags() {
@@ -78,6 +95,21 @@ func parseFlags() {
 	config.ServerIP = *webserverIP
 	config.ServerPort = *webserverPort
 	//config.MaxUploadSize = *serverMaxUpload
+
+	port := os.Getenv("HTTP_PLATFORM_PORT")
+	log.Printf("HTTP_PLATFORM_PORT: %s", port)
+	if port != "" {
+		myPort, err := strconv.Atoi(port)
+		if err == nil {
+			config.ServerPort = myPort
+			config.OverrideSSL = true
+		} else {
+			log.Printf("Could not read port from HTTP_PLATFORM_PORT %s", err)
+		}
+		config.UseSsl = false
+	}
+
+	log.Printf("Server port: %d", config.ServerPort)
 }
 
 func setupLogging() {
