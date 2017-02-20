@@ -173,8 +173,6 @@ class ServerCtl extends React.Component {
             url: "/api/server/stop",
             dataType: "json",
             success: (resp) => {
-                this.props.getStatus();
-                console.log(resp)
                 swal(resp.data)
             }
         })
@@ -397,7 +395,6 @@ ServerCtl.propTypes = {
     azureServerStatus: React.PropTypes.array.isRequired,
     deploymentTemplates: React.PropTypes.object.isRequired,
     getConfig: React.PropTypes.func.isRequired,
-    getStatus: React.PropTypes.func.isRequired,
     serverConfigs: React.PropTypes.object.isRequired,
 }
 

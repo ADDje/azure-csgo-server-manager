@@ -10,13 +10,18 @@ class ServerStatus extends React.Component {
         // Maximum number of IP Queries to execute at once.
         this.maxAsyncIpQueries = 5
 
+        // Server Info Delay (s)
+        this.serverRefreshDelay = 10
+
         this.state = {
             loading: false,
             serverIps: {},
-            ipQueriesInProgress: 0
+            ipQueriesInProgress: 0,
+            refreshTimer: 0
         }
 
-        this.reload = this.reload.bind(this)
+        this.getStatus = this.getStatus.bind(this)
+        this.reloadTick = this.reloadTick.bind(this)
 
         this.clickStopAll = this.clickStopAll.bind(this)
         this.stopAll = this.stopAll.bind(this)
@@ -36,7 +41,8 @@ class ServerStatus extends React.Component {
     }
 
     componentWillMount() {
-        this.reloader = setInterval(this.reload, 10000)
+        this.getStatus();
+        this.reloader = setInterval(this.reloadTick, 1000)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -77,6 +83,18 @@ class ServerStatus extends React.Component {
 
     componentWillUnmount() {
         clearInterval(this.reloader)
+    }
+
+    reloadTick() {
+        if (this.state.loading) {
+            return
+        }
+        
+        if (this.state.refreshTimer === 1) {
+            this.getStatus();
+        } else {
+            this.setState({refreshTimer: this.state.refreshTimer - 1})
+        }
     }
 
     getIpForServer(name) {
@@ -130,15 +148,6 @@ class ServerStatus extends React.Component {
         })
     }
 
-    reload() {
-        this.setState({loading: true});
-        // TODO: Callback and do this properly
-        setTimeout(function() {
-            this.setState({loading: false})
-        }.bind(this), 500)
-        this.props.reloadServers()
-    }
-
     formatServerStatus(serverStatus) {
 
         var statuses = serverStatus.properties.instanceView.statuses;
@@ -165,6 +174,22 @@ class ServerStatus extends React.Component {
         }
 
         return icons
+    }
+
+    getStatus() {
+        this.setState({loading: true})
+
+        $.ajax({
+            url: "/api/servers/getall",
+            dataType: "json",
+            success: (data) => {
+                this.props.setStatus(data.data)
+                this.setState({loading: false, refreshTimer: this.serverRefreshDelay})
+            },
+            error: (xhr, status, err) => {
+                console.log('api/server/status', status, err.toString());
+            }
+        })
     }
 
     clickReplay(name) {
@@ -480,6 +505,8 @@ class ServerStatus extends React.Component {
         var loading = null
         if (this.state.loading) {
             loading = <i className="fa fa-refresh fa-spin" />
+        } else {
+            loading = <span>({this.state.refreshTimer})</span>
         }
 
         var content = null
@@ -539,7 +566,7 @@ class ServerStatus extends React.Component {
 
 ServerStatus.propTypes = {
     azureServerStatus: React.PropTypes.array.isRequired,
-    reloadServers: React.PropTypes.func.isRequired
+    setStatus: React.PropTypes.func.isRequired
 }
 
 

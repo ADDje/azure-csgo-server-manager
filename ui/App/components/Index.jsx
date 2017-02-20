@@ -13,7 +13,6 @@ class Index extends React.Component {
         this.props.getServStatus();
         this.props.getConfigs();
         this.props.getTemplates();
-        this.props.getStatus();
     }
 
     componentWillUnmount() {
@@ -38,6 +37,7 @@ class Index extends React.Component {
                 <ServerStatus 
                     azureServerStatus={this.props.azureServerStatus}
                     reloadServers={this.props.reloadServers}
+                    setStatus={this.props.setStatus}
                 />
 
                 <ServerCtl 
@@ -45,7 +45,6 @@ class Index extends React.Component {
                     deploymentTemplates={this.props.deploymentTemplates}
                     serverConfigs={this.props.serverConfigs}
                     getConfig={this.props.getConfig}
-                    getStatus={this.props.getStatus}
                 />
 
                 </section>

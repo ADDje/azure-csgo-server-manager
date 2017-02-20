@@ -16,7 +16,7 @@ class App extends React.Component {
         this.getConfigs = this.getConfigs.bind(this)
         this.getConfig = this.getConfig.bind(this)
         this.getTemplates = this.getTemplates.bind(this)
-        this.getStatus = this.getStatus.bind(this)
+        this.setStatus = this.setStatus.bind(this)
         this.getScheduleActions = this.getScheduleActions.bind(this)
         this.state = {
             serverRunning: "stopped",
@@ -129,18 +129,8 @@ class App extends React.Component {
         })
     }
 
-    getStatus() {
-        $.ajax({
-            url: "/api/servers/getall",
-            dataType: "json",
-            success: (data) => {
-                console.log(data.data)
-                this.setState({azureServerStatus: data.data})
-            },
-            error: (xhr, status, err) => {
-                console.log('api/server/status', status, err.toString());
-            }
-        })
+    setStatus(status) {
+        this.setState({azureServerStatus: status})
     }
 
     getScheduleActions() {
@@ -148,7 +138,6 @@ class App extends React.Component {
             url: "/api/schedule/getall",
             dataType: "json",
             success: (data) => {
-                console.log(data.data)
                 this.setState({scheduleActions: data.data})
             }
         })
@@ -179,7 +168,7 @@ class App extends React.Component {
                         messages: this.state.messages,
                         flashMessage: this.flashMessage,
                         azureServerStatus: this.state.azureServerStatus,
-                        getStatus: this.getStatus,
+                        setStatus: this.setStatus,
                         serverConfigs: this.state.configs,
                         deploymentTemplates: this.state.templates,
                         getConfigs: this.getConfigs,
@@ -187,7 +176,6 @@ class App extends React.Component {
                         getTemplates: this.getTemplates,
                         username: this.state.username,
                         getServStatus: this.getServStatus,
-                        reloadServers: this.getStatus,
                         getScheduleActions: this.getScheduleActions,
                         scheduleActions: this.state.scheduleActions}
                     )}
