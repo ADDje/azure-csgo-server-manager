@@ -3,13 +3,17 @@ import update from 'immutability-helper';
 
 class ServerStatus extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
         this.formatServerStatus = this.formatServerStatus.bind(this)
         this.getButtons = this.getButtons.bind(this)
 
+        // Maximum number of IP Queries to execute at once.
+        this.maxAsyncIpQueries = 5
+
         this.state = {
             loading: false,
-            serverIps: {}
+            serverIps: {},
+            ipQueriesInProgress: 0
         }
 
         this.reload = this.reload.bind(this)
@@ -27,6 +31,8 @@ class ServerStatus extends React.Component {
         this.trashAll = this.trashAll.bind(this)
 
         this.displayIp = this.displayIp.bind(this)
+        this.sendNextIpQuery = this.sendNextIpQuery.bind(this)
+        this.getIpForServer = this.getIpForServer.bind(this)
     }
 
     componentWillMount() {
@@ -35,36 +41,93 @@ class ServerStatus extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         var changes = {}
+        var ipQueries = this.state.ipQueriesInProgress;
         for (var serverId in nextProps.azureServerStatus) {
             var server = nextProps.azureServerStatus[serverId]
+            // If this is a new server we don't have information for...
             if (this.state.serverIps[server.name] === undefined) {
-                changes[server.name] = {$set: {
-                    loading: true,
-                    ip: ""
-                }}
+                // If we're not already executing too many requests
+                if (ipQueries < this.maxAsyncIpQueries) {
+                    ipQueries++
+                    changes[server.name] = {$set: {
+                        loading: true,
+                        queued: false,
+                        ip: ""
+                    }}
 
-                $.get({
-                    url: "/api/servers/" + server.name + "/ip",
-                    success: function(name, data) {
-                        var param = {}
-                        param[name] = {$set: {loading: false, ip: data.data}}
-                        this.setState({
-                            serverIps: update(this.state.serverIps, param)
-                        })
-                    }.bind(this, server.name)
-                })
+                    this.getIpForServer(server.name);
+                } else {
+                    // Store the changes for later
+                    changes[server.name] = {$set: {
+                        loading: true,
+                        queued: true,
+                        ip: ""
+                    }}
+                }
             }
         }
 
         if (Object.keys(changes).length > 0) {
             this.setState({
-                serverIps: update(this.state.serverIps, changes)
+                serverIps: update(this.state.serverIps, changes),
+                ipQueriesInProgress: ipQueries
             })
         }
     }
 
     componentWillUnmount() {
         clearInterval(this.reloader)
+    }
+
+    getIpForServer(name) {
+        $.get({
+            url: "/api/servers/" + name + "/ip",
+            success: function(name, data) {
+                var param = {}
+                param[name] = {$set: {loading: false, ip: data.data}}
+                this.setState({
+                    serverIps: update(this.state.serverIps, param),
+                    ipQueriesInProgress: this.state.ipQueriesInProgress - 1
+                })
+
+                this.sendNextIpQuery();
+            }.bind(this, name)
+        })
+    }
+
+    sendNextIpQuery() {
+        var numberNewQueries = this.maxAsyncIpQueries - this.state.ipQueriesInProgress
+        if (numberNewQueries < 1) {
+            return
+        }
+
+        var serversNeedingIp = Object.keys(this.state.serverIps).filter((s) => {
+            return this.state.serverIps[s].queued
+        })
+
+        if (serversNeedingIp.length < 1) {
+            return
+        }
+
+        var max = numberNewQueries
+        if (x > serversNeedingIp.length) {
+            max = serversNeedingIp.length
+        }
+
+        var changes = {}
+        for (var x = 0; x < max; x++) {
+            changes[serversNeedingIp[x]] = {$set: {
+                loading: true,
+                queued: false,
+                ip: ""
+            }}
+            this.getIpForServer(serversNeedingIp[x])
+        }
+
+        this.setState({
+            serverIps: update(this.state.serverIps, changes),
+            ipQueriesInProgress: this.state.ipQueriesInProgress + x
+        })
     }
 
     reload() {

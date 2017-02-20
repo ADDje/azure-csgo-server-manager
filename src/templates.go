@@ -109,7 +109,6 @@ func GetTemplatesFromAzure() (map[string]*DeploymentTemplate, error) {
 		}
 
 		var templateName = getBlobName(name[:len(name)-5])
-		log.Printf("Template name: %s", templateName)
 		// Check that parameters file exists
 		paramFile, err := loadTemplateParamsFromStorage(templateName)
 
