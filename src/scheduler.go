@@ -96,7 +96,13 @@ func AddOrUpdateScheduleAction(name string, action *ScheduleAction) error {
 			return err
 		}
 	}
-	actions[name] = action
+
+	// Renamed
+	if action.Name != name {
+		log.Printf("Renaming action %s to %s", name, action.Name)
+		delete(actions, name)
+	}
+	actions[action.Name] = action
 
 	err := saveActions()
 	if err != nil {
@@ -136,16 +142,17 @@ func ExecuteScheduleAction(name string, params map[string]string) error {
 		return errors.New("Action Not Found")
 	}
 
+	if !action.Enabled {
+		return errors.New("Action is disabled")
+	}
+
 	switch strings.ToLower(action.Action) {
 	case "deploy":
 
 		// For all parameters, first check the url, then the action default
-		numberOfServers, ok := params["numberOfServers"]
-		if !ok {
-			numberOfServers, ok = findParameter(action, "numberOfServers")
-			if !ok {
-				return errors.New("Missing numberOfServers parameter")
-			}
+		numberOfServers, err := getNumberOfServers(action, params)
+		if err != nil {
+			return err
 		}
 
 		configFile, ok := params["configFile"]
@@ -179,169 +186,150 @@ func ExecuteScheduleAction(name string, params map[string]string) error {
 			vmPassword, _ = findParameter(action, "vmPassword")
 		}
 
-		// Sanity check
-		iNumberOfServers, err := strconv.Atoi(numberOfServers)
-		if err != nil {
-			log.Printf("Invalid number of servers: %s", err)
-			return err
-		}
-
-		DeployXTemplates(iNumberOfServers, config, azureServerName, vmUserName,
+		DeployXTemplates(numberOfServers, config, azureServerName, vmUserName,
 			vmPassword, configFile, deploymentTemplate)
 
 		break
 	case "delete":
 
-		nameTemplate, ok := params["nameTemplate"]
+		serverNameTemplate, ok := params["serverNameTemplate"]
 		if !ok {
-			nameTemplate, ok = findParameter(action, "nameTemplate")
+			serverNameTemplate, ok = findParameter(action, "serverNameTemplate")
 			if !ok {
-				return errors.New("Missing nameTemplate parameter")
+				return errors.New("Missing serverNameTemplate parameter")
 			}
 		}
 
-		numberOfServers, ok := params["numberOfServers"]
-		if !ok {
-			numberOfServers, ok = findParameter(action, "numberOfServers")
-			if !ok {
-				return errors.New("Missing numberOfServers parameter")
-			}
-		}
-
-		startingNumber, ok := params["startingNumber"]
-		if !ok {
-			startingNumber, ok = findParameter(action, "startingNumber")
-		}
-
-		// Sanity check
-		iNumberOfServers, err := strconv.Atoi(numberOfServers)
+		numberOfServers, err := getNumberOfServers(action, params)
 		if err != nil {
-			log.Printf("Invalid number of servers: %s", err)
 			return err
 		}
 
-		var iStartingNumber int
-		if !ok {
-			iStartingNumber = 1
-		} else {
-			var err error
-			iStartingNumber, err = strconv.Atoi(startingNumber)
-			if err != nil {
-				log.Printf("Invalid startingNumber parameter: %s", err)
-				return err
-			}
+		startingNumber, err := getStartingNumber(action, params)
+		if err != nil {
+			return err
 		}
 
-		for i := iStartingNumber; i < iStartingNumber+iNumberOfServers; i++ {
-			name, err := replaceParameter(nameTemplate, i)
+		for i := startingNumber; i < startingNumber+numberOfServers; i++ {
+			name, err := replaceParameter(serverNameTemplate, i)
 			if err != nil {
 				log.Printf("Skipping for deletion, %s, %d", name, i)
 			} else {
-				FullDeleteVM(config, name)
+				go FullDeleteVM(config, name)
 			}
 		}
 
 		break
 	case "start":
 
-		nameTemplate, ok := params["nameTemplate"]
+		serverNameTemplate, ok := params["serverNameTemplate"]
 		if !ok {
-			nameTemplate, ok = findParameter(action, "nameTemplate")
+			serverNameTemplate, ok = findParameter(action, "serverNameTemplate")
 			if !ok {
-				return errors.New("Missing nameTemplate parameter")
+				return errors.New("Missing serverNameTemplate parameter")
 			}
 		}
 
-		numberOfServers, ok := params["numberOfServers"]
-		if !ok {
-			numberOfServers, ok = findParameter(action, "numberOfServers")
-			if !ok {
-				return errors.New("Missing numberOfServers parameter")
-			}
-		}
-
-		startingNumber, ok := params["startingNumber"]
-		if !ok {
-			startingNumber, ok = findParameter(action, "startingNumber")
-		}
-
-		// Sanity check
-		iNumberOfServers, err := strconv.Atoi(numberOfServers)
+		numberOfServers, err := getNumberOfServers(action, params)
 		if err != nil {
-			log.Printf("Invalid number of servers: %s", err)
 			return err
 		}
 
-		var iStartingNumber int
-		if !ok {
-			iStartingNumber = 1
-		} else {
-			var err error
-			iStartingNumber, err = strconv.Atoi(startingNumber)
-			if err != nil {
-				log.Printf("Invalid startingNumber parameter: %s", err)
-				return err
-			}
+		startingNumber, err := getStartingNumber(action, params)
+		if err != nil {
+			return err
 		}
 
-		for i := iStartingNumber; i < iStartingNumber+iNumberOfServers; i++ {
-			name, err := replaceParameter(nameTemplate, i)
+		for i := startingNumber; i < startingNumber+numberOfServers; i++ {
+			name, err := replaceParameter(serverNameTemplate, i)
 			if err != nil {
 				log.Printf("Skipping for deletion, %s, %d", name, i)
 			} else {
-				StartVM(config, name)
+				go StartVM(config, name)
 			}
 		}
 
 		break
 	case "stop":
 
-		nameTemplate, ok := params["nameTemplate"]
+		serverNameTemplate, ok := params["serverNameTemplate"]
 		if !ok {
-			nameTemplate, ok = findParameter(action, "nameTemplate")
+			serverNameTemplate, ok = findParameter(action, "serverNameTemplate")
 			if !ok {
-				return errors.New("Missing nameTemplate parameter")
+				return errors.New("Missing serverNameTemplate parameter")
 			}
 		}
 
-		numberOfServers, ok := params["numberOfServers"]
-		if !ok {
-			numberOfServers, ok = findParameter(action, "numberOfServers")
-			if !ok {
-				return errors.New("Missing numberOfServers parameter")
-			}
-		}
-
-		startingNumber, ok := params["startingNumber"]
-		if !ok {
-			startingNumber, ok = findParameter(action, "startingNumber")
-		}
-
-		// Sanity check
-		iNumberOfServers, err := strconv.Atoi(numberOfServers)
+		numberOfServers, err := getNumberOfServers(action, params)
 		if err != nil {
-			log.Printf("Invalid number of servers: %s", err)
 			return err
 		}
 
-		var iStartingNumber int
-		if !ok {
-			iStartingNumber = 1
-		} else {
-			var err error
-			iStartingNumber, err = strconv.Atoi(startingNumber)
-			if err != nil {
-				log.Printf("Invalid startingNumber parameter: %s", err)
-				return err
-			}
+		startingNumber, err := getStartingNumber(action, params)
+		if err != nil {
+			return err
 		}
 
-		for i := iStartingNumber; i < iStartingNumber+iNumberOfServers; i++ {
-			name, err := replaceParameter(nameTemplate, i)
+		for i := startingNumber; i < startingNumber+numberOfServers; i++ {
+			name, err := replaceParameter(serverNameTemplate, i)
 			if err != nil {
 				log.Printf("Skipping for deletion, %s, %d", name, i)
 			} else {
-				DeallocateVM(config, name)
+				go DeallocateVM(config, name)
+			}
+		}
+
+		break
+	case "save replays":
+
+		serverNameTemplate, ok := params["serverNameTemplate"]
+		if !ok {
+			serverNameTemplate, ok = findParameter(action, "serverNameTemplate")
+			if !ok {
+				return errors.New("Missing serverNameTemplate parameter")
+			}
+		}
+
+		numberOfServers, err := getNumberOfServers(action, params)
+		if err != nil {
+			return err
+		}
+
+		startingNumber, err := getStartingNumber(action, params)
+		if err != nil {
+			return err
+		}
+
+		replayLabel, ok := params["replayLabel"]
+		if !ok {
+			replayLabel, ok = findParameter(action, "replayLabel")
+			if !ok {
+				return errors.New("Missing replayLabel parameter")
+			}
+		}
+
+		vmUserName, ok := params["vmUsername"]
+		if !ok {
+			vmUserName, ok = findParameter(action, "vmUsername")
+			if !ok {
+				return errors.New("Missing vmUsername parameter")
+			}
+		}
+
+		vmPassword, ok := params["vmPassword"]
+		if !ok {
+			vmPassword, ok = findParameter(action, "vmPassword")
+			if !ok {
+				return errors.New("Missing vmPassword parameter")
+			}
+		}
+
+		for i := startingNumber; i < startingNumber+numberOfServers; i++ {
+			name, err := replaceParameter(serverNameTemplate, i)
+			if err != nil {
+				log.Printf("Skipping for deletion, %s, %d", name, i)
+			} else {
+				go ExportReplays(config, replayLabel, name, vmUserName, vmPassword)
 			}
 		}
 
@@ -351,6 +339,47 @@ func ExecuteScheduleAction(name string, params map[string]string) error {
 	}
 
 	return nil
+}
+
+func getNumberOfServers(action *ScheduleAction, params map[string]string) (int, error) {
+	numberOfServers, ok := params["numberOfServers"]
+	if !ok {
+		numberOfServers, ok = findParameter(action, "numberOfServers")
+		if !ok {
+			err := errors.New("Missing numberOfServers parameter")
+			log.Print(err)
+			return 0, err
+		}
+	}
+
+	iNumberOfServers, err := strconv.Atoi(numberOfServers)
+	if err != nil {
+		log.Printf("Invalid number of servers: %s", err)
+		return 0, err
+	}
+
+	return iNumberOfServers, nil
+}
+
+func getStartingNumber(action *ScheduleAction, params map[string]string) (int, error) {
+	startingNumber, ok := params["startingNumber"]
+	if !ok {
+		startingNumber, ok = findParameter(action, "startingNumber")
+	}
+
+	var iStartingNumber int
+	if !ok {
+		iStartingNumber = 1
+	} else {
+		var err error
+		iStartingNumber, err = strconv.Atoi(startingNumber)
+		if err != nil {
+			log.Printf("Invalid startingNumber parameter: %s", err)
+			return 0, err
+		}
+	}
+
+	return iStartingNumber, nil
 }
 
 func findParameter(action *ScheduleAction, paramName string) (string, bool) {

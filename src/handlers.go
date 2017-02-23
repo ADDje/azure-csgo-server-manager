@@ -964,7 +964,6 @@ func CreateOrUpdateAction(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Invalid Body: %s", err)
 		return
 	}
-	log.Printf("Body: %s", body)
 
 	action := ScheduleAction{}
 	err = json.Unmarshal(body, &action)

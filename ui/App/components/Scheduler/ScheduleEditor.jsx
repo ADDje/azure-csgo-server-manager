@@ -24,7 +24,9 @@ class ScheduleEditor extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.selectedActionName !== this.props.selectedActionName) {
+        console.log(nextProps)
+        if (nextProps.selectedActionName !== this.props.selectedActionName
+            || this.props.action === undefined) {
             if (nextProps.selectedActionName !== "" &&
                 nextProps.actions[nextProps.selectedActionName] !== undefined) {
                 
@@ -123,10 +125,14 @@ class ScheduleEditor extends React.Component {
             return
         }
 
+        var params = this.state.parameters.filter(function(kv) {
+            return !(kv.key === "" && kv.value === "")
+        })
+
         var data = {
             name: this.state.name,
             action: this.state.action,
-            parameters: this.state.parameters,
+            parameters: params,
             enabled: this.state.enabled
         }
 
@@ -140,6 +146,7 @@ class ScheduleEditor extends React.Component {
                     this.setState({isLoading: false, error: resp.data});
                 } else {
                     this.setState({isLoading: false, error: null});
+                    this.props.selectAction(name, data)
                     this.props.reloadSelected()
                 }
             }
@@ -202,6 +209,7 @@ class ScheduleEditor extends React.Component {
                                 <option>Delete</option>
                                 <option>Start</option>
                                 <option>Stop</option>
+                                <option>Save Replays</option>
                             </select>
                         </div>
                         {actionHelp}
@@ -228,6 +236,7 @@ class ScheduleEditor extends React.Component {
 
 ScheduleEditor.propTypes = {
     reloadSelected: React.PropTypes.func.isRequired,
+    selectAction: React.PropTypes.func.isRequired
 }
 
 export default ScheduleEditor

@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"log"
 	"regexp"
@@ -203,6 +204,12 @@ func GetIpDetails(config Config, ipId string) (*network.PublicIPAddress, error) 
 	log.Printf("Getting IP... %s", ipId)
 	ipDetails, err := ipClient.Get(config.ResourceGroup, ipId, "")
 	if err != nil {
+		return nil, err
+	}
+
+	if ipDetails.IPAddress == nil {
+		err := errors.New("IP Not ready")
+		log.Print(err)
 		return nil, err
 	}
 

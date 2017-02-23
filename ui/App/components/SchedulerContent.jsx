@@ -69,6 +69,7 @@ class SchedulerContent extends React.Component {
                         selectedActionName={this.state.selectedActionName}
                         actions={this.props.scheduleActions}
                         reloadSelected={this.props.getScheduleActions}
+                        selectAction={this.selectAction}
                     />
 
                     <SchedulerGuide />

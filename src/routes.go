@@ -36,7 +36,7 @@ func NewRouter() *mux.Router {
 		HandlerFunc(LoginUser)
 
 	// External endpoint uses api key as auth
-	r.Path("/external/action/{actionName}/exec").
+	r.Path("/external/schedule/{actionName}/exec").
 		Methods("POST").
 		Name("ExecuteScheduleAction").
 		Handler(AuthorizeExternalHandler(http.HandlerFunc(ExecuteAction)))

@@ -12,6 +12,40 @@ class ListActions extends React.Component {
         this.deleteAction = this.deleteAction.bind(this)
 
         this.clickRow = this.clickRow.bind(this)
+
+        this.loadApiKey = this.loadApiKey.bind(this)
+        this.getUri = this.getUri.bind(this)
+
+        this.state = {
+            apiKey: "",
+            loadingKey: false
+        }
+    }
+
+    componentWillMount() {
+        if (this.state.apiKey === "") {
+            this.loadApiKey()
+        }
+    }
+
+    // TODO: This is inefficient. Settings should be shared, or only pull key
+    loadApiKey() {
+        this.setState({
+            loadingKey: true
+        })
+        
+        $.ajax({
+            url: "/api/settings",
+            dataType: "json",
+            success: (resp) => {
+                if (resp.success === true) {
+                    this.setState({loadingKey: false, apiKey: resp.data.external_api_key})
+                }
+            },
+            error: (xhr, status, err) => {
+                console.log('/api/settings', status, err.toString());
+            }
+        })
     }
 
     canCreate() {
@@ -73,6 +107,13 @@ class ListActions extends React.Component {
         e.target.select();
     }
 
+    getUri(action) {
+        if (this.state.loadingKey) {
+            return "Loading..."
+        }
+        return location.origin + "/external/schedule/" + action + "/exec?key=" + this.state.apiKey
+    }
+
     render() {
         return(
             <div className="box">
@@ -95,7 +136,6 @@ class ListActions extends React.Component {
                             <tbody>
                             {Object.keys(this.props.actions).map ( (action, i) => {
                                 var a = this.props.actions[action]
-                                var uri = location.origin + "/schedule/" + action + "/exec"
                                 return(
                                     <tr key={action} onClick={this.clickRow.bind(this, action, a)}
                                         className={"row-link" + ((this.props.selectedActionName === action) ? " selected-row" : "")}
@@ -104,7 +144,7 @@ class ListActions extends React.Component {
                                             {action}
                                         </td>
                                         <td>
-                                            <input value={uri} readOnly onClick={this.clickSlug} />
+                                            <input value={this.getUri(action)} readOnly onClick={this.clickSlug} />
                                         </td>
                                         <td>
                                             {a.action}
