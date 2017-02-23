@@ -10,13 +10,8 @@ class Index extends React.Component {
     }
 
     componentDidMount() {
-        this.props.getServStatus();
         this.props.getConfigs();
         this.props.getTemplates();
-    }
-
-    componentWillUnmount() {
-        this.props.getServStatus();
     }
 
     render() {

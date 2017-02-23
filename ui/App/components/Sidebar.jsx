@@ -4,15 +4,34 @@ import {Link, IndexLink} from 'react-router';
 class Sidebar extends React.Component {
     constructor(props) {
         super(props);
+
+        this.getAliveServers = this.getAliveServers.bind(this)
+    }
+
+    getAliveServers() {
+        var t = 0;
+        console.log(this.props.azureServerStatus)
+        for(var s in this.props.azureServerStatus) {
+            var server = this.props.azureServerStatus[s]
+
+            for(var x in server.properties.instanceView.statuses) {
+                var status = server.properties.instanceView.statuses[x]
+
+                if(status.code === "PowerState/running")
+                    t++;
+            }
+        }
+        return t;
     }
 
     render() {
-        if (this.props.serverRunning === "running") {
+        var info = this.getAliveServers()
+        if (info > 0) {
             var serverStatus = 
-                <IndexLink to="/"><i className="fa fa-circle text-success" />Servers Online</IndexLink>
+                <IndexLink to="/"><i className="fa fa-circle text-success" />{info} Server{(info > 1) ? "s" : ""} Online</IndexLink>
         } else {
             var serverStatus = 
-                <IndexLink to="/"><i className="fa fa-circle text-danger" />Servers Offline</IndexLink>
+                <IndexLink to="/"><i className="fa fa-circle text-danger" />All Servers Offline</IndexLink>
         }
 
         return(
@@ -61,7 +80,7 @@ class Sidebar extends React.Component {
 }
 
 Sidebar.propTypes = {
-    
+    azureServerStatus: React.PropTypes.array.isRequired
 }
 
 export default Sidebar

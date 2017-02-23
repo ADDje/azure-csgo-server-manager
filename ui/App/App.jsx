@@ -12,7 +12,6 @@ class App extends React.Component {
         super(props);
         this.checkLogin = this.checkLogin.bind(this)
         this.flashMessage = this.flashMessage.bind(this)
-        this.getServStatus = this.getServStatus.bind(this)
         this.getConfigs = this.getConfigs.bind(this)
         this.getConfig = this.getConfig.bind(this)
         this.getTemplates = this.getTemplates.bind(this)
@@ -56,16 +55,6 @@ class App extends React.Component {
                     this.setState({loggedIn: true,
                         username: data.data.Username})
                 }
-            }
-        })
-    }
-
-    getServStatus() {
-        $.ajax({
-            url: "/api/server/status",
-            dataType: "json",
-            success: (data) => {
-                this.setState({serverRunning: data.data.status})
             }
         })
     }
@@ -175,7 +164,6 @@ class App extends React.Component {
                         getConfig: this.getConfig,
                         getTemplates: this.getTemplates,
                         username: this.state.username,
-                        getServStatus: this.getServStatus,
                         getScheduleActions: this.getScheduleActions,
                         scheduleActions: this.state.scheduleActions}
                     )}
