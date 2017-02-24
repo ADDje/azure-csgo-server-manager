@@ -1,6 +1,6 @@
 SET NODE_ENV=Production
 
 cd ui
-npm install
+yarn
 cd ../src
 glide install

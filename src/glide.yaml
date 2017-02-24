@@ -1,4 +1,4 @@
-package: .
+package: azure-csgo-server-manager/src
 import:
 - package: github.com/apexskier/httpauth
   version: ^1.3.2
