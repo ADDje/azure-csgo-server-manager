@@ -12,7 +12,7 @@ before_build:
 
     mv glide.exe $Env:GOPATH\bin
 
-    set PATH=$Env:GOPATH\bin;c:\go\bin;%PATH%
+    $Env:PATH += ";" + $Env:GOPATH + "\bin;c:\go\bin"
 
     .\install.ps1
 build:
