@@ -1045,7 +1045,7 @@ func ExecuteAction(w http.ResponseWriter, r *http.Request) {
 
 func GetWebsocketInfo(w http.ResponseWriter, r *http.Request) {
 	var proto string
-	if config.UseSsl {
+	if config.UseSsl || config.OverrideSSL {
 		proto = "wss"
 	} else {
 		proto = "ws"
