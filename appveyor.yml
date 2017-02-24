@@ -4,15 +4,15 @@ environment:
   GOPATH: c:\gopath
 before_build:
 - ps: >-
-    mkdir %GOPATH%\bin
+    mkdir $Env:GOPATH\bin
 
     curl https://github.com/Masterminds/glide/releases/download/v0.12.3/glide-v0.12.3-windows-amd64.zip -o glide.zip
 
     7z e glide.zip -y
 
-    mv glide.exe %GOPATH%\bin
+    mv glide.exe $Env:GOPATH\bin
 
-    set PATH=%GOPATH%\bin;c:\go\bin;%PATH%
+    set PATH=$Env:GOPATH\bin;c:\go\bin;%PATH%
 
     .\install.ps1
 build:
