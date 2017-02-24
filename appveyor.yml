@@ -23,3 +23,8 @@ build_script:
 artifacts:
 - path: build.zip
   name: csgsm
+deploy:
+- provider: Environment
+  name: csgo-server-manager-app
+  on:
+    branch: master
