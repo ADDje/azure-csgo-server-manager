@@ -3,16 +3,18 @@ clone_folder: c:\gopath\src\github.com\MetalMichael\azure-csgo-server-manager
 environment:
   GOPATH: c:\gopath
 before_build:
-- cmd: >-
+- ps: >-
     mkdir %GOPATH%\bin
 
-    curl -L https://github.com/Masterminds/glide/releases/download/v0.12.3/glide-v0.12.3-windows-amd64.zip -o glide.zip
+    curl https://github.com/Masterminds/glide/releases/download/v0.12.3/glide-v0.12.3-windows-amd64.zip -o glide.zip
 
     7z e glide.zip -y
 
     mv glide.exe %GOPATH%\bin
 
     set PATH=%GOPATH%\bin;c:\go\bin;%PATH%
+
+    .\install.ps1
 build:
   verbosity: minimal
 build_script:  
