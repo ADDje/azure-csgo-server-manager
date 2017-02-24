@@ -16,4 +16,4 @@ copy -R templates/ build/
 copy -R certs/ build/
 copy web.config build/
 
-7z a -tzip build/
+7z a -tzip build

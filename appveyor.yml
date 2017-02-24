@@ -20,3 +20,6 @@ build:
 build_script:  
 - ps: >-
     .\make.ps1
+artifacts:
+- path: build.zip
+  name: csgsm
