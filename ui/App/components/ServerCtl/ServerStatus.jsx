@@ -497,7 +497,7 @@ class ServerStatus extends React.Component {
     }
 
     displayIp(server) {
-        return (this.state.serverIps[server.name].loading) ? "Loading..." : this.state.serverIps[server.name].ip
+        return (this.state.serverIps[server.name] === undefined || this.state.serverIps[server.name].loading) ? "Loading..." : this.state.serverIps[server.name].ip
     }
 
     render() {
