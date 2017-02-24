@@ -1044,12 +1044,22 @@ func ExecuteAction(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetWebsocketInfo(w http.ResponseWriter, r *http.Request) {
+	var proto string
+	if config.UseSsl {
+		proto = "wss"
+	} else {
+		proto = "ws"
+	}
 
 	data := struct {
-		Address string
-		Port    int
+		Protocol string
+		Server   string
+		Uri      string
+		Port     int
 	}{
-		"",
+		proto,
+		"", // Nothing means same host
+		"/ws",
 		config.WebsocketPort,
 	}
 
