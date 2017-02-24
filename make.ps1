@@ -17,5 +17,6 @@ copy -R certs/ build/
 copy web.config build/
 
 cd build
-7z a -tzip build.zip . -o../
+7z a -tzip build.zip .
+mv build.zip ../
 cd ../
