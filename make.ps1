@@ -6,7 +6,7 @@ mkdir build
 cd ui
 npm run build
 cd ../src
-
+glide install
 go build -o ../build/azure-csgo-server.exe
 cd ../
 
