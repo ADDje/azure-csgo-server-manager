@@ -19,6 +19,4 @@ build:
   verbosity: minimal
 build_script:  
 - ps: >-
-    ls
-    
     .\make.ps1

@@ -4,3 +4,5 @@ cd ui
 yarn
 cd ../src
 glide install
+
+cd ../
