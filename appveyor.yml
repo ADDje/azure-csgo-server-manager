@@ -16,4 +16,4 @@ before_build:
 build:
   verbosity: minimal
 build_script:  
-  - go build -o ../acgsm.exe
+  - ps: .\make.ps1
