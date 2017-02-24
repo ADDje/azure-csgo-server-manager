@@ -10,7 +10,6 @@ class Sidebar extends React.Component {
 
     getAliveServers() {
         var t = 0;
-        console.log(this.props.azureServerStatus)
         for(var s in this.props.azureServerStatus) {
             var server = this.props.azureServerStatus[s]
 
