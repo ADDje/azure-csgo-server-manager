@@ -16,9 +16,7 @@ type Route struct {
 
 type Routes []Route
 
-func NewRouter() *mux.Router {
-	r := mux.NewRouter().StrictSlash(true)
-
+func SetupRouter(r *mux.Router) {
 	// API subrouter
 	// Serves all JSON REST handlers prefixed with /api
 	s := r.PathPrefix("/api").Subrouter()
@@ -80,8 +78,6 @@ func NewRouter() *mux.Router {
 		Methods("GET").
 		Name("Index").
 		Handler(http.FileServer(http.Dir("./app/")))
-
-	return r
 }
 
 // Middleware returns a http.HandlerFunc which authenticates the users request

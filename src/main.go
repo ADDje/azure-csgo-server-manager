@@ -11,6 +11,8 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/gorilla/mux"
+
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 )
 
@@ -110,7 +112,7 @@ func parseFlags() {
 	}
 }
 
-func setupLogging() {
+func setupLogging(r *mux.Router) {
 
 	// Setup WebSocket key
 	b := make([]byte, 12)
@@ -125,8 +127,7 @@ func setupLogging() {
 		logFolder = "./log"
 	}
 
-	logWriter := SetupLogWs()
-	go RunLogWs(config)
+	logWriter := SetupLogWs(config, r)
 
 	mw = io.MultiWriter(os.Stdout, &lumberjack.Logger{
 		Dir:     logFolder,
@@ -140,14 +141,14 @@ func main() {
 	parseFlags()
 	loadServerConfig(config.ConfFile)
 
-	setupLogging()
-
 	// Initialize authentication system
 	Auth = initAuth()
 	Auth.CreateAuth(config.DatabaseFile, config.CookieEncryptionKey)
 	Auth.CreateOrUpdateUser(config.Username, config.Password, "admin", "")
 
-	router := NewRouter()
+	router := mux.NewRouter().StrictSlash(true)
+	setupLogging(router)
+	SetupRouter(router)
 
 	addr := fmt.Sprintf("%s:%d", config.ServerIP, config.ServerPort)
 	if config.UseSsl {

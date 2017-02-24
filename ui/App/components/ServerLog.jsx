@@ -20,9 +20,8 @@ class ServerLog extends React.Component {
         $.get({
             url: "/api/websocketinfo",
             success: (data) => {
-                console.log(data)
-                var server = (data.data.Address === "") ? window.location.hostname : data.data.server
-                this.ws = new WebSocket("wss://" + server + ":" + data.data.Port)
+                var wsUrl = this.getWsUrl(data)
+                this.ws = new WebSocket(wsUrl)
 
                 this.ws.onopen = function() {
                     console.log("Connected to log server")
@@ -42,6 +41,11 @@ class ServerLog extends React.Component {
         if (this.ws !== null) {
             this.ws.close();
         }
+    }
+
+    getWsUrl(data) {
+        var server = (data.data.Server === "") ? window.location.hostname : data.data.Server
+        return data.data.Protocol + "://" + server + ":" + data.data.Port + data.data.Uri
     }
 
     expand() {

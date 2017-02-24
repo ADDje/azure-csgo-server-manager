@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 )
 
@@ -145,36 +146,40 @@ func sendCurrentLog(c chan []byte) {
 	}
 }
 
-func handleLog(hub *Hub, w http.ResponseWriter, r *http.Request) {
+func handleLog(hub *Hub) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if err := Auth.aaa.Authorize(w, r, true); err != nil {
+			log.Printf("Unauthenticated WS request %s", r.RemoteAddr)
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
 
-	if err := Auth.aaa.Authorize(w, r, true); err != nil {
-		log.Printf("Unauthenticated WS request %s", r.RemoteAddr)
-		w.WriteHeader(http.StatusForbidden)
-		return
+		conn, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			log.Printf("WS Error: %s", err)
+			return
+		}
+
+		client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+		client.hub.register <- client
+		go client.writePump()
 	}
-
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Printf("WS Error: %s", err)
-		return
-	}
-
-	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
-	client.hub.register <- client
-	go client.writePump()
 }
 
-func SetupLogWs() io.Writer {
+func SetupLogWs(config Config, r *mux.Router) io.Writer {
 	hub := newHub()
 	go hub.run()
 
 	logWriter := new(LogWriter)
 	logWriter.SetHub(hub)
 
-	logServer = http.NewServeMux()
-	logServer.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		handleLog(hub, w, r)
-	})
+	if config.WebsocketPort == config.ServerPort {
+		r.Handle("/ws", handleLog(hub))
+	} else {
+		logServer = http.NewServeMux()
+		logServer.HandleFunc("/ws", handleLog(hub))
+		go RunLogWs(config)
+	}
 
 	return logWriter
 }
