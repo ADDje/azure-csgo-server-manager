@@ -48,8 +48,8 @@ class ServerList extends React.Component {
                 }
                 return a.name.localeCompare(b.name) * reverseFactor
             case "ip":
-                var aHasIp = !(this.props.serverIps[a.name] === undefined || this.props.serverIps[a.name].loading)
-                var bHasIp = !(this.props.serverIps[b.name] === undefined || this.props.serverIps[b.name].loading)
+                var aHasIp = !(this.props.serverIps[a.name] === undefined || this.props.serverIps[a.name].loading || this.props.serverIps[a.name].error)
+                var bHasIp = !(this.props.serverIps[b.name] === undefined || this.props.serverIps[b.name].loading || this.props.serverIps[b.name].error)
 
                 if (aHasIp && bHasIp) {
                     var aa = this.props.serverIps[a.name].ip.split(".");
@@ -101,9 +101,6 @@ class ServerList extends React.Component {
 
                     var aGood = statusInfo(statusesA)
                     var bGood = statusInfo(statusesB)
-
-                    console.log(statusesA)
-                    console.log(statusesB)
 
                     if (aGood === bGood) {
                         return 0
