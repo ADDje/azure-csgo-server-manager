@@ -1,17 +1,17 @@
-import React from 'react';
-import {IndexLink} from 'react-router';
-import SavesList from './Saves/SavesList.jsx';
-import CreateSave from './Saves/CreateSave.jsx';
-import UploadSave from './Saves/UploadSave.jsx';
+import React from 'react'
+import {IndexLink} from 'react-router'
+import SavesList from './Saves/SavesList.jsx'
+import CreateSave from './Saves/CreateSave.jsx'
+import UploadSave from './Saves/UploadSave.jsx'
 
 class SavesContent extends React.Component {
     constructor(props) {
-        super(props);
-        this.dlSave = this.dlSave.bind(this);
+        super(props)
+        this.dlSave = this.dlSave.bind(this)
     }
 
     componentDidMount() {
-        this.props.getSaves();
+        this.props.getSaves()
     }
 
 
@@ -23,7 +23,7 @@ class SavesContent extends React.Component {
                 console.log("Downloading save: " + saveName)
             },
             error: (xhr, status, err) => {
-                console.log('api/mods/list', status, err.toString());
+                console.log('api/mods/list', status, err.toString())
             }
         })
     }

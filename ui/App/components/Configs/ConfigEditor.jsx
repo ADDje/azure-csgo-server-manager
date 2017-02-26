@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 import DynamicConfig from './DynamicConfig.jsx'
 import TextEditor from './TextEditor.jsx'
 

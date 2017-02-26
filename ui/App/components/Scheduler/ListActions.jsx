@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 
 class ListActions extends React.Component {
 
@@ -43,7 +43,7 @@ class ListActions extends React.Component {
                 }
             },
             error: (xhr, status, err) => {
-                console.log('/api/settings', status, err.toString());
+                console.log('/api/settings', status, err.toString())
             }
         })
     }
@@ -53,7 +53,7 @@ class ListActions extends React.Component {
     }
 
     deleteClick(name, e) {
-        e.preventDefault();
+        e.preventDefault()
         swal({
             title: "Are you sure?",
             text: "You will not be able to recover " + name,
@@ -66,7 +66,7 @@ class ListActions extends React.Component {
         },
         function(){
             this.deleteAction(name)
-        }.bind(this));
+        }.bind(this))
     }
 
     deleteAction(name) {
@@ -103,8 +103,8 @@ class ListActions extends React.Component {
     }
 
     clickSlug(e) {
-        e.preventDefault();
-        e.target.select();
+        e.preventDefault()
+        e.target.select()
     }
 
     getUri(action) {

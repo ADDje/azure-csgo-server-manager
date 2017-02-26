@@ -1,19 +1,19 @@
-import React from 'react';
-import {IndexLink} from 'react-router';
-import UserTable from './Users/UserTable.jsx';
-import AddUser from './Users/AddUser.jsx';
+import React from 'react'
+import {IndexLink} from 'react-router'
+import UserTable from './Users/UserTable.jsx'
+import AddUser from './Users/AddUser.jsx'
 
 class UsersContent extends React.Component {
     constructor(props) {
-        super(props);
-        this.listUsers = this.listUsers.bind(this);
+        super(props)
+        this.listUsers = this.listUsers.bind(this)
         this.state = {
             users: [],
         }
     }
 
     componentDidMount() {
-        this.listUsers();
+        this.listUsers()
     }
 
     listUsers() {

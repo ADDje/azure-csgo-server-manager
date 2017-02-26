@@ -52,13 +52,13 @@ class ServerList extends React.Component {
                 var bHasIp = !(this.props.serverIps[b.name] === undefined || this.props.serverIps[b.name].loading || this.props.serverIps[b.name].error)
 
                 if (aHasIp && bHasIp) {
-                    var aa = this.props.serverIps[a.name].ip.split(".");
-                    var bb = this.props.serverIps[b.name].ip.split(".");
+                    var aa = this.props.serverIps[a.name].ip.split(".")
+                    var bb = this.props.serverIps[b.name].ip.split(".")
 
-                    var resulta = aa[0]*0x1000000 + aa[1]*0x10000 + aa[2]*0x100 + aa[3]*1;
-                    var resultb = bb[0]*0x1000000 + bb[1]*0x10000 + bb[2]*0x100 + bb[3]*1;
+                    var resulta = aa[0]*0x1000000 + aa[1]*0x10000 + aa[2]*0x100 + aa[3]*1
+                    var resultb = bb[0]*0x1000000 + bb[1]*0x10000 + bb[2]*0x100 + bb[3]*1
                     
-                    return (resulta-resultb) * reverseFactor;
+                    return (resulta-resultb) * reverseFactor
                 }
                 if (aHasIp) {
                     return 1 * reverseFactor
@@ -74,7 +74,7 @@ class ServerList extends React.Component {
     
                 // Not really a logical way of sorting these, just put bad things at the top by default
                 var statusInfo = function(statuses) {
-                    var good = true;
+                    var good = true
                     for (var s in statuses) {
                         var parts = statuses[s].code.split("/")
 
@@ -90,7 +90,7 @@ class ServerList extends React.Component {
                                 }
                                 break
                         }
-                        if(!good) {
+                        if (!good) {
                             break
                         }
                     }
@@ -161,7 +161,7 @@ class ServerList extends React.Component {
                     ip={this.props.serverIps[server.name]}
                     reloadIp={this.props.reloadIp}
                 />)
-            }, this);
+            }, this)
         } else {
             rows = <tr><td colSpan="5" className="text-center">No Servers Found</td></tr>
         }

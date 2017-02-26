@@ -1,20 +1,20 @@
-import React from 'react';
-import Save from './Save.jsx';
-import swal from 'sweetalert';
+import React from 'react'
+import Save from './Save.jsx'
+import swal from 'sweetalert'
 
 class SavesList extends React.Component {
    constructor(props) {
-        super(props);
-        this.updateSavesList = this.updateSavesList.bind(this);
-        this.removeSave = this.removeSave.bind(this);
+        super(props)
+        this.updateSavesList = this.updateSavesList.bind(this)
+        this.removeSave = this.removeSave.bind(this)
    }
 
     updateSavesList () {
-        this.props.getSaves();
+        this.props.getSaves()
     }
 
     removeSave(saveName, e) {
-        var self = this;
+        var self = this
         swal({   
             title: "Are you sure?",  
             text: "Save: " + saveName + " will be deleted",   
@@ -30,16 +30,16 @@ class SavesList extends React.Component {
                 dataType: "json",
                 success: (resp) => {
                     if (resp.success === true) {
-                        swal("Deleted!", resp.data, "success"); 
-                        self.updateSavesList();
+                        swal("Deleted!", resp.data, "success")
+                        self.updateSavesList()
                     }
                 }
             })
-        });
+        })
     }
 
     render() {
-        var savesList;
+        var savesList
         if (this.props.saves.length === 0) {
             savesList = <tr />
         } else {
@@ -53,7 +53,7 @@ class SavesList extends React.Component {
                         removeSave={this.removeSave}
                     />
                 )
-            });
+            })
             
         }
 

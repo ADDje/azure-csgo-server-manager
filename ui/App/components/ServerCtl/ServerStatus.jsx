@@ -43,13 +43,13 @@ class ServerStatus extends React.Component {
     }
 
     componentWillMount() {
-        this.getStatus();
+        this.getStatus()
         this.reloader = setInterval(this.reloadTick, 1000)
     }
 
     componentWillReceiveProps(nextProps) {
         var changes = {}
-        var ipQueries = this.state.ipQueriesInProgress;
+        var ipQueries = this.state.ipQueriesInProgress
         for (var serverId in nextProps.azureServerStatus) {
             var server = nextProps.azureServerStatus[serverId]
             // If this is a new server we don't have information for...
@@ -64,7 +64,7 @@ class ServerStatus extends React.Component {
                         error: false
                     }}
 
-                    this.getIpForServer(server.name);
+                    this.getIpForServer(server.name)
                 } else {
                     // Store the changes for later
                     changes[server.name] = {$set: {
@@ -95,7 +95,7 @@ class ServerStatus extends React.Component {
         }
         
         if (this.state.refreshTimer === 1) {
-            this.getStatus();
+            this.getStatus()
         } else {
             this.setState({refreshTimer: this.state.refreshTimer - 1})
         }
@@ -127,7 +127,7 @@ class ServerStatus extends React.Component {
                     serverIps: update(this.state.serverIps, param),
                     ipQueriesInProgress: this.state.ipQueriesInProgress - 1
                 }, () => {
-                    this.sendNextIpQuery();
+                    this.sendNextIpQuery()
                 })
             }.bind(this, name)
         })
@@ -187,7 +187,7 @@ class ServerStatus extends React.Component {
         },
         function() {
             this.trashAll()
-        }.bind(this));
+        }.bind(this))
     }
 
     trashAll() {
@@ -211,7 +211,7 @@ class ServerStatus extends React.Component {
         },
         function() {
             this.stopAll()
-        }.bind(this));
+        }.bind(this))
     }
 
     stopAll() {
@@ -254,7 +254,7 @@ class ServerStatus extends React.Component {
             if (week === false || week === "")
                 return false
 
-            swal.close();
+            swal.close()
             window.setTimeout(function() {
                     
                 swal({
@@ -282,7 +282,7 @@ class ServerStatus extends React.Component {
                         function(password){
                             console.log("pass")
                             if (password === false || password === "")
-                                return false;
+                                return false
 
                             $.post({
                                 url: "/api/server/save",
@@ -298,10 +298,10 @@ class ServerStatus extends React.Component {
 
                             swal.close()
                         })
-                    }, 1000);
+                    }, 1000)
                 })
-            }, 1000);
-        });
+            }, 1000)
+        })
         
     }
     
@@ -317,7 +317,7 @@ class ServerStatus extends React.Component {
         },
         function(){
             this.startAll()
-        }.bind(this));
+        }.bind(this))
     }
 
     startAll() {
@@ -364,7 +364,7 @@ class ServerStatus extends React.Component {
                 }
             },
             error: (xhr, status, err) => {
-                console.log('api/server/status', status, err.toString());
+                console.log('api/server/status', status, err.toString())
             }
         })
     }

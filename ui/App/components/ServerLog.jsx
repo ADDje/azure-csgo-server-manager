@@ -1,8 +1,8 @@
-import React from 'react';
-import {IndexLink} from 'react-router';
-import UserTable from './Users/UserTable.jsx';
-import AddUser from './Users/AddUser.jsx';
-import update from 'immutability-helper';
+import React from 'react'
+import {IndexLink} from 'react-router'
+import UserTable from './Users/UserTable.jsx'
+import AddUser from './Users/AddUser.jsx'
+import update from 'immutability-helper'
 
 class ServerLog extends React.Component {
     constructor(props) {
@@ -13,7 +13,7 @@ class ServerLog extends React.Component {
         }
 
         this.expand = this.expand.bind(this)
-        this.ws = null;
+        this.ws = null
     }
 
     componentDidMount() {
@@ -40,7 +40,7 @@ class ServerLog extends React.Component {
 
     componentWillUnmount() {
         if (this.ws !== null) {
-            this.ws.close();
+            this.ws.close()
         }
     }
 
@@ -51,14 +51,14 @@ class ServerLog extends React.Component {
     }
 
     render() {
-        var mainClass = "collapse " + ((this.state.expanded) ? "in" : "");
-        var summaryClass = "log-last-line collapse " + ((!this.state.expanded) ? "in" : "");
+        var mainClass = "collapse " + ((this.state.expanded) ? "in" : "")
+        var summaryClass = "log-last-line collapse " + ((!this.state.expanded) ? "in" : "")
         var buttonClass = "fa btn-xs " + ((this.state.expanded) ? "fa-caret-square-o-down" : "fa-caret-square-o-up")
 
         var messages = this.state.messages
         var summary = (messages.length) ? (<p>{messages[messages.length-1]}</p>) : ""
 
-        var i = 0;
+        var i = 0
         var fullMessages = messages.map(function(m) {
             return (<p key={i++}>{m}</p>)
         })

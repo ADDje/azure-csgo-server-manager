@@ -1,9 +1,9 @@
-import React from 'react';
+import React from 'react'
 
 class CreateSave extends React.Component {
     constructor(props) {
-        super(props);
-        this.createSaveFile = this.createSaveFile.bind(this);
+        super(props)
+        this.createSaveFile = this.createSaveFile.bind(this)
         this.updateSavesList = this.updateSavesList.bind(this)
         this.state = {
             loading: false,
@@ -11,23 +11,23 @@ class CreateSave extends React.Component {
     }
 
     updateSavesList() {
-        this.props.getSaves();
+        this.props.getSaves()
     }
 
     createSaveFile(e) {
-        this.setState({loading: true});
+        this.setState({loading: true})
         $.ajax({
             url: "/api/saves/create/" + this.refs.savename.value,
             dataType: "json",
             success: (data) => {
-                console.log(data);
+                console.log(data)
                 if (data.success === true) {
                     alert(data.data)
-                    this.updateSavesList();
-                    this.setState({loading: false});
+                    this.updateSavesList()
+                    this.setState({loading: false})
                 } else {
                     alert(data.data)
-                    this.setState({loading: false});
+                    this.setState({loading: false})
                 }
             }
         })

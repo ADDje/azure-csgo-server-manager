@@ -1,5 +1,5 @@
-import React from 'react';
-import update from 'immutability-helper';
+import React from 'react'
+import update from 'immutability-helper'
 
 class ParameterEditor extends React.Component {
 
@@ -85,7 +85,8 @@ class ParameterEditor extends React.Component {
                 inputPlaceholder: "someParameter"
             },
             function(inputValue) {
-                if (inputValue === false) return false;
+                if (inputValue === false)
+                    return false
                 
                 inputValue = inputValue.trim()
 
@@ -99,8 +100,8 @@ class ParameterEditor extends React.Component {
                     return false
                 }
 
-                var newProp = {};
-                newProp[inputValue] = { value: "" };
+                var newProp = {}
+                newProp[inputValue] = { value: "" }
                 this.setState({
                     templateParameters: update(this.state.templateParameters, {$merge: newProp})
                 })
@@ -108,7 +109,7 @@ class ParameterEditor extends React.Component {
     }
 
     deleteClick(name, e) {
-        e.preventDefault();
+        e.preventDefault()
         swal({
             title: "Are you sure?",
             text: "You will not be able to recover parameter: " + name,
@@ -121,7 +122,7 @@ class ParameterEditor extends React.Component {
         },
         function(){
             this.deleteParameter(name)
-        }.bind(this));
+        }.bind(this))
     }
 
     deleteParameter(name) {
@@ -163,9 +164,9 @@ class ParameterEditor extends React.Component {
             data: JSON.stringify({parameters: newContent}, null, 4),
             success: (resp) => {
                 if (typeof(resp.success) === "undefined" || resp.success === false) {
-                    this.setState({isLoading: false, error: resp.data});
+                    this.setState({isLoading: false, error: resp.data})
                 } else {
-                    this.setState({isLoading: false, error: null});
+                    this.setState({isLoading: false, error: null})
                     this.props.reloadSelected()
                 }
             }
@@ -174,13 +175,13 @@ class ParameterEditor extends React.Component {
 
     render() {
         if (this.props.parameters === null || this.props.parameters === undefined) {
-            return null;
+            return null
         }
 
         var fields = []
         var parameters = this.state.templateParameters
         for (var key in parameters) {
-            var buttons = null;
+            var buttons = null
             if (typeof(parameters[key].value) !== "string") {
                 buttons = (<div className="input-group-btn">
                         <button type="button" className="btn btn-primary" onClick={this.increaseField.bind(this, key)}>
@@ -217,7 +218,7 @@ class ParameterEditor extends React.Component {
                     <button onClick={this.save} type="submit" className="btn btn-primary">Submit</button>
                 </div>
             </div>
-        );
+        )
     }
 
 }

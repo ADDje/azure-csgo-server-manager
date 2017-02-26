@@ -1,5 +1,5 @@
-import React from 'react';
-import update from 'immutability-helper';
+import React from 'react'
+import update from 'immutability-helper'
 
 class ScheduleEditor extends React.Component {
 
@@ -143,9 +143,9 @@ class ScheduleEditor extends React.Component {
             data: JSON.stringify(data, null, 4),
             success: (resp) => {
                 if (typeof(resp.success) === "undefined" || resp.success === false) {
-                    this.setState({isLoading: false, error: resp.data});
+                    this.setState({isLoading: false, error: resp.data})
                 } else {
-                    this.setState({isLoading: false, error: null});
+                    this.setState({isLoading: false, error: null})
                     this.props.selectAction(name, data)
                     this.props.reloadSelected()
                 }
@@ -229,7 +229,7 @@ class ScheduleEditor extends React.Component {
                     </div>
                 </form>
             </div>
-        );
+        )
     }
 
 }

@@ -1,26 +1,26 @@
-import React from 'react';
-import {Link, IndexLink} from 'react-router';
+import React from 'react'
+import {Link, IndexLink} from 'react-router'
 
 class Sidebar extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
         this.getAliveServers = this.getAliveServers.bind(this)
     }
 
     getAliveServers() {
-        var t = 0;
-        for(var s in this.props.azureServerStatus) {
+        var t = 0
+        for (var s in this.props.azureServerStatus) {
             var server = this.props.azureServerStatus[s]
 
-            for(var x in server.properties.instanceView.statuses) {
+            for (var x in server.properties.instanceView.statuses) {
                 var status = server.properties.instanceView.statuses[x]
 
-                if(status.code === "PowerState/running")
-                    t++;
+                if (status.code === "PowerState/running")
+                    t++
             }
         }
-        return t;
+        return t
     }
 
     render() {
