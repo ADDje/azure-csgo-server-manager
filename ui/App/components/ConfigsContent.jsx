@@ -1,7 +1,7 @@
-import React from 'react';
-import {IndexLink} from 'react-router';
-import ListConfigs from './Configs/ListConfigs.jsx';
-import ConfigEditor from './Configs/ConfigEditor.jsx';
+import React from 'react'
+import {IndexLink} from 'react-router'
+import ListConfigs from './Configs/ListConfigs.jsx'
+import ConfigEditor from './Configs/ConfigEditor.jsx'
 
 class ConfigsContent extends React.Component {
     constructor(props) {

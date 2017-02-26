@@ -1,17 +1,16 @@
-import React from 'react';
-import {IndexLink} from 'react-router';
-import ServerCtl from './ServerCtl/ServerCtl.jsx';
-import ServerStatus from './ServerCtl/ServerStatus.jsx';
+import React from 'react'
+import {IndexLink} from 'react-router'
+import ServerCtl from './ServerCtl/ServerCtl.jsx'
+import ServerStatus from './ServerCtl/ServerStatus.jsx'
 
 class Index extends React.Component {
     constructor(props) {
-        super(props);
-
+        super(props)
     }
 
     componentDidMount() {
-        this.props.getConfigs();
-        this.props.getTemplates();
+        this.props.getConfigs()
+        this.props.getTemplates()
     }
 
     render() {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 import ParameterEditor from './ParameterEditor.jsx'
 import TextEditor from '../Configs/TextEditor.jsx'
 

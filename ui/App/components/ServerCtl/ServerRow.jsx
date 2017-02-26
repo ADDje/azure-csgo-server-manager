@@ -65,7 +65,7 @@ class ServerRow extends React.Component {
             if (week === false || week === "")
                 return false
 
-            swal.close();
+            swal.close()
             window.setTimeout(function() {
         
                 swal({
@@ -93,7 +93,7 @@ class ServerRow extends React.Component {
                         function(password){
                             console.log("pass")
                             if (password === false || password === "")
-                                return false;
+                                return false
 
                             $.post({
                                 url: "/api/server/" + name + "/replay",
@@ -109,9 +109,9 @@ class ServerRow extends React.Component {
 
                             swal.close()
                         })
-                    }, 1000);
+                    }, 1000)
                 })
-            }, 1000);
+            }, 1000)
         })
     }
 
@@ -145,7 +145,7 @@ class ServerRow extends React.Component {
         },
         function(){
             this.doTrash(name)
-        }.bind(this));
+        }.bind(this))
     }
 
     doTrash(name) {
@@ -159,7 +159,7 @@ class ServerRow extends React.Component {
 
     formatServerStatus(serverStatus) {
 
-        var statuses = serverStatus.properties.instanceView.statuses;
+        var statuses = serverStatus.properties.instanceView.statuses
         
         if (statuses.length === 0) {
             return <span className="label label-warning">Unknown</span>

@@ -32,7 +32,7 @@ class ServerList extends React.Component {
             return iNum === NaN ? 0 : iNum
         }
         
-        switch(order) {
+        switch (order) {
             // If A has number but B doesn't, B comes first
             case "name":
                 var aS = hasNumSep(a.name)

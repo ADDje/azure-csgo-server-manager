@@ -8,7 +8,7 @@ class Header extends React.Component {
     }
     
     onLogout(e) {
-        e.preventDefault();
+        e.preventDefault()
         $.ajax({
             url: "/api/logout",
             dataType: "json",

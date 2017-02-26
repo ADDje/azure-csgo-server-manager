@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 
 class TextEditor extends React.Component {
     constructor(props) {
@@ -41,8 +41,8 @@ class TextEditor extends React.Component {
             type = this.props.type
         }
 
-        var url;
-        switch(type) {
+        var url
+        switch (type) {
             case 'config':
                 url = "/api/configs/gettext/" + name
                 break
@@ -67,8 +67,8 @@ class TextEditor extends React.Component {
     }
 
     save() {
-        var url;
-        switch(this.props.type) {
+        var url
+        switch (this.props.type) {
             case 'config':
                 url = "/api/configs/gettext/" + this.props.name
                 break
@@ -80,7 +80,7 @@ class TextEditor extends React.Component {
                 return
         }
 
-        this.setState({isLoading: true});
+        this.setState({isLoading: true})
 
         $.ajax({
             type: "POST",
@@ -89,9 +89,9 @@ class TextEditor extends React.Component {
             data: this.state.content,
             success: (resp) => {
                 if (typeof(resp.success) === "undefined" || resp.success === false) {
-                    this.setState({isLoading: false, error: resp.data});
+                    this.setState({isLoading: false, error: resp.data})
                 } else {
-                    this.setState({isLoading: false, error: null});
+                    this.setState({isLoading: false, error: null})
                     
                     if (this.props.reloadSelected !== null) {
                         this.props.reloadSelected()
