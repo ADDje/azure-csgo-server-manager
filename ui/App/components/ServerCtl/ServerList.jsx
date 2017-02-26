@@ -162,6 +162,7 @@ class ServerList extends React.Component {
                     key={server.name}
                     server={server}
                     ip={this.props.serverIps[server.name]}
+                    reloadIp={this.props.reloadIp}
                 />)
             }, this);
         } else {
@@ -190,6 +191,7 @@ class ServerList extends React.Component {
 
 ServerList.propTypes = {
     azureServerStatus: React.PropTypes.array.isRequired,
+    reloadIp: React.PropTypes.func.isRequired,
     serverIps: React.PropTypes.object.isRequired
 }
 

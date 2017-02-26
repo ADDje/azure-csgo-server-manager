@@ -39,6 +39,7 @@ class ServerStatus extends React.Component {
 
         this.sendNextIpQuery = this.sendNextIpQuery.bind(this)
         this.getIpForServer = this.getIpForServer.bind(this)
+        this.reloadIp = this.reloadIp.bind(this)
     }
 
     componentWillMount() {
@@ -59,7 +60,8 @@ class ServerStatus extends React.Component {
                     changes[server.name] = {$set: {
                         loading: true,
                         queued: false,
-                        ip: ""
+                        ip: "",
+                        error: false
                     }}
 
                     this.getIpForServer(server.name);
@@ -68,7 +70,8 @@ class ServerStatus extends React.Component {
                     changes[server.name] = {$set: {
                         loading: true,
                         queued: true,
-                        ip: ""
+                        ip: "",
+                        error: false
                     }}
                 }
             }
@@ -98,23 +101,41 @@ class ServerStatus extends React.Component {
         }
     }
 
+    reloadIp(serverName) {
+        if (this.state.serverIps[serverName] === undefined) {
+            return
+        }
+
+        var param = {}
+        param[serverName] = {$set: {queued: true}}
+        this.setState({serverIps: update(this.state.serverIps, param)}, () => {
+            this.sendNextIpQuery()
+        })
+    }
+
     getIpForServer(name) {
         $.get({
             url: "/api/servers/" + name + "/ip",
             success: function(name, data) {
                 var param = {}
-                param[name] = {$set: {loading: false, ip: data.data}}
+                if (data.success) {
+                    param[name] = {$set: {loading: false, ip: data.data}}
+                } else {
+                    param[name] = {$set: {loading: false, error: true}}
+                }
                 this.setState({
                     serverIps: update(this.state.serverIps, param),
                     ipQueriesInProgress: this.state.ipQueriesInProgress - 1
+                }, () => {
+                    this.sendNextIpQuery();
                 })
-
-                this.sendNextIpQuery();
             }.bind(this, name)
         })
     }
 
     sendNextIpQuery() {
+        console.log("ip update")
+
         var numberNewQueries = this.maxAsyncIpQueries - this.state.ipQueriesInProgress
         if (numberNewQueries < 1) {
             return
@@ -124,21 +145,26 @@ class ServerStatus extends React.Component {
             return this.state.serverIps[s].queued
         })
 
+        console.log(serversNeedingIp)
+
         if (serversNeedingIp.length < 1) {
             return
         }
 
         var max = numberNewQueries
-        if (x > serversNeedingIp.length) {
+        if (max > serversNeedingIp.length) {
             max = serversNeedingIp.length
         }
+
+        console.log(max)
 
         var changes = {}
         for (var x = 0; x < max; x++) {
             changes[serversNeedingIp[x]] = {$set: {
                 loading: true,
                 queued: false,
-                ip: ""
+                ip: "",
+                error: false
             }}
             this.getIpForServer(serversNeedingIp[x])
         }
@@ -363,6 +389,7 @@ class ServerStatus extends React.Component {
                     <ServerList
                         azureServerStatus={this.props.azureServerStatus}
                         serverIps={this.state.serverIps}
+                        reloadIp={this.reloadIp}
                     />
                     {this.getGlobalButtons()}
                 </div>

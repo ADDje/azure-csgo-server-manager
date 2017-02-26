@@ -52,6 +52,7 @@ func GetServerIP(w http.ResponseWriter, r *http.Request) {
 	ip, err := GetVmIp(config, vars["vmName"])
 	if err != nil {
 		JSON(w, resp)
+		return
 	}
 
 	resp.Success = true

@@ -13,8 +13,14 @@ class ServerRow extends React.Component {
         this.formatServerStatus = this.formatServerStatus.bind(this)
     }
 
-    displayIp(server) {
-        return (this.props.ip === undefined || this.props.ip.loading) ? "Loading..." : this.props.ip.ip
+    displayIp() {
+        if (this.props.ip === undefined || this.props.ip.loading) {
+            return <span className="ip ip-loading">Loading...</span>
+        }
+        if (this.props.ip.error) {
+            return <span className="ip ip-error">Error <a href="#" onClick={this.props.reloadIp.bind(this, this.props.server.name)}>(reload)</a></span>
+        }
+        return <span className="ip ip-success">{this.props.ip.ip}</span>
     }
 
     
@@ -193,6 +199,10 @@ class ServerRow extends React.Component {
             </tr>
         )
     }
+}
+
+ServerRow.propTypes = {
+    reloadIp: React.PropTypes.func.isRequired,
 }
 
 export default ServerRow
