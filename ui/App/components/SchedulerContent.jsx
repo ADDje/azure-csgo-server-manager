@@ -1,12 +1,12 @@
-import React from 'react';
-import {IndexLink} from 'react-router';
-import ListActions from './Scheduler/ListActions.jsx';
-import ScheduleEditor from './Scheduler/ScheduleEditor.jsx';
-import SchedulerGuide from './Scheduler/SchedulerGuide.jsx';
+import React from 'react'
+import {IndexLink} from 'react-router'
+import ListActions from './Scheduler/ListActions.jsx'
+import ScheduleEditor from './Scheduler/ScheduleEditor.jsx'
+import SchedulerGuide from './Scheduler/SchedulerGuide.jsx'
 
 class SchedulerContent extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
         this.state = {
             selectedAction: null,
@@ -18,7 +18,7 @@ class SchedulerContent extends React.Component {
     }
 
     componentDidMount() {
-        this.props.getScheduleActions();
+        this.props.getScheduleActions()
     }
 
     selectAction(name, action) {
@@ -37,7 +37,7 @@ class SchedulerContent extends React.Component {
                 console.log("Updated or saved: " + name)
             },
             error: (xhr, status, err) => {
-                console.log('api/schedule/' + saveName, status, err.toString());
+                console.log('api/schedule/' + saveName, status, err.toString())
             }
         })
     }

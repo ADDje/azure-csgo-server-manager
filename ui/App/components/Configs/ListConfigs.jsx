@@ -1,5 +1,5 @@
-import React from 'react';
-import swal from 'sweetalert';
+import React from 'react'
+import swal from 'sweetalert'
 
 class ListConfigs extends React.Component {
 
@@ -34,13 +34,13 @@ class ListConfigs extends React.Component {
                     type: "success"
                 })
                 
-                this.props.reloadConfigs();
+                this.props.reloadConfigs()
             }
         })
     }
 
     deleteClick(name, e) {
-        e.preventDefault();
+        e.preventDefault()
         swal({
             title: "Are you sure?",
             text: "You will not be able to recover " + name,
@@ -53,7 +53,7 @@ class ListConfigs extends React.Component {
         },
         function(){
             this.deleteConfig(name)
-        }.bind(this));
+        }.bind(this))
     }
 
     deleteConfig(name) {
@@ -90,7 +90,8 @@ class ListConfigs extends React.Component {
                 showLoaderOnConfirm: true
             },
             function(inputValue) {
-                if (inputValue === false) return false;
+                if (inputValue === false)
+                    return false
                 
                 inputValue = inputValue.trim()
 

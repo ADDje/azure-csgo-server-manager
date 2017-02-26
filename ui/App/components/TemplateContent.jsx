@@ -1,7 +1,7 @@
-import React from 'react';
-import {IndexLink} from 'react-router';
-import ListTemplates from './Templates/ListTemplates.jsx';
-import TemplateViewer from './Templates/TemplateViewer.jsx';
+import React from 'react'
+import {IndexLink} from 'react-router'
+import ListTemplates from './Templates/ListTemplates.jsx'
+import TemplateViewer from './Templates/TemplateViewer.jsx'
 
 class TemplateContent extends React.Component {
     constructor(props) {
@@ -16,7 +16,7 @@ class TemplateContent extends React.Component {
     }
 
     componentDidMount() {
-        this.props.getTemplates();
+        this.props.getTemplates()
     }
 
     focusTemplate(template, templateName) {

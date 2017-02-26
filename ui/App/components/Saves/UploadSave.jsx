@@ -1,19 +1,19 @@
-import React from 'react';
+import React from 'react'
 
 class UploadSave extends React.Component {
     constructor(props) {
         super(props)
-        this.updateSavesList = this.updateSavesList.bind(this);
-        this.uploadFile = this.uploadFile.bind(this);
+        this.updateSavesList = this.updateSavesList.bind(this)
+        this.uploadFile = this.uploadFile.bind(this)
     }
 
     updateSavesList() {
-        this.props.getSaves();
+        this.props.getSaves()
     }
 
     uploadFile(e) {
-        var fd = new FormData();
-        fd.append('savefile', this.refs.file.files[0]);
+        var fd = new FormData()
+        fd.append('savefile', this.refs.file.files[0])
 
         $.ajax({
             url: "/api/saves/upload",
@@ -24,9 +24,9 @@ class UploadSave extends React.Component {
             success: (data) => {
                 alert(data)
             }
-        });
-        e.preventDefault();
-        this.updateSavesList();
+        })
+        e.preventDefault()
+        this.updateSavesList()
     }
 
     render() {

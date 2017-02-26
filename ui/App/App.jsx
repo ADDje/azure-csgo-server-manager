@@ -1,15 +1,15 @@
-import React from 'react';
-import {browserHistory} from 'react-router';
-import Header from './components/Header.jsx';
-import Sidebar from './components/Sidebar.jsx';
-import Footer from './components/Footer.jsx';
+import React from 'react'
+import {browserHistory} from 'react-router'
+import Header from './components/Header.jsx'
+import Sidebar from './components/Sidebar.jsx'
+import Footer from './components/Footer.jsx'
 import ServerLog from './components/ServerLog.jsx'
-import update from 'immutability-helper';
+import update from 'immutability-helper'
 
 
 class App extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
         this.checkLogin = this.checkLogin.bind(this)
         this.flashMessage = this.flashMessage.bind(this)
         this.getConfigs = this.getConfigs.bind(this)
@@ -31,19 +31,19 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-        this.checkLogin();
+        this.checkLogin()
         // Wait 1 second before redirecting to login page
         setTimeout(() => {
             if (!this.state.loggedIn) {
-                browserHistory.push("/login");
+                browserHistory.push("/login")
             }
-        }, 1000);
+        }, 1000)
     }
 
     flashMessage(message) {
-        var m = this.state.messages;
-        m.push(message);
-        this.setState({messages: m, showMessage: true});
+        var m = this.state.messages
+        m.push(message)
+        this.setState({messages: m, showMessage: true})
     }
 
     checkLogin() {
@@ -71,7 +71,7 @@ class App extends React.Component {
                 }
             },
             error: (xhr, status, err) => {
-                console.log('api/configs/list', status, err.toString());
+                console.log('api/configs/list', status, err.toString())
             }
         })
     }
@@ -89,7 +89,7 @@ class App extends React.Component {
                 }
             },
             error: (xhr, status, err) => {
-                console.log('api/templates/list', status, err.toString());
+                console.log('api/templates/list', status, err.toString())
             }
         })
     }
@@ -113,7 +113,7 @@ class App extends React.Component {
                 this.setState({configs: configs})
             },
             error: (xhr, status, err) => {
-                console.log('api/configs/get/' + name, status, err.toString());
+                console.log('api/configs/get/' + name, status, err.toString())
             }
         })
     }
@@ -136,7 +136,7 @@ class App extends React.Component {
         // render main application, 
         // if logged in show application
         // if not logged in show Not logged in message
-        var resp;
+        var resp
         if (this.state.loggedIn) {
             var resp = 
                 (<div>
@@ -173,7 +173,7 @@ class App extends React.Component {
                     <ServerLog />
                 </div>)
         } else {
-            var resp = <div><p>Not Logged in</p></div>;
+            var resp = <div><p>Not Logged in</p></div>
         }
 
         return(

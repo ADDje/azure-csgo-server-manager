@@ -1,19 +1,19 @@
-import React from 'react';
-import {IndexLink} from 'react-router';
-import LogLines from './Logs/LogLines.jsx';
+import React from 'react'
+import {IndexLink} from 'react-router'
+import LogLines from './Logs/LogLines.jsx'
 
 class LogsContent extends React.Component {
     constructor(props) {
-        super(props);
-        this.componentDidMount = this.componentDidMount.bind(this);
-        this.getLastLog = this.getLastLog.bind(this);
+        super(props)
+        this.componentDidMount = this.componentDidMount.bind(this)
+        this.getLastLog = this.getLastLog.bind(this)
         this.state = {
             log: []
         }
     }
 
     componentDidMount() {
-        this.getLastLog();
+        this.getLastLog()
     }
 
     getLastLog() {
@@ -24,7 +24,7 @@ class LogsContent extends React.Component {
                 this.setState({log: data.data})
             },
             error: (xhr, status, err) => {
-                console.log('api/mods/list', status, err.toString());
+                console.log('api/mods/list', status, err.toString())
             }
         })
     }

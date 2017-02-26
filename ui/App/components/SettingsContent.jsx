@@ -1,6 +1,6 @@
-import React from 'react';
-import {IndexLink} from 'react-router';
-import update from 'immutability-helper';
+import React from 'react'
+import {IndexLink} from 'react-router'
+import update from 'immutability-helper'
 
 class SettingsContent extends React.Component {
     constructor(props) {
@@ -28,7 +28,7 @@ class SettingsContent extends React.Component {
                 }
             },
             error: (xhr, status, err) => {
-                console.log('/api/settings', status, err.toString());
+                console.log('/api/settings', status, err.toString())
             }
         })
     }
@@ -41,7 +41,7 @@ class SettingsContent extends React.Component {
             type: "POST",
             data: settingsJSON,
             success: (data) => {
-                console.log(data);
+                console.log(data)
                 if (data.success === true) {
                     swal({
                         timer: 1000,
@@ -71,7 +71,7 @@ class SettingsContent extends React.Component {
 
     updateClick(e) {
         e.preventDefault()
-        this.updateSettings();
+        this.updateSettings()
     }
 
     render() {

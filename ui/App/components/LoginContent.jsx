@@ -1,18 +1,18 @@
-import React from 'react';
-import {IndexLink, browserHistory} from 'react-router';
+import React from 'react'
+import {IndexLink, browserHistory} from 'react-router'
 
 class LoginContent extends React.Component {
     constructor(props) {
         super(props)
-        this.loginUser = this.loginUser.bind(this);
+        this.loginUser = this.loginUser.bind(this)
     }
 
     componentDidMount() {
-        console.log(this.props);
+        console.log(this.props)
     }
 
     loginUser(e) {
-        e.preventDefault();
+        e.preventDefault()
         let user = {
             username: this.refs.username.value,
             password: this.refs.password.value,
@@ -24,13 +24,12 @@ class LoginContent extends React.Component {
             dataType: "json",
             data: JSON.stringify(user),
             success: (resp) => {
-                console.log(resp);
-                browserHistory.push("/");
+                browserHistory.push("/")
             }
-        });
+        })
         setTimeout(() => {
-            browserHistory.push("/");
-        }, 1000);
+            browserHistory.push("/")
+        }, 1000)
     }
 
     render() {

@@ -1,12 +1,12 @@
-import React from 'react';
+import React from 'react'
 
 class LogLines extends React.Component {
     updateLog() {
-        this.props.getLastLog();
+        this.props.getLastLog()
     }
 
     render() {
-        this.props.log.reverse();
+        this.props.log.reverse()
         return(
             <div className="box">
                 <div className="box-header">

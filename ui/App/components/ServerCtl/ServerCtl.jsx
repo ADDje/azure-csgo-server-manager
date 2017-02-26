@@ -1,5 +1,5 @@
-import React from 'react';
-import swal from 'sweetalert';
+import React from 'react'
+import swal from 'sweetalert'
 
 class ServerCtl extends React.Component {
     constructor(props) {
@@ -104,7 +104,7 @@ class ServerCtl extends React.Component {
 
     startServer(e) {
         e.preventDefault()
-        var errors = [];
+        var errors = []
 
         if (this.state.vmName.length < 1
             && this.getPlaceholder("vmName") === "UNDEFINED") {
@@ -246,8 +246,8 @@ class ServerCtl extends React.Component {
 
     getHelp(name) {
         if (this.state.validationErrors.indexOf(name) !== -1) {
-            var msg;
-            switch(name) {
+            var msg
+            switch (name) {
                 case "vmName":
                     msg = "Server name is required"
                     break

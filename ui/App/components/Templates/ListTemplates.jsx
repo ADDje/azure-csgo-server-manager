@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 
 class ListTemplates extends React.Component {
 
@@ -33,13 +33,13 @@ class ListTemplates extends React.Component {
                     type: "success"
                 })
                 
-                this.props.reloadTemplates();
+                this.props.reloadTemplates()
             }
         })
     }
 
     deleteClick(name, e) {
-        e.preventDefault();
+        e.preventDefault()
         swal({
             title: "Are you sure?",
             text: "You will not be able to recover " + name,
@@ -52,7 +52,7 @@ class ListTemplates extends React.Component {
         },
         function(){
             this.deleteTemplate(name)
-        }.bind(this));
+        }.bind(this))
     }
 
     deleteTemplate(name) {
@@ -89,7 +89,8 @@ class ListTemplates extends React.Component {
                 showLoaderOnConfirm: true
             },
             function(inputValue) {
-                if (inputValue === false) return false;
+                if (inputValue === false)
+                    return false
                 
                 inputValue = inputValue.trim()
 

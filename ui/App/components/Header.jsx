@@ -1,29 +1,29 @@
-import React from 'react';
-import {Link, IndexLink, browserHistory} from 'react-router';
+import React from 'react'
+import {Link, IndexLink, browserHistory} from 'react-router'
 
 class Header extends React.Component {
     constructor(props) {
-        super(props);
-        this.onLogout = this.onLogout.bind(this);
+        super(props)
+        this.onLogout = this.onLogout.bind(this)
     }
     
     onLogout(e) {
-        e.preventDefault();
+        e.preventDefault()
         $.ajax({
             url: "/api/logout",
             dataType: "json",
             success: (resp) => {
                 console.log(resp)
             }
-        });
+        })
         // Wait for 1 second for logout callback to complete
         setTimeout(() => {
-            browserHistory.push("/login");
-        }, 1000);
+            browserHistory.push("/login")
+        }, 1000)
     }
 
     render() {
-        var loginMenu; 
+        var loginMenu
         if (this.props.loggedIn) {
             loginMenu = 
                 (<ul className="nav navbar-nav">

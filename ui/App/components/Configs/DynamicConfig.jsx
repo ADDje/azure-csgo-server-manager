@@ -1,5 +1,5 @@
-import React from 'react';
-import update from 'immutability-helper';
+import React from 'react'
+import update from 'immutability-helper'
 
 class DynamicConfig extends React.Component {
 
@@ -45,21 +45,21 @@ class DynamicConfig extends React.Component {
 
     decreaseField(key) {
         var param = {}
-        param[key] = {$set: this.state.configParameters[key] - 1};
+        param[key] = {$set: this.state.configParameters[key] - 1}
         this.setState({
             configParameters: update(this.state.configParameters, param)
         })
     }
 
     render() {
-        if(this.props.config === null) {
-            return null;
+        if (this.props.config === null) {
+            return null
         }
 
         var fields = []
-        for(var key in this.props.config) {
-            var buttons = null;
-            if(typeof(this.props.config[key]) !== "string") {
+        for (var key in this.props.config) {
+            var buttons = null
+            if (typeof(this.props.config[key]) !== "string") {
                 buttons = (<div className="input-group-btn">
                         <button type="button" className="btn btn-primary" onClick={this.increaseField.bind(this, key)}>
                             <i className="fa fa-arrow-up" />
@@ -83,7 +83,7 @@ class DynamicConfig extends React.Component {
             <div className="dynamic-config">
                 {fields}
             </div>
-        );
+        )
     }
 
 }

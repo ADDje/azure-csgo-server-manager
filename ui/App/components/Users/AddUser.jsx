@@ -1,20 +1,20 @@
-import React from 'react';
+import React from 'react'
 
 class AddUser extends React.Component {
     constructor(props) {
-        super(props);
-        this.createUser = this.createUser.bind(this);
-        this.validateEmail = this.validateEmail.bind(this);
+        super(props)
+        this.createUser = this.createUser.bind(this)
+        this.validateEmail = this.validateEmail.bind(this)
     }
 
     validateEmail(email) {
-        var re = /\S+@\S+\.\S+/;
+        var re = /\S+@\S+\.\S+/
         return re.test(email)
     }
     
     createUser(e) {
-        e.preventDefault();
-        console.log(this.refs);
+        e.preventDefault()
+        console.log(this.refs)
         let user = {
             username: this.refs.username.value,
             // Add handler for listing roles
@@ -23,12 +23,12 @@ class AddUser extends React.Component {
             email: this.refs.email.value,
         }
         if (user.password !== this.refs.passwordConfirm.value) {
-            console.log("passwords do not match");
+            console.log("passwords do not match")
             return
         }
 
         if (!this.validateEmail(user.email)) {
-            console.log("invalid email address");
+            console.log("invalid email address")
             return
         }
 
@@ -39,8 +39,8 @@ class AddUser extends React.Component {
             data: JSON.stringify(user),
             success: (resp) => {
                 if (resp.success === true) {
-                    alert("User: " + user.username + " added successfully.");
-                    this.props.listUsers();
+                    alert("User: " + user.username + " added successfully.")
+                    this.props.listUsers()
                 } else {
                     alert("Error adding user: ", resp.data)
                 }
