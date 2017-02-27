@@ -95,7 +95,9 @@ class ServerStatus extends React.Component {
         }
         
         if (this.state.refreshTimer === 1) {
-            this.getStatus()
+            if (document.hasFocus()) {
+                this.getStatus()
+            }
         } else {
             this.setState({refreshTimer: this.state.refreshTimer - 1})
         }
