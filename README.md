@@ -26,7 +26,7 @@ This tool allows for servers to be deployed, monitored and managed on Azure usin
 
 ## Installation
 1. Download the latest release
-  * [https://github.com/MetalMichael/azure-csgo-server-manager/releases](https://github.com/MajorMJR/factorio-server-manager/releases)
+  * [https://github.com/MetalMichael/azure-csgo-server-manager/releases](https://github.com/MetalMichael/azure-csgo-server-manager/releases)
 2. Configure the config.json file to your [azure credentials](https://docs.microsoft.com/en-gb/azure/active-directory/active-directory-protocols-oauth-code) 
 3. Run the server binary file
 4. Visit [localhost:8090](localhost:8090) in your web browser.
@@ -43,15 +43,16 @@ All api actions are accessible with the /api route.  The frontend is accessible 
 + NodeJS 4.2.6
 
 #### Building the Go backend
-Go Application which manages the Factorio server.
+Go Application which manages the CSGO servers.
 
-API requests for managing the Factorio server are sent to /api.
+API requests for managing the servers are sent to /api.
 
 The frontend code is served by a HTTP file server running on /.
 ```
 git clone https://github.com/MetalMichael/azure-csgo-server-manager.git
 cd azure-csgo-server-manager
-go build
+#./install.ps1
+./build.ps1
 ```
 
 #### Building the React frontend
