@@ -75,6 +75,11 @@ func loadServerConfig(f string) {
 	err = json.NewDecoder(file).Decode(&config)
 
 	if oldPort != 0 {
+		// Both settings the same in the file, set old port to both
+		log.Printf("%d - %d", config.ServerPort, config.WebsocketPort)
+		if config.ServerPort == config.WebsocketPort {
+			config.WebsocketPort = oldPort
+		}
 		config.ServerPort = oldPort
 	}
 	if oldIP != "" {
@@ -102,10 +107,6 @@ func parseFlags() {
 	if port != "" {
 		myPort, err := strconv.Atoi(port)
 		if err == nil {
-			if config.ServerPort == config.WebsocketPort {
-				config.WebsocketPort = myPort
-			}
-
 			log.Printf("Using HTTP_PLATFORM_PORT: %d", myPort)
 			config.ServerPort = myPort
 			config.IsProxy = true
