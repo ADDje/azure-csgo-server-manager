@@ -174,6 +174,7 @@ func SetupLogWs(config Config, r *mux.Router) io.Writer {
 	logWriter.SetHub(hub)
 
 	if config.WebsocketPort == config.ServerPort {
+		log.Printf("Listening for WebSockets on same port as http(s) -> %d", config.ServerPort)
 		r.Handle("/ws", handleLog(hub))
 	} else {
 		logServer = http.NewServeMux()
