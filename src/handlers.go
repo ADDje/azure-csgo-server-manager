@@ -1045,11 +1045,14 @@ func ExecuteAction(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetWebsocketInfo(w http.ResponseWriter, r *http.Request) {
-	var proto string
-	if config.UseSsl || config.OverrideSSL {
+	var proto = "ws"
+	if config.UseSsl || config.IsProxy {
 		proto = "wss"
-	} else {
-		proto = "ws"
+	}
+
+	var port = config.WebsocketPort
+	if config.IsProxy {
+		port = 443
 	}
 
 	data := struct {
@@ -1061,7 +1064,7 @@ func GetWebsocketInfo(w http.ResponseWriter, r *http.Request) {
 		proto,
 		"", // Nothing means same host
 		"/ws",
-		config.WebsocketPort,
+		port,
 	}
 
 	resp := JSONResponse{
