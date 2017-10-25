@@ -16,7 +16,9 @@ import (
 	"github.com/Azure/azure-sdk-for-go/arm/network"
 	"github.com/Azure/azure-sdk-for-go/arm/resources/resources"
 	"github.com/Azure/azure-sdk-for-go/storage"
+	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
+	"github.com/Azure/go-autorest/autorest/adal"
 )
 
 const DEPLOYMENT_NAME = "csgo-server-manager"
@@ -635,22 +637,22 @@ func getVMClient(c Config) (*compute.VirtualMachinesClient, error) {
 	return &client, nil
 }
 
-func getServicePrincipalToken(config Config) (*azure.ServicePrincipalToken, error) {
+func getServicePrincipalToken(config Config) (*autorest.BearerAuthorizer , error) {
 	spt, err := newServicePrincipalTokenFromCredentials(config, azure.PublicCloud.ResourceManagerEndpoint)
 	if err != nil {
 		log.Printf("Error getting service principal: %s", err)
 		return nil, err
 	}
 
-	return spt, nil
+	return autorest.NewBearerAuthorizer(spt), nil
 }
 
-func newServicePrincipalTokenFromCredentials(config Config, scope string) (*azure.ServicePrincipalToken, error) {
-	oauthConfig, err := azure.PublicCloud.OAuthConfigForTenant(config.AzureTenantID)
+func newServicePrincipalTokenFromCredentials(config Config, scope string) (*adal.ServicePrincipalToken, error) {
+	oauthConfig, err := adal.NewOAuthConfig(azure.PublicCloud.ActiveDirectoryEndpoint, config.AzureTenantID)
 	if err != nil {
 		panic(err)
 	}
-	return azure.NewServicePrincipalToken(*oauthConfig, config.AzureClientID, config.AzureClientSecret, scope)
+	return adal.NewServicePrincipalToken(*oauthConfig, config.AzureClientID, config.AzureClientSecret, scope)
 }
 
 func getBlobName(blob string) string {

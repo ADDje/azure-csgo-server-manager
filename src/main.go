@@ -44,8 +44,8 @@ type Config struct {
 
 	ConfFile     string `json:"-"`
 	WebSocketKey string `json:"-"`
-	// Used to force not SSL inside tomcat
-	OverrideSSL bool `json:"-"`
+	// Tomcat setup
+	IsProxy bool `json:"-"`
 }
 
 var (
@@ -80,7 +80,7 @@ func loadServerConfig(f string) {
 	if oldIP != "" {
 		config.ServerIP = oldIP
 	}
-	if config.OverrideSSL {
+	if config.IsProxy {
 		config.UseSsl = false
 	}
 }
@@ -102,9 +102,13 @@ func parseFlags() {
 	if port != "" {
 		myPort, err := strconv.Atoi(port)
 		if err == nil {
+			if config.ServerPort == config.WebsocketPort {
+				config.WebsocketPort = myPort
+			}
+
 			log.Printf("Using HTTP_PLATFORM_PORT: %d", myPort)
 			config.ServerPort = myPort
-			config.OverrideSSL = true
+			config.IsProxy = true
 		} else {
 			log.Printf("Could not read port from HTTP_PLATFORM_PORT %s", err)
 		}
