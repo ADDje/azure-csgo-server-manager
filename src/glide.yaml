@@ -7,7 +7,7 @@ import:
 - package: github.com/hpcloud/tail
   version: ^1.0.0
 - package: github.com/Azure/azure-sdk-for-go
-  version: ^7.0.1-beta
+  version: ^11.1.1-beta
 - package: github.com/kidoman/go-steam
 - package: gopkg.in/natefinch/lumberjack.v2
   version: ~1.0.0

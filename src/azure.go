@@ -11,10 +11,12 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"fmt"
 
 	"github.com/Azure/azure-sdk-for-go/arm/compute"
 	"github.com/Azure/azure-sdk-for-go/arm/network"
 	"github.com/Azure/azure-sdk-for-go/arm/resources/resources"
+	"github.com/Azure/azure-sdk-for-go/arm/disk"
 	"github.com/Azure/azure-sdk-for-go/storage"
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
@@ -405,7 +407,15 @@ func GetRawStorageFile(config Config, file string) (*io.ReadCloser, error) {
 		return nil, err
 	}
 
-	fileStream, err := client.GetBlob(FILE_CONTAINER_NAME, file)
+	container, err := getFileContainer(client)
+	if err != nil {
+		return nil, err
+	}
+
+	options := storage.GetBlobOptions {}
+
+	blob := container.GetBlobReference(file)
+	fileStream, err := blob.Get(&options)
 	if err != nil {
 		log.Printf("Error in azure GetStorageFile: %s", err)
 		return nil, err
@@ -442,11 +452,16 @@ func GetStorageFiles(config Config, store string) ([]storage.Blob, error) {
 		return nil, err
 	}
 
+	container, err := getFileContainer(client)
+	if err != nil {
+		return nil, err
+	}
+
 	params := storage.ListBlobsParameters{
 		Prefix: store + "/",
 	}
-
-	blobs, err := client.ListBlobs(FILE_CONTAINER_NAME, params)
+	
+	blobs, err := container.ListBlobs(params)
 	if err != nil {
 		log.Printf("Error in azure GetStorageFiles: %s", err)
 		return nil, err
@@ -465,13 +480,15 @@ func DeleteStorageFile(config Config, store string, file string) error {
 	fileName := store + "/" + file
 	log.Printf("Deleting Azure File: %s", fileName)
 
-	_, err = client.GetBlob(FILE_CONTAINER_NAME, fileName)
+	container, err := getFileContainer(client)
 	if err != nil {
-		log.Printf("Error in azure DeleteStorageFile: %s", err)
 		return err
 	}
 
-	err = client.DeleteBlob(FILE_CONTAINER_NAME, fileName, nil)
+	params := storage.DeleteBlobOptions{}
+
+	blob := container.GetBlobReference(fileName)
+	err = blob.Delete(&params)
 	if err != nil {
 		log.Printf("Error in azure DeleteStorageFile delete: %s", err)
 		return err
@@ -491,15 +508,17 @@ func UpdateStorageFile(config Config, store string, file string, contents []byte
 	fileName := store + "/" + file
 	log.Printf("Updating Azure File: %s", fileName)
 
-	_, err = client.GetBlob(FILE_CONTAINER_NAME, fileName)
+	container, err := getFileContainer(client)
 	if err != nil {
-		log.Printf("Error in azure UpdateStorageFile: %s", err)
 		return err
 	}
 
+	blob := container.GetBlobReference(fileName)
+	params := storage.DeleteBlobOptions{}
+
 	// Updating a file in storage is falls back to reading writing individual bytes
 	// Probably just easier to delete then add
-	err = client.DeleteBlob(FILE_CONTAINER_NAME, fileName, nil)
+	err = blob.Delete(&params)
 	if err != nil {
 		log.Printf("Error in azure UpdateStorageFile delete: %s", err)
 		return err
@@ -521,14 +540,36 @@ func CreateStorageFile(config Config, store string, file string, contents []byte
 		return err
 	}
 
+	container, err := getFileContainer(client)
+	if err != nil {
+		return err
+	}
+	
+	blob := container.GetBlobReference(store+"/"+file)
+	params := storage.PutPageOptions{}
+	writeRange := storage.BlobRange{Start: 0, End: uint64(len(contents))}
+
 	r := bytes.NewReader(contents)
-	err = client.CreateBlockBlobFromReader(FILE_CONTAINER_NAME, store+"/"+file, uint64(len(contents)), r, nil)
+	err = blob.WriteRange(writeRange, r, &params)	
 	if err != nil {
 		log.Printf("Error in azure CreateStorageFile create: %s", err)
 		return err
 	}
 
 	return nil
+}
+
+func getFileContainer(c *storage.BlobStorageClient) (*storage.Container, error) {
+	container := c.GetContainerReference(FILE_CONTAINER_NAME)
+	
+	exists, err := container.Exists()
+	if err != nil {
+		return nil, err
+	} else if !exists {
+		return nil, errors.New(fmt.Sprintf("File container does not exist: %s", FILE_CONTAINER_NAME))
+	}
+
+	return container, nil
 }
 
 func convertParameters(parameters TemplateParameterFile) map[string]interface{} {
@@ -585,8 +626,8 @@ func getDeploymentClient(c Config) (*resources.DeploymentsClient, error) {
 	return &client, nil
 }
 
-func getResourcesClient(c Config) (*resources.Client, error) {
-	client := resources.NewClient(c.AzureSubscriptionID)
+func getResourcesClient(c Config) (*resources.GroupClient, error) {
+	client := resources.NewGroupClient(c.AzureSubscriptionID)
 
 	spt, err := getServicePrincipalToken(c)
 	if err != nil {
@@ -629,6 +670,16 @@ func getIpClient(c Config) (*network.PublicIPAddressesClient, error) {
 
 func getVMClient(c Config) (*compute.VirtualMachinesClient, error) {
 	client := compute.NewVirtualMachinesClient(c.AzureSubscriptionID)
+	spt, err := getServicePrincipalToken(c)
+	if err != nil {
+		return nil, err
+	}
+	client.Authorizer = spt
+	return &client, nil
+}
+
+func getDiskClient(c Config) (*disk.DisksClient, error) {
+	client := disk.NewDisksClient(c.AzureSubscriptionID)
 	spt, err := getServicePrincipalToken(c)
 	if err != nil {
 		return nil, err
