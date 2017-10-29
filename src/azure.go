@@ -4,21 +4,22 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"regexp"
 	"strconv"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/Azure/azure-sdk-for-go/arm/compute"
+	"github.com/Azure/azure-sdk-for-go/arm/disk"
 	"github.com/Azure/azure-sdk-for-go/arm/network"
 	"github.com/Azure/azure-sdk-for-go/arm/resources/resources"
 	"github.com/Azure/azure-sdk-for-go/storage"
 	"github.com/Azure/go-autorest/autorest"
-	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/go-autorest/autorest/adal"
+	"github.com/Azure/go-autorest/autorest/azure"
 )
 
 const DEPLOYMENT_NAME = "csgo-server-manager"
@@ -96,12 +97,14 @@ func deployTemplate(client *resources.DeploymentsClient, config Config, number i
 	}
 	deployment := resources.Deployment{Properties: &properties}
 
-	_, err = client.CreateOrUpdate(config.ResourceGroup, deploymentName, deployment, nil)
-	if err != nil {
+	resChan, errChan := client.CreateOrUpdate(config.ResourceGroup, deploymentName, deployment, nil)
+	select {
+	case err = <-errChan:
 		log.Printf("Error creating deployment: %s", err)
+		return err
+	case _ = <-resChan:
+		return nil
 	}
-
-	return nil
 }
 
 func StartVM(config Config, vmName string) error {
@@ -113,12 +116,14 @@ func StartVM(config Config, vmName string) error {
 		return err
 	}
 
-	_, err = client.Start(config.ResourceGroup, vmName, nil)
-	if err != nil {
+	resChan, errChan := client.Start(config.ResourceGroup, vmName, nil)
+	select {
+	case err = <-errChan:
 		log.Printf("Error Starting VM: %s", err)
 		return err
+	case _ = <-resChan:
+		return nil
 	}
-	return nil
 }
 
 func DeallocateVM(config Config, vmName string) error {
@@ -130,12 +135,14 @@ func DeallocateVM(config Config, vmName string) error {
 		return err
 	}
 
-	_, err = client.Deallocate(config.ResourceGroup, vmName, nil)
-	if err != nil {
-		log.Printf("Error Starting VM: %s", err)
+	resChan, errChan := client.Deallocate(config.ResourceGroup, vmName, nil)
+	select {
+	case err = <-errChan:
+		log.Printf("Error deallocating VM: %s", err)
 		return err
+	case _ = <-resChan:
+		return nil
 	}
-	return nil
 }
 
 func DeleteVM(config Config, vmName string) error {
@@ -144,42 +151,32 @@ func DeleteVM(config Config, vmName string) error {
 		return err
 	}
 
-	_, err = client.Delete(config.ResourceGroup, vmName, nil)
-	if err != nil {
+	resChan, errChan := client.Delete(config.ResourceGroup, vmName, nil)
+	select {
+	case err = <-errChan:
+		log.Printf("Error deleting VM: %s", err)
 		return err
+	case _ = <-resChan:
+		return nil
 	}
-
-	return nil
 }
 
-func DeleteVhd(config Config, vhdUri string) error {
-	client, err := storage.NewBasicClient(config.VMVhdStorageServer, config.VMVhdStorageKey)
+func DeleteDisk(config Config, vhdUri string) error {
+	client, err := getResourcesClient(config)
 	if err != nil {
-		log.Printf("Delete Vhd Error: %s", err)
+		log.Printf("Delete Disk Error: %s", err)
 		return err
 	}
 
-	parts := strings.Split(vhdUri, "/")
-	name := parts[len(parts)-1]
-	store := parts[len(parts)-2 : len(parts)-1][0]
-
-	t, err := client.GetBlobService().BreakLease(store, name)
-	if err != nil && !strings.Contains(string(err.Error()), "no lease on the blob") {
-		log.Printf("Vhd Break lease err: %s", err)
+	log.Printf("Deleting Disk: %s", vhdUri)
+	resChan, errChan := client.DeleteByID(vhdUri, nil, "2017-03-30")
+	select {
+	case _ = <-resChan:
+		return nil
+	case err = <-errChan:
+		log.Printf("Deleting Disk Error: %s", err)
 		return err
 	}
-	if t > 0 {
-		log.Printf("Waiting %d for lease to expire", t)
-		time.Sleep(time.Duration(t) * time.Second)
-	}
-	myMap := make(map[string]string)
-	err = client.GetBlobService().DeleteBlob(store, name, myMap)
-	if err != nil {
-		log.Printf("Could not delete vhd: %s", err)
-		return err
-	}
-
-	return nil
 }
 
 func GetNicDetails(config Config, nicName string) (*network.Interface, error) {
@@ -220,6 +217,7 @@ func GetIpDetails(config Config, ipId string) (*network.PublicIPAddress, error) 
 	return &ipDetails, nil
 }
 
+// BUG: Workaround written for API bug. Vendor code modified. https://github.com/Azure/azure-sdk-for-go/issues/741
 func DeleteVMNetworkThings(config Config, vmProps *compute.VirtualMachineProperties) error {
 
 	resourcesClient, err := getResourcesClient(config)
@@ -250,24 +248,32 @@ func DeleteVMNetworkThings(config Config, vmProps *compute.VirtualMachinePropert
 
 	log.Printf("Deleting: \nNIC: %s, \nIP:  %s, \nNet: %s", nic, ipID, net)
 
-	_, err = resourcesClient.DeleteByID(nic, nil)
-	if err != nil {
+	resChan, errChan := resourcesClient.DeleteByID(nic, nil, "2017-06-01")
+	select {
+	case err = <-errChan:
 		log.Printf("Could not delete NIC %s: %s", nic, err)
 		return err
+	case _ = <-resChan:
+		log.Printf("NIC Deleted: %s", nic)
 	}
-	log.Printf("Deleted NIC: %s", nic)
-	_, err = resourcesClient.DeleteByID(ipID, nil)
-	if err != nil {
+
+	resChan, errChan = resourcesClient.DeleteByID(ipID, nil, "2017-06-01")
+	select {
+	case err = <-errChan:
 		log.Printf("Could not delete IP %s: %s", ipID, err)
 		return err
+	case _ = <-resChan:
+		log.Printf("Deleted IP:  %s", ipID)
 	}
-	log.Printf("Deleted IP:  %s", ipID)
-	_, err = resourcesClient.DeleteByID(net, nil)
-	if err != nil {
+
+	resChan, errChan = resourcesClient.DeleteByID(net, nil, "2017-06-01")
+	select {
+	case err = <-errChan:
 		log.Printf("Could not delete Network %s: %s", net, err)
 		return err
+	case _ = <-resChan:
+		log.Printf("Deleted Net: %s", net)
 	}
-	log.Printf("Deleted Net: %s", net)
 
 	return nil
 }
@@ -328,8 +334,8 @@ func FullDeleteVM(config Config, vmName string) error {
 		return err
 	}
 
-	vhdURI := vmDetails.StorageProfile.OsDisk.Vhd.URI
-	err = DeleteVhd(config, *vhdURI)
+	osDisk := *vmDetails.StorageProfile.OsDisk.ManagedDisk.ID
+	err = DeleteDisk(config, osDisk)
 	if err != nil {
 		return err
 	}
@@ -405,7 +411,15 @@ func GetRawStorageFile(config Config, file string) (*io.ReadCloser, error) {
 		return nil, err
 	}
 
-	fileStream, err := client.GetBlob(FILE_CONTAINER_NAME, file)
+	container, err := getFileContainer(client)
+	if err != nil {
+		return nil, err
+	}
+
+	options := storage.GetBlobOptions{}
+
+	blob := container.GetBlobReference(file)
+	fileStream, err := blob.Get(&options)
 	if err != nil {
 		log.Printf("Error in azure GetStorageFile: %s", err)
 		return nil, err
@@ -442,11 +456,16 @@ func GetStorageFiles(config Config, store string) ([]storage.Blob, error) {
 		return nil, err
 	}
 
+	container, err := getFileContainer(client)
+	if err != nil {
+		return nil, err
+	}
+
 	params := storage.ListBlobsParameters{
 		Prefix: store + "/",
 	}
 
-	blobs, err := client.ListBlobs(FILE_CONTAINER_NAME, params)
+	blobs, err := container.ListBlobs(params)
 	if err != nil {
 		log.Printf("Error in azure GetStorageFiles: %s", err)
 		return nil, err
@@ -465,13 +484,15 @@ func DeleteStorageFile(config Config, store string, file string) error {
 	fileName := store + "/" + file
 	log.Printf("Deleting Azure File: %s", fileName)
 
-	_, err = client.GetBlob(FILE_CONTAINER_NAME, fileName)
+	container, err := getFileContainer(client)
 	if err != nil {
-		log.Printf("Error in azure DeleteStorageFile: %s", err)
 		return err
 	}
 
-	err = client.DeleteBlob(FILE_CONTAINER_NAME, fileName, nil)
+	params := storage.DeleteBlobOptions{}
+
+	blob := container.GetBlobReference(fileName)
+	err = blob.Delete(&params)
 	if err != nil {
 		log.Printf("Error in azure DeleteStorageFile delete: %s", err)
 		return err
@@ -491,15 +512,17 @@ func UpdateStorageFile(config Config, store string, file string, contents []byte
 	fileName := store + "/" + file
 	log.Printf("Updating Azure File: %s", fileName)
 
-	_, err = client.GetBlob(FILE_CONTAINER_NAME, fileName)
+	container, err := getFileContainer(client)
 	if err != nil {
-		log.Printf("Error in azure UpdateStorageFile: %s", err)
 		return err
 	}
 
+	blob := container.GetBlobReference(fileName)
+	params := storage.DeleteBlobOptions{}
+
 	// Updating a file in storage is falls back to reading writing individual bytes
 	// Probably just easier to delete then add
-	err = client.DeleteBlob(FILE_CONTAINER_NAME, fileName, nil)
+	err = blob.Delete(&params)
 	if err != nil {
 		log.Printf("Error in azure UpdateStorageFile delete: %s", err)
 		return err
@@ -521,14 +544,39 @@ func CreateStorageFile(config Config, store string, file string, contents []byte
 		return err
 	}
 
+	container, err := getFileContainer(client)
+	if err != nil {
+		return err
+	}
+
+	blob := container.GetBlobReference(store + "/" + file)
+	params := storage.PutPageOptions{}
+	writeRange := storage.BlobRange{Start: 0, End: uint64(len(contents))}
+
 	r := bytes.NewReader(contents)
-	err = client.CreateBlockBlobFromReader(FILE_CONTAINER_NAME, store+"/"+file, uint64(len(contents)), r, nil)
+	err = blob.WriteRange(writeRange, r, &params)
 	if err != nil {
 		log.Printf("Error in azure CreateStorageFile create: %s", err)
 		return err
 	}
 
 	return nil
+}
+
+func getFileContainer(c *storage.BlobStorageClient) (*storage.Container, error) {
+	container := c.GetContainerReference(FILE_CONTAINER_NAME)
+
+	exists, err := container.Exists()
+	if err != nil {
+		log.Printf("Could not get container. %s", err)
+		return nil, err
+	} else if !exists {
+		err = errors.New(fmt.Sprintf("File container does not exist: %s", FILE_CONTAINER_NAME))
+		log.Printf("Could not get container. %s", err)
+		return nil, err
+	}
+
+	return container, nil
 }
 
 func convertParameters(parameters TemplateParameterFile) map[string]interface{} {
@@ -585,8 +633,8 @@ func getDeploymentClient(c Config) (*resources.DeploymentsClient, error) {
 	return &client, nil
 }
 
-func getResourcesClient(c Config) (*resources.Client, error) {
-	client := resources.NewClient(c.AzureSubscriptionID)
+func getResourcesClient(c Config) (*resources.GroupClient, error) {
+	client := resources.NewGroupClient(c.AzureSubscriptionID)
 
 	spt, err := getServicePrincipalToken(c)
 	if err != nil {
@@ -637,7 +685,17 @@ func getVMClient(c Config) (*compute.VirtualMachinesClient, error) {
 	return &client, nil
 }
 
-func getServicePrincipalToken(config Config) (*autorest.BearerAuthorizer , error) {
+func getDiskClient(c Config) (*disk.DisksClient, error) {
+	client := disk.NewDisksClient(c.AzureSubscriptionID)
+	spt, err := getServicePrincipalToken(c)
+	if err != nil {
+		return nil, err
+	}
+	client.Authorizer = spt
+	return &client, nil
+}
+
+func getServicePrincipalToken(config Config) (*autorest.BearerAuthorizer, error) {
 	spt, err := newServicePrincipalTokenFromCredentials(config, azure.PublicCloud.ResourceManagerEndpoint)
 	if err != nil {
 		log.Printf("Error getting service principal: %s", err)
