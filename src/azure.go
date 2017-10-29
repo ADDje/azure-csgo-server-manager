@@ -217,6 +217,7 @@ func GetIpDetails(config Config, ipId string) (*network.PublicIPAddress, error) 
 	return &ipDetails, nil
 }
 
+// BUG: Workaround written for API bug. Vendor code modified. https://github.com/Azure/azure-sdk-for-go/issues/741
 func DeleteVMNetworkThings(config Config, vmProps *compute.VirtualMachineProperties) error {
 
 	resourcesClient, err := getResourcesClient(config)
