@@ -1,6 +1,6 @@
-#Azure CS:GO Server Manager
+# Azure CS:GO Server Manager
 
-###A tool for managing CS:GO servers hosted on Azure
+### A tool for managing CS:GO servers hosted on Azure
 This tool allows for servers to be deployed, monitored and managed on Azure using various templates and server configuration files.
 
 ## Features

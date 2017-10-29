@@ -161,19 +161,22 @@ func DeleteVM(config Config, vmName string) error {
 	}
 }
 
-func DeleteVhd(config Config, vhdUri string) error {
-	//client, err := getResourcesClient(config)
-	//if err != nil {
-	//log.Printf("Delete Vhd Error: %s", err)
-	//return err
-	//}
+func DeleteDisk(config Config, vhdUri string) error {
+	client, err := getResourcesClient(config)
+	if err != nil {
+		log.Printf("Delete Disk Error: %s", err)
+		return err
+	}
 
-	log.Printf("vhd uri: %s", vhdUri)
-	//parts := strings.Split(vhdUri, "/")
-	//name := parts[len(parts)-1]
-	//store := parts[len(parts)-2 : len(parts)-1][0]
-
-	return nil
+	log.Printf("Deleting Disk: %s", vhdUri)
+	resChan, errChan := client.DeleteByID(vhdUri, nil, "2017-03-30")
+	select {
+	case _ = <-resChan:
+		return nil
+	case err = <-errChan:
+		log.Printf("Deleting Disk Error: %s", err)
+		return err
+	}
 }
 
 func GetNicDetails(config Config, nicName string) (*network.Interface, error) {
@@ -244,7 +247,7 @@ func DeleteVMNetworkThings(config Config, vmProps *compute.VirtualMachinePropert
 
 	log.Printf("Deleting: \nNIC: %s, \nIP:  %s, \nNet: %s", nic, ipID, net)
 
-	resChan, errChan := resourcesClient.DeleteByID(nic, nil)
+	resChan, errChan := resourcesClient.DeleteByID(nic, nil, "2017-06-01")
 	select {
 	case err = <-errChan:
 		log.Printf("Could not delete NIC %s: %s", nic, err)
@@ -253,7 +256,7 @@ func DeleteVMNetworkThings(config Config, vmProps *compute.VirtualMachinePropert
 		log.Printf("NIC Deleted: %s", nic)
 	}
 
-	resChan, errChan = resourcesClient.DeleteByID(ipID, nil)
+	resChan, errChan = resourcesClient.DeleteByID(ipID, nil, "2017-06-01")
 	select {
 	case err = <-errChan:
 		log.Printf("Could not delete IP %s: %s", ipID, err)
@@ -262,7 +265,7 @@ func DeleteVMNetworkThings(config Config, vmProps *compute.VirtualMachinePropert
 		log.Printf("Deleted IP:  %s", ipID)
 	}
 
-	resChan, errChan = resourcesClient.DeleteByID(net, nil)
+	resChan, errChan = resourcesClient.DeleteByID(net, nil, "2017-06-01")
 	select {
 	case err = <-errChan:
 		log.Printf("Could not delete Network %s: %s", net, err)
@@ -330,8 +333,8 @@ func FullDeleteVM(config Config, vmName string) error {
 		return err
 	}
 
-	vhdURI := vmDetails.StorageProfile.OsDisk.Vhd.URI
-	err = DeleteVhd(config, *vhdURI)
+	osDisk := *vmDetails.StorageProfile.OsDisk.ManagedDisk.ID
+	err = DeleteDisk(config, osDisk)
 	if err != nil {
 		return err
 	}
