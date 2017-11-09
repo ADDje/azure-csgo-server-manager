@@ -84,6 +84,7 @@ type CsgoServerSettings struct {
 	TvDelay                              int     `csgo:"tv_delay"`
 	TvAdvertiseWatchable                 int     `csgo:"tv_advertise_watchable"`
 	TvAutoRecord                         int     `csgo:"tv_auto_record"`
+        TvAllowCameraManSteamid              int     `csgo:"tv_allow_camera_man_steamid"`     // Allows a specific steam community ID to act as the camera for spectators when in the server.
 	SpecFreezeTime                       int     `csgo:"spec_freeze_time"`                // Time spend frozen in observer freeze cam.
 	SpecFreezePanelExtendedTime          int     `csgo:"spec_freeze_panel_extended_time"` // Time spent with the freeze panel still up after observer freeze cam is done.
 	SpecFreezeTimeLock                   int     `csgo:"spec_freeze_time_lock"`
@@ -129,6 +130,7 @@ type CsgoServerSettings struct {
 	SvSteamgroupExclusive                int     `csgo:"sv_steamgroup_exclusive"`     // If set, only members of Steam group will be able to join the server when it's empty, public people will be able to join the server only if it has players.
 	SvVoiceenable                        int     `csgo:"sv_voiceenable"`
 	SvAutoFullAlltalkDuringWarmupHalfEnd int     `csgo:"sv_auto_full_alltalk_during_warmup_half_end"`
+        SvServerGraphic1                     int     `csgo:"sv_server_graphic1"`          // Makes an image on the server visible to spectators at the bottom of the screen.
 }
 
 // GetDefaultSettings Get Default Server Config
@@ -215,6 +217,9 @@ func GetDefaultSettings() CsgoServerSettings {
 		RconPassword:                         "NUEL",
 		TvEnable:                             1,
 		TvDelay:                              90,
+                TvAdvertiseWatchable:                 1,
+                TvAutoRecord:                         1,
+                TvAllowCameraManSteamid:              "",
 		SpecFreezeTime:                       2.0,
 		SpecFreezePanelExtendedTime:          0,
 		SpecFreezeTimeLock:                   2,
@@ -259,5 +264,6 @@ func GetDefaultSettings() CsgoServerSettings {
 		SvSteamgroupExclusive:                0,
 		SvVoiceenable:                        1,
 		SvAutoFullAlltalkDuringWarmupHalfEnd: 0,
+                SvServerGraphic1:                     "nuelsponsors.png",
 	}
 }
